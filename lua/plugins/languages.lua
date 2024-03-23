@@ -36,6 +36,7 @@ return {
     "williamboman/mason.nvim",
     opts = {
       ensure_installed = {
+        "black",
         "stylua",
         "shfmt",
         "shellcheck",
@@ -43,6 +44,7 @@ return {
         "pyright",
         "prettier",
         "marksman",
+        "markdownlint",
         "rust-analyzer",
         "clangd",
         "ruff-lsp",
