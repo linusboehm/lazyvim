@@ -28,7 +28,7 @@ function M.IsInList(v, list)
   return false
 end
 
-local function dump2(o, indent)
+function M.dump2(o, indent)
   indent = indent or ""
   if o == nil then
     return ""
@@ -39,7 +39,7 @@ local function dump2(o, indent)
   for key, value in pairs(o) do
     if type(value) == "table" then
       print(indent .. tostring(key) .. ": ")
-      dump(value, indent .. " ")
+      M.dump2(value, indent .. " ")
     else
       print(indent .. tostring(key) .. ": " .. tostring(value))
     end
