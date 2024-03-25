@@ -10,7 +10,7 @@ opt.clipboard = "unnamedplus" -- Sync with system clipboard
 opt.conceallevel = 0 -- Hide * markup for bold and italic
 opt.inccommand = "nosplit" -- preview incremental substitute
 
-vim.g.autoformat = true
+vim.g.autoformat = false
 
 -- avoid "write partial file message" when saving in visual mode
 vim.cmd("cabbrev <expr> w getcmdtype()==':' && getcmdline() == \"'<,'>w\" ? '<c-u>w' : 'w'")
