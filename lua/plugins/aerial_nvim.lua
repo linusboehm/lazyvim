@@ -4,29 +4,32 @@ local misc_util = require("util.misc")
 local function find_tokens(bufnr, tokens)
   local ret_lines = {}
   local ret_tokens = {}
+  local match_ranges = {}
   local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
   for lineno, line in ipairs(lines) do
     for _, token in pairs(tokens) do
-      if string.match(line, "^%s*" .. token .. ":") then
+      local found = string.match(line, "^%s*" .. token .. ":")
+      if found then
         table.insert(ret_lines, lineno)
         table.insert(ret_tokens, token)
+        table.insert(match_ranges, { #found - #token - 1, #found - 1 })
       end
     end
   end
-  return ret_lines, ret_tokens
+  return ret_lines, ret_tokens, match_ranges
 end
 
-local function add_custom_token(items, level, parent, curr_line, acc_spec)
+local function add_custom_token(items, level, parent, curr_line, token, match_range)
   local acc_range = {
     lnum = curr_line,
     end_lnum = curr_line,
-    col = 1,
-    end_col = 1,
+    col = match_range[1],
+    end_col = match_range[2],
   }
   ---@type aerial.Symbol
   local access_specifier_item = {
     kind = "Enum",
-    name = acc_spec,
+    name = token,
     level = level,
     parent = parent,
     selection_range = acc_range,
@@ -40,10 +43,10 @@ local function add_custom_token(items, level, parent, curr_line, acc_spec)
   table.insert(parent.children, access_specifier_item)
 end
 
-local function _process_symbols(bufnr, items, token_lines, tokens)
+local function _process_symbols(bufnr, items, token_lines, tokens, match_ranges)
   for _, item in ipairs(items) do
     if item.children then
-      _process_symbols(bufnr, item.children, token_lines, tokens)
+      _process_symbols(bufnr, item.children, token_lines, tokens, match_ranges)
     end
 
     local added = {}
@@ -51,7 +54,7 @@ local function _process_symbols(bufnr, items, token_lines, tokens)
       -- add access specifier if its before the end of last seen class
       if curr_line > item.lnum and curr_line < item.end_lnum then
         local new_level = item.level + 1
-        add_custom_token(item.children, new_level, item, curr_line, tokens[idx])
+        add_custom_token(item.children, new_level, item, curr_line, tokens[idx], match_ranges[idx])
         table.insert(added, idx)
       end
     end
@@ -72,23 +75,22 @@ local function _process_symbols(bufnr, items, token_lines, tokens)
         local idx = added[i]
         table.remove(tokens, idx)
         table.remove(token_lines, idx)
+        table.remove(match_ranges, idx)
       end
     end
   end
 end
 
 local post_proccess = function(bufnr, items, ctx)
-  local token_lines, tokens = find_tokens(bufnr, { "public", "private", "protected" })
-  _process_symbols(bufnr, items, token_lines, tokens)
+  local token_lines, tokens, match_ranges = find_tokens(bufnr, { "public", "private", "protected" })
+  _process_symbols(bufnr, items, token_lines, tokens, match_ranges)
   return items
 end
 
 return {
   desc = "Aerial Symbol Browser",
   {
-    -- "stevearc/aerial.nvim",
-    "linusboehm/aerial.nvim",
-    -- branch = "my_features",
+    "stevearc/aerial.nvim",
     event = "LazyFile",
     opts = function()
       -- local icons = vim.deepcopy(Config.icons.kinds)

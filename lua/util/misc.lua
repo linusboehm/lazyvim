@@ -61,7 +61,7 @@ function M.dump(o)
   end
 end
 
-local function go_to_text_buffer()
+function M.go_to_text_buffer()
   -- vim.print("trying to open: " .. filename)
   local skip_types = { "aerial", "neo-tree" }
   vim.api.nvim_command([[wincmd k]])
@@ -73,7 +73,7 @@ local function go_to_text_buffer()
 end
 
 function M.open_file_at_location(filename, line_nr, col_nr)
-  go_to_text_buffer()
+  M.go_to_text_buffer()
   vim.cmd("e" .. filename)
   vim.api.nvim_win_set_cursor(0, { tonumber(line_nr), tonumber(col_nr) - 1 })
 end
