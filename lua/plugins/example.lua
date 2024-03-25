@@ -44,7 +44,7 @@ return {
       require("nvim-autopairs").setup({})
     end,
   },
-  -- add gruvbox
+  -- add nightfox
   { "EdenEast/nightfox.nvim" },
   -- -- Configure LazyVim to load gruvbox
   -- { "LazyVim/LazyVim", opts = { colorscheme = "nightfox" } },

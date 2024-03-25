@@ -33,8 +33,8 @@ vim.api.nvim_create_autocmd("FileType", {
   pattern = { "h", "cpp", "c", "proto" },
   callback = function()
     vim.opt_local.commentstring = "// %s"
-    vim.opt.shiftwidth = 2 -- Size of an indent
-    vim.opt.tabstop = 2 -- Number of spaces tabs count for
+    -- vim.opt.shiftwidth = 2 -- Size of an indent
+    -- vim.opt.tabstop = 2 -- Number of spaces tabs count for
   end,
 })
 
@@ -61,37 +61,6 @@ vim.api.nvim_create_autocmd("FileType", {
 --     if mark[1] > 0 and mark[1] <= lcount then
 --       pcall(vim.api.nvim_win_set_cursor, 0, mark)
 --     end
---   end,
--- })
---
--- -- close some filetypes with <q>
--- vim.api.nvim_create_autocmd("FileType", {
---   group = augroup("close_with_q"),
---   pattern = {
---     "PlenaryTestPopup",
---     "help",
---     "lspinfo",
---     "man",
---     "notify",
---     "qf",
---     "spectre_panel",
---     "startuptime",
---     "tsplayground",
---     "checkhealth",
---   },
---   callback = function(event)
---     vim.bo[event.buf].buflisted = false
---     vim.keymap.set("n", "q", "<cmd>close<cr>", { buffer = event.buf, silent = true })
---   end,
--- })
---
--- -- change indent for lua style to 2
--- vim.api.nvim_create_autocmd("FileType", {
---   group = augroup("set_indent"),
---   pattern = { "lua" },
---   callback = function()
---     vim.opt.shiftwidth = 2 -- Size of an indent
---     vim.opt.tabstop = 2 -- Number of spaces tabs count for
 --   end,
 -- })
 --
@@ -166,7 +135,7 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
--- enable syntax highlighting for log files
+-- enable syntax highlighting for CMake files
 vim.api.nvim_create_autocmd({ "BufNewFile", "BufRead" }, {
   group = augroup("set_syntax"),
   pattern = "*CMake*.txt",

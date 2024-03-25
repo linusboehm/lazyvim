@@ -4,6 +4,7 @@ return {
   {
     "akinsho/toggleterm.nvim",
     version = "*",
+    event = "VeryLazy",
     keys = {
       {
         mode = { "n" },

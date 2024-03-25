@@ -99,3 +99,14 @@ map("n", "<leader>wu", "<C-W>=<cmd>resize -10<cr>", { desc = "Unfocus window" })
 -- git-worktree
 -- stylua: ignore
 map( "n", "<Leader>gw", "<CMD>lua require('telescope').extensions.git_worktree.git_worktrees()<CR>", { desc = "git worktree" })
+
+vim.keymap.del("n", "<C-k>")
+vim.keymap.del("t", "<C-k>")
+map("n", "<C-k>", function()
+  vim.api.nvim_command([[wincmd k]])
+  misc_util.go_to_text_buffer()
+end, { desc = "Go to upper window" })
+map("t", "<C-K>", function()
+  vim.api.nvim_command()
+  misc_util.go_to_text_buffer()
+end, { desc = "Go to upper window" })
