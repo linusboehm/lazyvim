@@ -14,29 +14,24 @@ return {
       { "]b", "<cmd>BufferLineCycleNext<cr>", desc = "Next buffer" },
     },
   },
-  -- { "nvimtools/nvim-lint", enabled = false },
   {
-    "nvimtools/none-ls.nvim",
-    opts = function(_, opts)
-      local nls = require("null-ls")
-      local function remove_entry(tbl, val)
-        for i, v in ipairs(tbl) do
-          if v == val then
-            return table.remove(tbl, i)
-          end
-        end
-      end
-      remove_entry(opts.sources, nls.builtins.diagnostics.markdownlint)
-      remove_entry(opts.sources, nls.builtins.formatting.prettier)
-      remove_entry(opts.sources, nls.builtins.formatting.black)
-      opts.sources = vim.list_extend(opts.sources or {}, {
-        -- nls.builtins.diagnostics.markdownlint,
-        nls.builtins.diagnostics.markdownlint.with({ extra_args = { "--config", "/home/lboehm/.markdownlint.yaml" } }),
-        nls.builtins.formatting.prettier.with({ extra_args = { "--print-width", "100", "--prose-wrap", "always" } }),
-        nls.builtins.formatting.black.with({ extra_args = { "--fast" } }),
-      })
-    end,
+    "mfussenegger/nvim-lint",
+    opts = {
+      events = { "BufWritePost", "BufReadPost", "InsertLeave" },
+      linters_by_ft = {
+        lua = { "selene" },
+        markdown = { "markdownlint" },
+        cmake = { "cmakelint" },
+        dockerfile = { "hadolint" },
+      },
+      linters = {
+        markdownlint = {
+          args = { "--config", "/home/lboehm/.markdownlint.yaml" },
+        },
+      },
+    },
   },
+  { "nvimtools/none-ls.nvim", enabled = false },
   {
     "windwp/nvim-autopairs",
     event = "VeryLazy",
@@ -54,6 +49,7 @@ return {
     keys = {
       { "<leader>bh", "<Cmd>BufferLineMovePrev<CR>", desc = "move current buffer backwards" },
       { "<leader>bl", "<Cmd>BufferLineMoveNext<CR>", desc = "move current buffer forwards" },
+      { "<leader>br", false },
     },
   },
   -- { "stevearc/aerial.nvim", false },

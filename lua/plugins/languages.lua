@@ -38,6 +38,7 @@ return {
       ensure_installed = {
         "black",
         "stylua",
+        "selene",
         "shfmt",
         "shellcheck",
         "flake8",
@@ -48,7 +49,8 @@ return {
         "rust-analyzer",
         "clangd",
         "ruff-lsp",
-        "cmakelang", -- for cmake_lint
+        "cmakelang",
+        "cmakelint", -- for cmake_lint
       },
     },
   },
