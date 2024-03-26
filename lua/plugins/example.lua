@@ -14,7 +14,7 @@ return {
       { "]b", "<cmd>BufferLineCycleNext<cr>", desc = "Next buffer" },
     },
   },
-  { "nvimtools/nvim-lint", enabled = false },
+  -- { "nvimtools/nvim-lint", enabled = false },
   {
     "nvimtools/none-ls.nvim",
     opts = function(_, opts)
