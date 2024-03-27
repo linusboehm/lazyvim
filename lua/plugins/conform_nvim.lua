@@ -4,9 +4,13 @@ return {
     optional = true,
     opts = {
       formatters_by_ft = {
+        ["cmake"] = { "cmake_format" },
+        ["cpp"] = { "clang_format" },
         ["markdown"] = { { "prettierd", "prettier" }, "markdownlint" },
         ["markdown.mdx"] = { { "prettierd", "prettier" } },
-        ["cmake"] = { "cmake_format" },
+        ["python"] = { "ruff_fix", "isort", "darker" },
+        ["shell"] = { "shfmt", "shellharden" },
+        ["_"] = { "trim_whitespace" },
       },
       formatters = {
         shfmt = {

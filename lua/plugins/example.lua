@@ -19,10 +19,12 @@ return {
     opts = {
       events = { "BufWritePost", "BufReadPost", "InsertLeave" },
       linters_by_ft = {
+        cmake = { "cmakelint" },
+        cpp = { "cpplint" },
+        dockerfile = { "hadolint" },
         lua = { "selene" },
         markdown = { "markdownlint" },
-        cmake = { "cmakelint" },
-        dockerfile = { "hadolint" },
+        proto = { "protolint" },
       },
       linters = {
         markdownlint = {
