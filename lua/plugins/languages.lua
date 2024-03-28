@@ -36,7 +36,8 @@ return {
     "williamboman/mason.nvim",
     opts = {
       ensure_installed = {
-        "black",
+        -- "black",
+        "darker",
         "stylua",
         "selene",
         "shfmt",
@@ -53,6 +54,7 @@ return {
         "protolint",
         "clang-format",
         "ruff-lsp",
+        "shellharden",
         "cmakelang",
         "cmakelint", -- for cmake_lint
       },
