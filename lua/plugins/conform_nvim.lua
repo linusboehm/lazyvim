@@ -1,3 +1,4 @@
+local prettier = { "prettier", "prettierd" }
 return {
   {
     "stevearc/conform.nvim",
@@ -5,8 +6,8 @@ return {
       formatters_by_ft = {
         ["cmake"] = { "cmake_format" },
         ["cpp"] = { "clang_format" },
-        ["markdown"] = { { "prettierd", "prettier" }, "markdownlint" },
-        ["markdown.mdx"] = { { "prettierd", "prettier" } },
+        ["markdown"] = { prettier, "markdownlint" },
+        ["markdown.mdx"] = { prettier },
         ["python"] = { "ruff_fix", "isort", "darker" },
         ["shell"] = { "shfmt", "shellharden" },
         ["gitcommit"] = { "prettier_gitcommit" },
@@ -23,7 +24,7 @@ return {
           prepend_args = { "--print-width", "100", "--prose-wrap", "always" },
         },
         prettier_gitcommit = {
-          command = "format_git.sh"
+          command = "format_git.sh",
         },
       },
     },
