@@ -112,6 +112,7 @@ return {
         backends = { "lsp", "treesitter", "markdown", "man" },
         show_guides = true,
         layout = {
+          max_width = { 30, 0.2 },
           default_direction = "prefer_left",
           resize_to_content = true,
           -- win_opts = {
