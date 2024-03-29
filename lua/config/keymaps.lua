@@ -17,10 +17,15 @@ map("n", "V", "v$")
 map("n", "E", "$")
 
 -- Resize window using <ctrl> arrow keys
-map("n", "<C-Up>", "<cmd>resize +10<cr>", { desc = "Increase window height" })
-map("n", "<C-Down>", "<cmd>resize -10<cr>", { desc = "Decrease window height" })
-map("n", "<C-Left>", "<cmd>vertical resize -10<cr>", { desc = "Decrease window width" })
-map("n", "<C-Right>", "<cmd>vertical resize +10<cr>", { desc = "Increase window width" })
+vim.keymap.del("n", "<C-Up>")
+vim.keymap.del("n", "<C-Down>")
+vim.keymap.del("n", "<C-Left>")
+vim.keymap.del("n", "<C-Right>")
+
+map({ "n", "v", "i", "t" }, "<C-Up>", "<cmd>resize +10<cr>", { desc = "Increase window height" })
+map({ "n", "v", "i", "t" }, "<C-Down>", "<cmd>resize -10<cr>", { desc = "Decrease window height" })
+map({ "n", "v", "i", "t" }, "<C-Left>", "<cmd>vertical resize -10<cr>", { desc = "Decrease window width" })
+map({ "n", "v", "i", "t" }, "<C-Right>", "<cmd>vertical resize +10<cr>", { desc = "Increase window width" })
 
 -- -- Move Lines
 -- map("n", "<A-j>", "<cmd>m .+1<cr>==", { desc = "Move down" })

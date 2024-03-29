@@ -9,6 +9,7 @@ local opt = vim.opt
 opt.clipboard = "unnamedplus" -- Sync with system clipboard
 opt.conceallevel = 0 -- Hide * markup for bold and italic
 opt.inccommand = "nosplit" -- preview incremental substitute
+opt.colorcolumn = "100" -- mark column
 
 vim.g.autoformat = false
 
