@@ -1,5 +1,5 @@
 -- local Config = require("lazyvim.config")
-local misc_util = require("util.misc")
+-- local misc_util = require("util.misc")
 
 local function find_tokens(bufnr, tokens)
   local ret_lines = {}
@@ -81,7 +81,7 @@ local function _process_symbols(bufnr, items, token_lines, tokens, match_ranges)
   end
 end
 
-local post_proccess = function(bufnr, items, ctx)
+local post_proccess = function(bufnr, items, _)
   local token_lines, tokens, match_ranges = find_tokens(bufnr, { "public", "private", "protected" })
   _process_symbols(bufnr, items, token_lines, tokens, match_ranges)
   return items
@@ -143,7 +143,16 @@ return {
       return opts
     end,
     keys = {
-      { "<leader>a", "<cmd>AerialToggle<cr>", desc = "Aerial (Symbols)" },
+      {
+        "<leader>a",
+        function()
+          vim.cmd("AerialToggle")
+          if vim.bo.filetype == "aerial" then
+            vim.cmd([[wincmd p]])
+          end
+        end,
+        desc = "Aerial (Symbols)",
+      },
     },
   },
 
