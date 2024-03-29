@@ -10,6 +10,7 @@ return {
         lua = { "selene" },
         markdown = { "markdownlint" },
         proto = { "protolint" },
+        sh = { "shellcheck" },
       },
       linters = {
         markdownlint = {

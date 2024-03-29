@@ -10,6 +10,7 @@ return {
         ["markdown.mdx"] = { prettier },
         ["python"] = { "ruff_fix", "isort", "darker" },
         ["shell"] = { "shfmt", "shellharden" },
+        ["sh"] = { "shfmt", "shellharden" },
         ["gitcommit"] = { "prettier_gitcommit" },
         ["_"] = { "trim_whitespace" },
       },
