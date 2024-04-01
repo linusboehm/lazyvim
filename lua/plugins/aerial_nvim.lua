@@ -130,6 +130,7 @@ return {
         -- icons = icons,
         -- filter_kind = filter_kind,
         -- stylua: ignore
+        filter_kind = { "Class", "Constructor", "Enum", "Function", "Interface", "Module", "Method", "String", "Struct" },
         guides = {
           mid_item = "├╴",
           last_item = "└╴",
