@@ -16,6 +16,15 @@ return {
         markdownlint = {
           args = { "--config", "/home/lboehm/.markdownlint.yaml" },
         },
+        shellcheck = {
+          args = {
+            "--format",
+            "json",
+            "-e",
+            "SC1091,2164,2059",
+            "-",
+          },
+        },
       },
     },
   },
