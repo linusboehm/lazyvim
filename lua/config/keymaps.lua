@@ -100,7 +100,16 @@ map("n", "<leader>ws", "<C-W>x", { desc = "Switch/x-change windows" })
 map("n", "<leader>-", "<C-W>s", { desc = "Split window below" })
 map("n", "<leader>|", "<C-W>v", { desc = "Split window right" })
 map("n", "<leader>wf", "<C-W>|<C-W>_", { desc = "Focus window" })
-map("n", "<leader>wu", "<C-W>=<cmd>resize -10<cr>", { desc = "Unfocus window" })
+map("n", "<leader>wu", function()
+  vim.cmd("wincmd =")
+  if vim.bo.filetype == "toggleterm" then
+    vim.api.nvim_win_set_height(0, 12)
+  else
+    local current_height = vim.api.nvim_win_get_height(0)
+    local new_height = current_height - 12
+    vim.api.nvim_win_set_height(0, new_height)
+  end
+end, { desc = "Unfocus window" })
 
 -- git-worktree
 -- stylua: ignore
