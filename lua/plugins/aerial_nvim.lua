@@ -54,6 +54,9 @@ local function _process_symbols(bufnr, items, token_lines, tokens, match_ranges)
       -- add access specifier if its before the end of last seen class
       if curr_line > item.lnum and curr_line < item.end_lnum then
         local new_level = item.level + 1
+        if not item.children then
+          item["children"] = {}
+        end
         add_custom_token(item.children, new_level, item, curr_line, tokens[idx], match_ranges[idx])
         table.insert(added, idx)
       end
