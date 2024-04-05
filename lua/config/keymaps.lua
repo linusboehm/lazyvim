@@ -99,17 +99,30 @@ vim.keymap.del("n", "<leader>w|") -- , "<C-W>v"), { desc = "Split window right" 
 map("n", "<leader>ws", "<C-W>x", { desc = "Switch/x-change windows" })
 map("n", "<leader>-", "<C-W>s", { desc = "Split window below" })
 map("n", "<leader>|", "<C-W>v", { desc = "Split window right" })
-map("n", "<leader>wf", "<C-W>|<C-W>_", { desc = "Focus window" })
-map("n", "<leader>wu", function()
-  vim.cmd("wincmd =")
-  if vim.bo.filetype == "toggleterm" then
-    vim.api.nvim_win_set_height(0, 12)
-  else
-    local current_height = vim.api.nvim_win_get_height(0)
-    local new_height = current_height - 12
-    vim.api.nvim_win_set_height(0, new_height)
+-- map({ "n", "v", "c" }, "<C-I>", "<C-W>|<C-W>_", { desc = "Focus window" })
+map({ "n", "v", "i", "t" }, "<C-I>", function()
+  local current_height = vim.api.nvim_win_get_height(0)
+  local current_width = vim.api.nvim_win_get_width(0)
+  local max_height = vim.api.nvim_get_option("lines")
+  local max_width = vim.api.nvim_get_option("columns")
+
+  local minimize = function ()
+    vim.cmd("wincmd =")
+    if vim.bo.filetype == "toggleterm" then
+      vim.api.nvim_win_set_height(0, 12)
+    else
+      local new_height = current_height - 12
+      vim.api.nvim_win_set_height(0, new_height)
+    end
   end
-end, { desc = "Unfocus window" })
+
+  if current_height > max_height - 20 and current_width > max_width - 20 then
+    minimize()
+  else
+    vim.cmd("wincmd |")
+    vim.cmd("wincmd _")
+  end
+end, { desc = "Toggle window focus" })
 
 -- git-worktree
 -- stylua: ignore
