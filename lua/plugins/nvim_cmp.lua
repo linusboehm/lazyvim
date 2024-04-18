@@ -81,6 +81,7 @@ return {
       opts.sources = cmp.config.sources({
         -- suggestions are in this order!!!
         { name = "nvim_lsp" },
+        { name = "copilot" },
         { name = "path" },
         { name = "luasnip" },
         {
