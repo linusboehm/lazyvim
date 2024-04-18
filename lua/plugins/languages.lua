@@ -32,6 +32,7 @@ return {
   { import = "lazyvim.plugins.extras.lang.python" },
   { import = "lazyvim.plugins.extras.lang.yaml" },
   { import = "lazyvim.plugins.extras.dap.core" },
+  { import = "lazyvim.plugins.extras.coding.copilot" },
 
   -- add any tools you want to have installed below
   {
