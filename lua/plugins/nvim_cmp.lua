@@ -67,6 +67,7 @@ return {
     "hrsh7th/nvim-cmp",
     dependencies = {
       "rafamadriz/friendly-snippets", -- snippets for a bunch of languages
+      "zbirenbaum/copilot.lua", -- snippets for a bunch of languages
       -- these are defaulted:
       -- "hrsh7th/cmp-buffer", "hrsh7th/cmp-nvim-lsp", "hrsh7th/cmp-path"
     },

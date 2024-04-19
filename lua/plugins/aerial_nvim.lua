@@ -148,7 +148,7 @@ return {
     end,
     keys = {
       {
-        "<leader>a",
+        "<leader>ua",
         function()
           vim.cmd("AerialToggle")
           if vim.bo.filetype == "aerial" then
