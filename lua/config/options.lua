@@ -12,6 +12,3 @@ opt.inccommand = "nosplit" -- preview incremental substitute
 opt.colorcolumn = "100" -- mark column
 
 vim.g.autoformat = false
-
--- avoid "write partial file message" when saving in visual mode
-vim.cmd("cabbrev <expr> w getcmdtype()==':' && getcmdline() == \"'<,'>w\" ? '<c-u>w' : 'w'")

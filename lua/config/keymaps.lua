@@ -138,3 +138,6 @@ map("t", "<C-K>", function()
   vim.api.nvim_command()
   misc_util.go_to_text_buffer()
 end, { desc = "Go to upper window" })
+
+-- avoid "write partial file message" when saving in visual mode
+map('c', 'w', [[getcmdline() =~ "'<,'>" ? '<c-u>w' : 'w']], {expr = true, noremap = true})
