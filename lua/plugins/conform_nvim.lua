@@ -10,6 +10,7 @@ return {
         ["cmake"] = { "cmake_format" },
         ["cpp"] = { "clang_format" },
         ["markdown"] = { prettier, "markdownlint" },
+        ["sql"] = {"sql_formatter", "sqlfluff"},
         ["markdown.mdx"] = { prettier },
         -- ["python"] = { "ruff_fix", "isort", "darker" },
         ["python"] = {},
