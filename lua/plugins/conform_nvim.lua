@@ -36,6 +36,18 @@ return {
     },
     keys = {
       {
+        mode = { "v" },
+        "<Leader>cf",
+        function()
+          require("conform").format({ async = true, lsp_fallback = true }, function()
+            vim.defer_fn(function()
+              vim.api.nvim_input("<esc>")
+            end, 1)
+          end)
+        end,
+        desc = "Format",
+      },
+      {
         "<leader>ch",
         function()
           local ignore_filetypes = { "lua" }
