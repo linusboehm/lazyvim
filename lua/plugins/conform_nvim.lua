@@ -10,7 +10,7 @@ return {
         ["cmake"] = { "cmake_format" },
         ["cpp"] = { "clang_format" },
         ["markdown"] = { prettier, "markdownlint" },
-        ["sql"] = {"sql_formatter", "sqlfluff"},
+        ["sql"] = { "sql_formatter", "sqlfluff" },
         ["markdown.mdx"] = { prettier },
         -- ["python"] = { "ruff_fix", "isort", "darker" },
         ["python"] = {},
@@ -80,7 +80,7 @@ return {
               -- nvim_buf_get_lines uses zero-based indexing -> subtract from last
               local last_hunk_line = vim.api.nvim_buf_get_lines(0, last - 2, last - 1, true)[1]
               local range = { start = { start, 0 }, ["end"] = { last - 1, last_hunk_line:len() } }
-              format({ range = range, async = true }, function()
+              format({ range = range, async = true, lsp_fallback = true }, function()
                 vim.defer_fn(function()
                   format_range()
                 end, 1)
