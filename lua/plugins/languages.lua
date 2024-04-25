@@ -19,6 +19,7 @@ return {
         "sql",
         "vim",
         "yaml",
+        "vimdoc",
       },
       highlight = {
         enable = true,
