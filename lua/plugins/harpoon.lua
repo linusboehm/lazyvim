@@ -3,6 +3,8 @@ local misc_util = require("util.misc")
 return {
   "ThePrimeagen/harpoon",
   event = "VeryLazy",
+  branch = "harpoon2",
+
 
   keys = function()
     local harpoon = require("harpoon")
@@ -12,7 +14,7 @@ return {
       {
         "<leader>ha",
         function()
-          harpoon:list():append()
+          harpoon:list():add()
         end,
         desc = "Harpoon File",
       },
