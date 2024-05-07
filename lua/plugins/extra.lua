@@ -185,6 +185,15 @@ return {
         untracked = { text = "┆" },
       },
     },
+    keys = {
+      {
+        "<leader>ghB",
+        function()
+          require("gitsigns").toggle_current_line_blame()
+        end,
+        desc = "Blame current line",
+      },
+    },
   },
 
   -- makes some plugins dot-repeatable like leap
