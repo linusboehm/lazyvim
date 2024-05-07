@@ -141,3 +141,6 @@ end, { desc = "Go to upper window" })
 
 -- avoid "write partial file message" when saving in visual mode
 map('c', 'w', [[getcmdline() =~ "'<,'>" ? '<c-u>w' : 'w']], {expr = true, noremap = true})
+
+vim.api.nvim_command('iabbrev ltodo TODO(lboehm):')
+vim.api.nvim_command('iabbrev lnote NOTE(lboehm):')
