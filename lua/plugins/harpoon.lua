@@ -14,7 +14,7 @@ return {
       {
         "<leader>ha",
         function()
-          harpoon:list():add()
+          harpoon:list():append()
         end,
         desc = "Harpoon File",
       },
