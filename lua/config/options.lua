@@ -11,4 +11,6 @@ opt.conceallevel = 0 -- Hide * markup for bold and italic
 opt.inccommand = "nosplit" -- preview incremental substitute
 opt.colorcolumn = "100" -- mark column
 
+vim.g.lazygit_config = false
+
 vim.g.autoformat = false
