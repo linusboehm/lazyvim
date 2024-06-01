@@ -35,8 +35,8 @@ return {
     { "<leader>sf", Util.telescope("files"), desc = "Find Files (root dir)" },
     { "<leader>sF", Util.telescope("files", { cwd = false }), desc = "Find Files (cwd)" },
     { "<leader>br", "<cmd>Telescope oldfiles<cr>", desc = "Recent" },
-    { "<leader>sw", Util.telescope("grep_string"), desc = "Word (root dir)" },
-    { "<leader>sW", Util.telescope("grep_string", { cwd = false }), desc = "Word (cwd)" },
+    { "<leader>sw", Util.telescope("grep_string"), desc = "Word under cursor (root dir)" },
+    { "<leader>sW", Util.telescope("grep_string", { grep_open_files = true }), desc = "Word in buffers" },
     -- find
     { "<leader>fb", false }, --, "<cmd>Telescope buffers sort_mru=true sort_lastused=true<cr>", desc = "Buffers" },
     { "<leader>fc", false }, --, LazyVim.telescope.config_files(), desc = "Find Config File" },
