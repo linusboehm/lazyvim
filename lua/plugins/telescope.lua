@@ -1,4 +1,5 @@
 local Util = require("lazyvim.util")
+local Misc = require("util.misc")
 
 return {
   "nvim-telescope/telescope.nvim",
@@ -32,10 +33,14 @@ return {
       }),
       desc = "Search in buffers",
     },
-    { "<leader>sf", Util.telescope("files"), desc = "Find Files (root dir)" },
+    { "<leader>sf", Util.telescope("files", { cwd = Misc.get_git_root() }), desc = "Find Files (root dir)" },
     { "<leader>sF", Util.telescope("files", { cwd = false }), desc = "Find Files (cwd)" },
     { "<leader>br", "<cmd>Telescope oldfiles<cr>", desc = "Recent" },
-    { "<leader>sw", Util.telescope("grep_string"), desc = "Word under cursor (root dir)" },
+    {
+      "<leader>sw",
+      Util.telescope("grep_string", { cwd = Misc.get_git_root() }),
+      desc = "Word under cursor (root dir)",
+    },
     { "<leader>sW", Util.telescope("grep_string", { grep_open_files = true }), desc = "Word in buffers" },
     -- find
     { "<leader>fb", false }, --, "<cmd>Telescope buffers sort_mru=true sort_lastused=true<cr>", desc = "Buffers" },
