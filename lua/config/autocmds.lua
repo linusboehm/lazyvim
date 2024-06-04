@@ -63,6 +63,23 @@ vim.api.nvim_create_autocmd("FileType", {
 --     end
 --   end,
 -- })
+
+-- add current git repo to search path
+vim.api.nvim_create_autocmd({ "BufEnter" }, {
+  group = augroup("gitroot"),
+  callback = function()
+    local misc_util = require("util.misc")
+    local git_root = misc_util.get_git_root()
+    if git_root ~= "/" then
+      local path = vim.o.path
+      if not string.find(path, git_root, 1, true) then
+        print(vim.o.path)
+        vim.o.path = path .. "," .. git_root .. "/"
+        print(vim.o.path)
+      end
+    end
+  end,
+})
 --
 -- -- enable syntax highlighting for log files
 -- vim.api.nvim_create_autocmd({ "BufNewFile", "BufRead" }, {
