@@ -126,9 +126,13 @@ local open_python_file = function(line)
 end
 
 local function get_curr_search_match()
+  -- save current cursor position
+  local row, col = unpack(vim.api.nvim_win_get_cursor(0))
   vim.api.nvim_feedkeys('gn"ly', "x", false)
   local selection = vim.fn.getreg("l")
   selection = string.gsub(selection, "[\n\r]", "")
+  -- reset cursor position
+  vim.api.nvim_win_set_cursor(0, { row, col })
   return selection
 end
 
