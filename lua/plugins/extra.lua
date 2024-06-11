@@ -1,12 +1,17 @@
 local misc = require("util.misc")
 
 return {
+  {
+    "lukas-reineke/indent-blankline.nvim",
+    main = "ibl",
+    commit = "29be0919b91fb59eca9e90690d76014233392bef",
+  },
 
   {
     "folke/todo-comments.nvim",
     opts = {
       highlight = {
-        pattern = { [[.*<(KEYWORDS)\s*:]], [[.*<(KEYWORDS)\s*\(\w+\):]] },
+        pattern = { [=[.*<(KEYWORDS)\s*:[^:]]=], [=[.*<(KEYWORDS)\s*\(\w+\):[^:]]=] },
       },
       search = {
         -- pattern = [[\b(KEYWORDS)\s*(\(\w+\))?:]],
