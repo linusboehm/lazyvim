@@ -18,7 +18,7 @@ return {
       "<cmd>Telescope buffers sort_mru=true sort_lastused=true<cr>",
       desc = "Switch Buffer",
     },
-    -- { "<leader>/", LazyVim.telescope("live_grep"), desc = "Grep (root dir)" },
+    { "<leader>/", LazyVim.telescope("live_grep", { cwd = Misc.get_git_root() }), desc = "Grep (root dir)" },
     { "gc", "<cmd>Telescope lsp_incoming_calls<cr>", desc = "Goto incoming calls" },
     { "<leader>;", "<cmd>Telescope command_history<cr>", desc = "Command History" },
     { "<leader><space>", false }, --, LazyVim.telescope("files"), desc = "Find Files (root dir)" },
