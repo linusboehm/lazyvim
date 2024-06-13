@@ -6,6 +6,7 @@ return {
   },
   {
     "L3MON4D3/LuaSnip",
+    -- enabled = false,
     keys = function()
       return {}
     end,
@@ -21,6 +22,7 @@ return {
 
   {
     "hrsh7th/nvim-cmp",
+    -- enabled = false,
     dependencies = {
       "rafamadriz/friendly-snippets", -- snippets for a bunch of languages
       "zbirenbaum/copilot.lua", -- snippets for a bunch of languages
@@ -76,15 +78,15 @@ return {
             end
           end,
           s = cmp.mapping.confirm({ select = true }),
-          c = cmp.mapping.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = true }),
+          c = cmp.mapping.confirm({ behavior = cmp.ConfirmBehavior.Replace }),
         }),
       })
 
       opts.sources = cmp.config.sources({
         -- suggestions are in this order!!!
         { name = "nvim_lsp" },
-        { name = "copilot" },
         { name = "path" },
+        { name = "copilot" },
         { name = "luasnip" },
         {
           name = "buffer",
