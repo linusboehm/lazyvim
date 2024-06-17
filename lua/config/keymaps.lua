@@ -144,3 +144,6 @@ map('c', 'w', [[getcmdline() =~ "'<,'>" ? '<c-u>w' : 'w']], {expr = true, norema
 
 vim.api.nvim_command('iabbrev ltodo TODO(lboehm):')
 vim.api.nvim_command('iabbrev lnote NOTE(lboehm):')
+vim.api.nvim_command('iabbrev <expr>dd strftime("%e-%b-%Y")')
+vim.api.nvim_command('iabbrev <expr>tt strftime("%H:%M")')
+vim.api.nvim_command('iabbrev <expr>dt strftime("%e-%b-%Y %H:%M")')
