@@ -16,6 +16,7 @@ vim.api.nvim_create_autocmd("FileType", {
     "man",
     "notify",
     "qf",
+    "oil",
     "spectre_panel",
     "startuptime",
     "tsplayground",
