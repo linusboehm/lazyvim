@@ -207,7 +207,7 @@ return {
   { "dkarter/bullets.vim", version = "*" },
   { "ThePrimeagen/git-worktree.nvim" },
   { "folke/flash.nvim", opts = { modes = { search = { enabled = false } } } },
-  -- { "opdavies/toggle-checkbox.nvim", version = "*" },
+  { "opdavies/toggle-checkbox.nvim", enabled = false, version = "*" },
 
   {
     "echasnovski/mini.comment",
