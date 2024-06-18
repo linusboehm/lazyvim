@@ -159,6 +159,7 @@ return {
   -- { "stevearc/aerial.nvim", false },
   {
     "nvim-neo-tree/neo-tree.nvim",
+    enabled = false,
     keys = {
       {
         "<leader>e",
