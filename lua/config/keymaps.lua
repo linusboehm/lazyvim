@@ -106,7 +106,7 @@ map({ "n", "v", "i", "t" }, "<C-P>", function()
   local max_height = vim.api.nvim_get_option("lines")
   local max_width = vim.api.nvim_get_option("columns")
 
-  local minimize = function ()
+  local minimize = function()
     vim.cmd("wincmd =")
     if vim.bo.filetype == "toggleterm" then
       vim.api.nvim_win_set_height(0, 12)
@@ -142,8 +142,71 @@ end, { desc = "Go to upper window" })
 -- avoid "write partial file message" when saving in visual mode
 map('c', 'w', [[getcmdline() =~ "'<,'>" ? '<c-u>w' : 'w']], {expr = true, noremap = true})
 
-vim.api.nvim_command('iabbrev ltodo TODO(lboehm):')
-vim.api.nvim_command('iabbrev lnote NOTE(lboehm):')
+vim.api.nvim_command("iabbrev ltodo TODO(lboehm):")
+vim.api.nvim_command("iabbrev lnote NOTE(lboehm):")
 vim.api.nvim_command('iabbrev <expr>dd strftime("%e-%b-%Y")')
 vim.api.nvim_command('iabbrev <expr>tt strftime("%H:%M")')
 vim.api.nvim_command('iabbrev <expr>dt strftime("%e-%b-%Y %H:%M")')
+
+local function select_multiline_comment()
+  local parser = vim.treesitter.get_parser(0)
+  local tree = parser:parse()[1]
+  local root = tree:root()
+
+  local cursor_row, _ = unpack(vim.api.nvim_win_get_cursor(0))
+  cursor_row = cursor_row - 1
+
+  local query = vim.treesitter.query.parse(
+    vim.bo.filetype,
+    [[
+      [
+        (comment) @comment
+      ]
+    ]]
+  )
+
+  local start_row, start_col, end_row, end_col
+  for _, node in query:iter_captures(root, 0, cursor_row, cursor_row + 1) do
+    local s_row, s_col, e_row, e_col = vim.treesitter.get_node_range(node)
+    if s_row <= cursor_row and e_row >= cursor_row then
+      start_row, start_col = s_row, s_col
+      end_row, end_col = e_row, e_col
+      break
+    end
+  end
+
+  if start_row and end_row then
+    -- Extend the selection upwards to include adjacent single-line comments
+    local new_start_row, new_start_col = start_row, start_col
+    while true do
+      local prev_row = new_start_row - 1
+      local prev_line = vim.fn.getline(prev_row + 1)
+      if not prev_line:match("^%s*//") then
+        break
+      end
+      new_start_row = prev_row
+      new_start_col = 0
+    end
+
+    -- Extend the selection downwards to include adjacent single-line comments
+    local new_end_row, new_end_col = end_row, end_col
+    while true do
+      local next_row = new_end_row + 1
+      local next_line = vim.fn.getline(next_row + 1)
+      if not next_line:match("^%s*//") then
+        break
+      end
+      new_end_row = next_row
+      new_end_col = #next_line
+    end
+
+    vim.fn.setpos("'<", { 0, new_start_row + 1, new_start_col + 1, 0 })
+    vim.fn.setpos("'>", { 0, new_end_row + 1, new_end_col + 1, 0 })
+    vim.cmd("normal! gv")
+  end
+end
+
+map("x", "iC", select_multiline_comment, { desc = "comment",  noremap = true, silent = true })
+map("o", "iC", select_multiline_comment, { desc = "comment",  noremap = true, silent = true })
+map("x", "aC", select_multiline_comment, { desc = "comment",  noremap = true, silent = true })
+map("o", "aC", select_multiline_comment, { desc = "comment",  noremap = true, silent = true })
