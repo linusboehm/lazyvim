@@ -140,7 +140,7 @@ map("t", "<C-K>", function()
 end, { desc = "Go to upper window" })
 
 -- avoid "write partial file message" when saving in visual mode
-map('c', 'w', [[getcmdline() =~ "'<,'>" ? '<c-u>w' : 'w']], {expr = true, noremap = true})
+map("c", "w", [[getcmdline() =~ "'<,'>" ? '<c-u>w' : 'w']], { expr = true, noremap = true })
 
 vim.api.nvim_command("iabbrev ltodo TODO(lboehm):")
 vim.api.nvim_command("iabbrev lnote NOTE(lboehm):")
@@ -148,7 +148,7 @@ vim.api.nvim_command('iabbrev <expr>dd strftime("%e-%b-%Y")')
 vim.api.nvim_command('iabbrev <expr>tt strftime("%H:%M")')
 vim.api.nvim_command('iabbrev <expr>dt strftime("%e-%b-%Y %H:%M")')
 
-local function select_multiline_comment()
+local function select_multiline_comment(outer)
   local parser = vim.treesitter.get_parser(0)
   local tree = parser:parse()[1]
   local root = tree:root()
@@ -175,13 +175,15 @@ local function select_multiline_comment()
     end
   end
 
+  local comm_string = vim.api.nvim_buf_get_option(0, "commentstring"):match("([^%s]*)"):gsub("%W", "%%%1")
+
   if start_row and end_row then
     -- Extend the selection upwards to include adjacent single-line comments
     local new_start_row, new_start_col = start_row, start_col
     while true do
       local prev_row = new_start_row - 1
       local prev_line = vim.fn.getline(prev_row + 1)
-      if not prev_line:match("^%s*//") then
+      if not prev_line:match("^%s*" .. comm_string) then
         break
       end
       new_start_row = prev_row
@@ -193,11 +195,21 @@ local function select_multiline_comment()
     while true do
       local next_row = new_end_row + 1
       local next_line = vim.fn.getline(next_row + 1)
-      if not next_line:match("^%s*//") then
+      if not next_line:match("^%s*" .. comm_string) then
         break
       end
       new_end_row = next_row
       new_end_col = #next_line
+    end
+
+    if outer then
+      -- delete consecutive empty lines
+      local prev_line = vim.fn.getline(new_start_row)
+      local next_line = vim.fn.getline(new_end_row + 2)
+      if prev_line == "" and next_line == "" then
+        new_start_row = new_start_row - 1
+        new_start_col = 0
+      end
     end
 
     vim.fn.setpos("'<", { 0, new_start_row + 1, new_start_col + 1, 0 })
@@ -206,7 +218,14 @@ local function select_multiline_comment()
   end
 end
 
-map("x", "iC", select_multiline_comment, { desc = "comment",  noremap = true, silent = true })
-map("o", "iC", select_multiline_comment, { desc = "comment",  noremap = true, silent = true })
-map("x", "aC", select_multiline_comment, { desc = "comment",  noremap = true, silent = true })
-map("o", "aC", select_multiline_comment, { desc = "comment",  noremap = true, silent = true })
+local function select_multiline_comment_inner()
+  select_multiline_comment(false)
+end
+local function select_multiline_comment_outer()
+  select_multiline_comment(true)
+end
+
+map("x", "iC", select_multiline_comment_inner, { desc = "comment", noremap = true, silent = true })
+map("o", "iC", select_multiline_comment_inner, { desc = "comment", noremap = true, silent = true })
+map("x", "aC", select_multiline_comment_outer, { desc = "comment", noremap = true, silent = true })
+map("o", "aC", select_multiline_comment_outer, { desc = "comment", noremap = true, silent = true })
