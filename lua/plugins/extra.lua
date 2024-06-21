@@ -225,9 +225,9 @@ return {
         -- Toggle comment on visual selection
         comment_visual = "<leader>cc",
 
-        -- Define 'comment' textobject (like `dgc` - delete whole comment block)
+        -- Define 'comment' textobject (like `dcc` - delete whole comment block)
         -- Works also in Visual mode if mapping differs from `comment_visual`
-        textobject = "<leader>cc",
+        textobject = "cc",
       },
     },
   },
