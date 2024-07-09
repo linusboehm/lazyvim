@@ -51,14 +51,55 @@ map("n", "<leader>pf", function()
   CoreUtil.info(path, { title = "current file name" })
 end, { desc = "print current filename" })
 
+map("n", "gL", function()
+  local c_row, c_column = unpack(vim.api.nvim_win_get_cursor(0))
+  local filename = vim.fn.expand("<cfile>")
+  local line_nr_pattern = ":[0-9]"
+  local match_line_nr = vim.fn.search(filename .. line_nr_pattern, "e")
+  local line_nr = vim.fn.expand("<cword>")
+  -- move cursor back to orig position
+  vim.api.nvim_win_set_cursor(0, { c_row, c_column })
+  -- go to left most buffer
+  vim.api.nvim_command([[wincmd 100h]])
+  if match_line_nr == c_row then
+    misc_util.open_file_at_location(filename, line_nr, 1)
+  else
+    misc_util.open_file(filename)
+  end
+end, { desc = "go to file in other window" })
+
+map("n", "gl", function()
+  local c_row, c_column = unpack(vim.api.nvim_win_get_cursor(0))
+  local filename = vim.fn.expand("<cfile>")
+  local line_nr_pattern = ":[0-9]"
+  local match_line_nr = vim.fn.search(filename .. line_nr_pattern, "e")
+  local line_nr = vim.fn.expand("<cword>")
+  -- move cursor back to orig position
+  vim.api.nvim_win_set_cursor(0, { c_row, c_column })
+  -- go to left most buffer
+  vim.cmd("e" .. filename)
+  if match_line_nr == c_row then
+    vim.api.nvim_win_set_cursor(0, { tonumber(line_nr), 0 })
+  end
+end, { desc = "go to file" })
+
 -- -- Visual Block --
 -- -- Move text up and down
 -- map("x", "J", ":move '>+1<CR>gv-gv", { desc = "move text up" })
 -- map("x", "K", ":move '<-2<CR>gv-gv", { desc = "move text down" })
 
-map("n", "<leader>b1", "<cmd>bfirst<cr>", { desc = "go to firs buffer" })
+-- map("n", "<leader>b1", "<cmd>bfirst<cr>", { desc = "go to first buffer" })
+-- map("n", "<leader>b1", "<cmd>bfirst<cr>", { desc = "go to first buffer" })
+map("n", "<leader>b1", [[<cmd>lua require("bufferline").go_to_buffer(1, true)<cr>]], { desc = "go to first buffer" })
+map("n", "<leader>b2", [[<cmd>lua require("bufferline").go_to_buffer(2, true)<cr>]], { desc = "go to first buffer" })
+map("n", "<leader>b3", [[<cmd>lua require("bufferline").go_to_buffer(3, true)<cr>]], { desc = "go to first buffer" })
+map("n", "<leader>b4", [[<cmd>lua require("bufferline").go_to_buffer(4, true)<cr>]], { desc = "go to first buffer" })
+map("n", "<leader>b5", [[<cmd>lua require("bufferline").go_to_buffer(5, true)<cr>]], { desc = "go to first buffer" })
+map("n", "<leader>b6", [[<cmd>lua require("bufferline").go_to_buffer(6, true)<cr>]], { desc = "go to first buffer" })
+map("n", "<leader>b7", [[<cmd>lua require("bufferline").go_to_buffer(7, true)<cr>]], { desc = "go to first buffer" })
+map("n", "<leader>b8", [[<cmd>lua require("bufferline").go_to_buffer(8, true)<cr>]], { desc = "go to first buffer" })
 map("n", "<leader>bb", "<cmd>e #<cr>", { desc = "Switch to Other Buffer" })
--- map("n", "<leader>`", "<cmd>e #<cr>", { desc = "Switch to Other Buffer" })
+map("n", "<leader>`", "<cmd>e #<cr>", { desc = "Switch to Other Buffer" })
 
 map("n", "*", "*Nzz")
 --

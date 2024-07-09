@@ -63,7 +63,7 @@ end
 
 function M.go_to_text_buffer()
   -- vim.print("trying to open: " .. filename)
-  local skip_types = { "aerial", "neo-tree" }
+  local skip_types = { "aerial", "neo-tree", "dapui_scopes", "dapui_breakpoints", "dapui_stacks", "dapui_watches" }
   vim.api.nvim_command([[wincmd k]])
   local cnt = 0
   while M.IsInList(vim.bo.filetype, skip_types) and cnt < 5 do
@@ -72,9 +72,13 @@ function M.go_to_text_buffer()
   end
 end
 
-function M.open_file_at_location(filename, line_nr, col_nr)
+function M.open_file(filename)
   M.go_to_text_buffer()
   vim.cmd("e" .. filename)
+end
+
+function M.open_file_at_location(filename, line_nr, col_nr)
+  M.open_file(filename)
   vim.api.nvim_win_set_cursor(0, { tonumber(line_nr), tonumber(col_nr) - 1 })
 end
 
