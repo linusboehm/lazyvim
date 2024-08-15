@@ -1,5 +1,3 @@
-local misc_util = require("util.misc")
-
 return {
   "ThePrimeagen/harpoon",
   event = "VeryLazy",

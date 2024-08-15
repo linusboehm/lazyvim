@@ -121,7 +121,7 @@ return {
     },
   },
   {
-    "akinsho/bufferline.nvim",
+    "linusboehm/bufferline.nvim",
     event = "VeryLazy",
     keys = {
       { "<leader>bp", "<Cmd>BufferLineTogglePin<CR>", desc = "Toggle pin" },
@@ -133,6 +133,10 @@ return {
       { "<S-l>", "<cmd>BufferLineCycleNext<cr>", desc = "Next buffer" },
       { "[b", "<cmd>BufferLineCyclePrev<cr>", desc = "Prev buffer" },
       { "]b", "<cmd>BufferLineCycleNext<cr>", desc = "Next buffer" },
+      { "<leader>bh", "<Cmd>BufferLineMovePrev<CR>", desc = "move current buffer backwards" },
+      { "<leader>bl", "<Cmd>BufferLineMoveNext<CR>", desc = "move current buffer forwards" },
+      { "<leader>bm", "<Cmd>BufferLineManageBuffers<CR>", desc = "manage buffers" },
+      { "<leader>br", false },
     },
   },
   { "nvimtools/none-ls.nvim", enabled = false },
@@ -148,15 +152,6 @@ return {
   -- -- Configure LazyVim to load gruvbox
   -- { "LazyVim/LazyVim", opts = { colorscheme = "nightfox" } },
 
-  {
-    "akinsho/bufferline.nvim",
-    keys = {
-      { "<leader>bh", "<Cmd>BufferLineMovePrev<CR>", desc = "move current buffer backwards" },
-      { "<leader>bl", "<Cmd>BufferLineMoveNext<CR>", desc = "move current buffer forwards" },
-      { "<leader>br", false },
-    },
-  },
-  -- { "stevearc/aerial.nvim", false },
   {
     "nvim-neo-tree/neo-tree.nvim",
     enabled = false,
