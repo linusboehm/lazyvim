@@ -21,19 +21,16 @@ local recording = function(is_active)
     return {}
   end
   return {
-    require("noice").api.statusline.mode.get,
-    cond = require("noice").api.statusline.mode.has,
+    require("noice").api.status.mode.get,
+    cond = require("noice").api.status.mode.has,
     color = { fg = "#ff9e64" },
   }
 end
 
 local section_settings = function(is_active)
-  function bla()
-    function test() end
-  end
   return {
-    lualine_a = { "mode" },
-    lualine_b = {
+    lualine_a = not is_active and {} or {"mode"},
+    lualine_b = not is_active and {} or {
       -- { function() return "" end, separator = "", padding = { left = 1, right = 0 }, },
       {
         "branch",
@@ -144,11 +141,11 @@ local section_settings = function(is_active)
         end,
       },
     },
-    lualine_x = {
+    lualine_x = not is_active and {} or {
       { "searchcount", separator = "‖" },
       recording(is_active),
     },
-    lualine_y = {
+    lualine_y = not is_active and {} or {
       {
         function()
           return ""
@@ -159,7 +156,7 @@ local section_settings = function(is_active)
       { "location", padding = { left = 0, right = 1 } },
     },
     -- lualine_z = { function() return "⏱ " .. os.date("%R") end, },
-    lualine_z = {
+    lualine_z = not is_active and {} or {
       function()
         return " " .. os.date("%R")
       end,
