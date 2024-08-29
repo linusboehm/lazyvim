@@ -120,6 +120,7 @@ return {
       },
     },
   },
+  {'brenoprata10/nvim-highlight-colors', opts = {}},
   {
     "linusboehm/bufferline.nvim",
     event = "VeryLazy",
