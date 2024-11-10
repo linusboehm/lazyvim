@@ -218,7 +218,7 @@ return {
     },
     keys = {
       {
-        "<leader>ghB",
+        "<leader>ug",
         function()
           require("gitsigns").toggle_current_line_blame()
         end,

@@ -72,14 +72,22 @@ function M.go_to_text_buffer()
   end
 end
 
-function M.open_file(filename)
-  M.go_to_text_buffer()
-  vim.cmd("e" .. filename)
+function M.open_file(f)
+  if f == "" then
+    M.go_to_text_buffer()
+    Snacks.notify.warn("Couldn't find file")
+  else
+    vim.schedule(function()
+      vim.cmd("e " .. f)
+    end)
+  end
 end
 
 function M.open_file_at_location(filename, line_nr, col_nr)
-  M.open_file(filename)
-  vim.api.nvim_win_set_cursor(0, { tonumber(line_nr), tonumber(col_nr) - 1 })
+  local success = M.open_file(filename)
+  if success then
+    vim.api.nvim_win_set_cursor(0, { tonumber(line_nr), tonumber(col_nr) - 1 })
+  end
 end
 
 local function get_color_code(input)

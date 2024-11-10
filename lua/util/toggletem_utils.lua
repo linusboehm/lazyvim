@@ -3,19 +3,18 @@ local M = {}
 local misc_util = require("util.misc")
 local CoreUtil = require("lazy.core.util")
 
--- RUN LAST
-local function run_last_cmd(orig_win)
-  -- run cmd and go back to original window (enter insert mode, clear prompt run last)
-  local cmd = [[<esc>i<C-e><C-u><Up><CR><Cmd>]] .. orig_win .. [[ wincmd w<CR>]]
-  local key = vim.api.nvim_replace_termcodes(cmd, true, false, true)
+local function run_cmd(cmd)
+  local keys = [[<esc>i<C-e><C-u>]] .. cmd .. [[<CR>]]
+  local key = vim.api.nvim_replace_termcodes(keys, true, false, true)
   vim.api.nvim_feedkeys(key, "n", false)
 end
 
-local function execute_in_terminal(orig_win)
+local function go_to_terminal_and_run(cmd)
   for var = 1, 5 do
     -- term://~/repos/trading_platform/scripts//28571:/bin/bash;#toggleterm#1
-    if string.find(vim.fn.expand("%"), "/bin/bash;#toggleterm") then
-      run_last_cmd(orig_win)
+    -- if string.find(vim.fn.expand("%"), "/bin/bash;#toggleterm") then
+    if vim.bo.filetype == "snacks_terminal" then
+      run_cmd(cmd)
       return true
     end
     vim.api.nvim_command([[wincmd j]])
@@ -23,57 +22,26 @@ local function execute_in_terminal(orig_win)
   return false
 end
 
-function M.run_last()
-  local all = require("toggleterm.terminal").get_all()
-  local curr_win = vim.fn.winnr()
+function M.run_in_terminal(cmd)
+  local curr_win = vim.api.nvim_get_current_win()
   local buf_nr = vim.api.nvim_get_current_buf()
   -- save only if modified (don't change last saved timestamp before rebuild)
-  if vim.api.nvim_buf_get_option(buf_nr, "modified") == true then
+  if vim.bo[buf_nr].modified == true then
     vim.api.nvim_command([[w]])
   end
-  for _, term in ipairs(all) do
-    if
-      term["direction"] == "horizontal"
-      and (string.find(term["name"], "/bin/bash") or string.find(term["name"], "/bin/zsh"))
-    then
-      -- print(dump(term))
-      if execute_in_terminal(curr_win) then
-        return
-      end
-      -- there seems to be an existing terminal, but it must be toggled off
-      vim.api.nvim_command(term["id"] .. [[ToggleTerm]])
-      if execute_in_terminal(curr_win) then
-        return
-      end
-    end
+  if not go_to_terminal_and_run(cmd) then
+    -- didn't find terminal -> toggle to open
+    Snacks.terminal()
+    go_to_terminal_and_run(cmd)
   end
-  -- no existing terminal found -> toggle new one
-  vim.api.nvim_command([[ToggleTerm]])
-  run_last_cmd(curr_win)
-end
-
--- TOGGLE PYTHON3, HTOP
-local function cmd_toggle(cmd)
-  require("toggleterm.terminal").Terminal
-    :new({
-      cmd = cmd,
-      hidden = true,
-      direction = "float",
-    })
-    :toggle()
-end
-
-function M.htop_toggle()
-  cmd_toggle("LD_LIBRARY_PATH='' htop")
-end
-
-function M.python_toggle()
-  cmd_toggle("python3")
+  vim.schedule(function()
+    vim.api.nvim_set_current_win(curr_win)
+  end)
 end
 
 -- HELPER FUNCTIONS
 local open_cpp_file = function()
-  local filename = vim.fn.expand("<cfile>")
+  local filename = vim.fn.findfile(vim.fn.expand("<cfile>"), "**")
   -- get line_nr
   vim.fn.search(filename .. ":[0-9]", "e")
   local line_nr = vim.fn.expand("<cword>")
@@ -84,32 +52,12 @@ local open_cpp_file = function()
   local row, _ = unpack(vim.api.nvim_win_get_cursor(0))
   vim.api.nvim_win_set_cursor(0, { row, 0 })
 
-  local relative_path = "./" .. filename
-  local git_path = misc_util.get_git_root() .. "/" .. filename
-  if misc_util.file_exists(relative_path) then
-    misc_util.open_file_at_location(relative_path, line_nr, col_nr)
-  elseif misc_util.file_exists(git_path) then
-    misc_util.open_file_at_location(git_path, line_nr, col_nr)
-  elseif misc_util.file_exists(filename) then
-    misc_util.open_file_at_location(filename, line_nr, col_nr)
-  else
-    CoreUtil.warn("unable to find file " .. filename, { title = "Jump to source location" })
-  end
+  misc_util.open_file_at_location(filename, line_nr, col_nr)
 end
 
 local open_python_file = function(line)
-  local git_root = misc_util.get_git_root() .. "/ros/src/"
-  -- vim.api.nvim_feedkeys('GN', 'x', false)
-  -- local p = get_curr_search_match()
-  -- vim.api.nvim_command([[wincmd k]])
 
   local _, _, path, line_nr = string.find(line, '"([^"]*)".*line (%d+)')
-
-  -- -- remove some bazel auto-gen path components
-  -- local partial_path = string.sub(path, string.find(path, "_exedir/") + 8)
-  -- CoreUtil.warn("number: " .. line_nr .. ". partial path: " .. partial_path)
-  -- local filename = vim.fn.findfile(partial_path, git_root .. "/**")
-
   CoreUtil.info("trying to open: " .. path .. ":" .. line_nr, { title = "filename" })
   misc_util.open_file_at_location(path, line_nr, 1)
 
@@ -180,6 +128,16 @@ function _G.set_terminal_keymaps()
   vim.keymap.set("n", "gf", open_file, opts)
 end
 
-vim.cmd("autocmd! TermOpen term://*toggleterm#* lua set_terminal_keymaps()")
+-- vim.cmd("autocmd! TermOpen term://*toggleterm#* lua set_terminal_keymaps()")
+vim.api.nvim_create_autocmd("TermOpen", {
+  pattern = "term://*bash",
+  callback = function(ev)
+    Snacks.notify("Terminal opened!")
+    -- local cwd = vim.fn.getcwd()
+    -- vim.api.nvim_chan_send(ev.buf, "cd " .. cwd .. "\n")
+    set_terminal_keymaps()
+  end,
+})
+
 
 return M

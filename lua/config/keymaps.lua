@@ -5,6 +5,7 @@
 local map = vim.keymap.set
 local misc_util = require("util.misc")
 local CoreUtil = require("lazy.core.util")
+local Snacks = require("snacks")
 
 -- from vim
 map("i", "jj", "<esc>", { desc = "exit insert mode" })
@@ -44,16 +45,16 @@ map({ "n", "v", "i", "t" }, "<C-Right>", "<cmd>vertical resize +10<cr>", { desc 
 -- map("n", "<leader>pf", ":m '<-2<cr>gv=gv", { desc = "Move up" })
 map("n", "<leader>pf", function()
   local path = vim.api.nvim_buf_get_name(0)
-  local git_root = misc_util.get_git_root()
+  local git_root = Snacks.git.get_root()
   local row, _ = unpack(vim.api.nvim_win_get_cursor(0))
-  vim.fn.setreg("+", path .. ":" .. row)
   path = path:gsub(git_root .. "/", "")
   CoreUtil.info(path, { title = "current file name" })
+  vim.fn.setreg("+", path .. ":" .. row)
 end, { desc = "print current filename" })
 
 map("n", "gL", function()
   local c_row, c_column = unpack(vim.api.nvim_win_get_cursor(0))
-  local filename = vim.fn.expand("<cfile>")
+  local filename = vim.fn.findfile(vim.fn.expand("<cfile>"), "**")
   local line_nr_pattern = ":[0-9]"
   local match_line_nr = vim.fn.search(filename .. line_nr_pattern, "e")
   local line_nr = vim.fn.expand("<cword>")
@@ -70,7 +71,7 @@ end, { desc = "go to file in other window" })
 
 map("n", "gl", function()
   local c_row, c_column = unpack(vim.api.nvim_win_get_cursor(0))
-  local filename = vim.fn.expand("<cfile>")
+  local filename = vim.fn.findfile(vim.fn.expand("<cfile>"), "**")
   local line_nr_pattern = ":[0-9]"
   local match_line_nr = vim.fn.search(filename .. line_nr_pattern, "e")
   local line_nr = vim.fn.expand("<cword>")

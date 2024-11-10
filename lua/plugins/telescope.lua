@@ -1,5 +1,4 @@
-local Util = require("lazyvim.util")
-local Misc = require("util.misc")
+local Snacks = require("snacks")
 
 return {
   "nvim-telescope/telescope.nvim",
@@ -18,7 +17,7 @@ return {
       "<cmd>Telescope buffers sort_mru=true sort_lastused=true<cr>",
       desc = "Switch Buffer",
     },
-    { "<leader>/", LazyVim.pick("live_grep", { cwd = Misc.get_git_root() }), desc = "Grep (root dir)" },
+    { "<leader>/", LazyVim.pick("live_grep", { cwd = Snacks.git.get_root() }), desc = "Grep (root dir)" },
     { "gc", "<cmd>Telescope lsp_incoming_calls<cr>", desc = "Goto incoming calls" },
     { "<leader>;", "<cmd>Telescope command_history<cr>", desc = "Command History" },
     { "<leader><space>", false }, --, LazyVim.pick.telescope("files"), desc = "Find Files (root dir)" },
@@ -33,12 +32,12 @@ return {
       }),
       desc = "Search in buffers",
     },
-    { "<leader>sf", LazyVim.pick("auto", { root = Misc.get_git_root() }), desc = "Find Files (root dir)" },
+    { "<leader>sf", LazyVim.pick("auto", { root = Snacks.git.get_root() }), desc = "Find Files (root dir)" },
     { "<leader>sF", LazyVim.pick("auto", { root = false }), desc = "Find Files (cwd)" },
     { "<leader>br", "<cmd>Telescope oldfiles<cr>", desc = "Recent" },
     {
       "<leader>sw",
-      LazyVim.pick("grep_string", { root = Misc.get_git_root(), word_match = "-w" }),
+      LazyVim.pick("grep_string", { root = Snacks.git.get_root(), word_match = "-w" }),
       desc = "Word under cursor (root dir)",
     },
     {

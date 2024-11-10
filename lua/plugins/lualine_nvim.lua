@@ -181,7 +181,7 @@ return {
       options = {
         theme = "auto",
         -- -- check filetype with `:lua vim.print(vim.bo.filetype)`
-        -- disabled_filetypes = { statusline = { "DiffviewFiles", "aerial", "dashboard", "alpha", "toggleterm" } },
+        disabled_filetypes = { statusline = { "DiffviewFiles", "aerial", "dashboard", "alpha", "snacks_terminal" } },
         -- ignore_focus = { "neo-tree", "aerial", "toggleterm" },
       },
       sections = section_settings(true),
