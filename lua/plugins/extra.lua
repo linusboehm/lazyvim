@@ -176,10 +176,10 @@ return {
       require("nvim-autopairs").setup({})
     end,
   },
-  -- add nightfox
-  { "EdenEast/nightfox.nvim" },
-  -- -- Configure LazyVim to load gruvbox
-  -- { "LazyVim/LazyVim", opts = { colorscheme = "nightfox" } },
+  -- -- add nightfox
+  -- { "EdenEast/nightfox.nvim" },
+  -- -- -- Configure LazyVim to load gruvbox
+  -- -- { "LazyVim/LazyVim", opts = { colorscheme = "nightfox" } },
 
   {
     "nvim-neo-tree/neo-tree.nvim",

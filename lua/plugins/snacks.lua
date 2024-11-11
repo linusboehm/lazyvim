@@ -40,6 +40,16 @@ return {
   ---@type snacks.Config
   opts = {
     gitbrowse = {
+      ---@param url string
+      open = function(url)
+        Snacks.notify(("git url: [%s]"):format(url), { title = "Git Browse" })
+        vim.fn.setreg("+", url)
+        if vim.fn.has("nvim-0.10") == 0 then
+          require("lazy.util").open(url, { system = true })
+          return
+        end
+        vim.ui.open(url)
+      end,
       url_patterns = {
         -- other github addresses
         ["github.e"] = {
