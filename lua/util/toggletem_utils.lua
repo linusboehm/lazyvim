@@ -9,17 +9,16 @@ local function run_cmd(cmd)
   vim.api.nvim_feedkeys(key, "n", false)
 end
 
-local function go_to_terminal_and_run(cmd)
+function M.go_to_terminal()
   for var = 1, 5 do
     -- term://~/repos/trading_platform/scripts//28571:/bin/bash;#toggleterm#1
     -- if string.find(vim.fn.expand("%"), "/bin/bash;#toggleterm") then
     if vim.bo.filetype == "snacks_terminal" then
-      run_cmd(cmd)
-      return true
+      return
     end
     vim.api.nvim_command([[wincmd j]])
   end
-  return false
+  Snacks.terminal()
 end
 
 function M.run_in_terminal(cmd)
@@ -29,11 +28,8 @@ function M.run_in_terminal(cmd)
   if vim.bo[buf_nr].modified == true then
     vim.api.nvim_command([[w]])
   end
-  if not go_to_terminal_and_run(cmd) then
-    -- didn't find terminal -> toggle to open
-    Snacks.terminal()
-    go_to_terminal_and_run(cmd)
-  end
+  M.go_to_terminal()
+  run_cmd(cmd)
   vim.schedule(function()
     vim.api.nvim_set_current_win(curr_win)
   end)

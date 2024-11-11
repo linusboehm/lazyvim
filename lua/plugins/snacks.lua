@@ -1,15 +1,16 @@
 local term_utils = require("util.toggletem_utils")
-LAST_CMD = nil
-
 local actions = require("telescope.actions")
 local action_state = require("telescope.actions.state")
+
+LAST_CMD = nil
 
 function SearchBashHistory()
   Snacks.notify.info("running search!")
   require("telescope.builtin").find_files({
     prompt_title = "Search Bash History",
     cwd = "~",
-    find_command = { "bash", "-c", "awk '!/^#/ && !count[$0]++' ~/.bash_history | tac" },
+    find_command = { "bash", "-c", "awk '!/^#/ && !count[$0]++' ~/.bash_history | tail -n 20 | tac" },
+    -- sorting_strategy = "ascending",
     previewer = false,
     layout_config = {
       width = 0.75,
@@ -30,8 +31,6 @@ function SearchBashHistory()
     end,
   })
 end
-
--- Add a key mapping to call this function
 
 return {
   "folke/snacks.nvim",
@@ -86,10 +85,7 @@ return {
       "<leader>tl",
       function()
         if LAST_CMD == nil then
-          --   Snacks.notify.info("getting command")
           SearchBashHistory()
-        --   Snacks.notify.info(("getting command: %s"):format(LAST_CMD))
-        -- end
         else
           Snacks.notify.info((("executing: [%s]"):format(LAST_CMD)))
           term_utils.run_in_terminal(LAST_CMD)
