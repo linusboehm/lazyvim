@@ -42,12 +42,11 @@ end
 -- HELPER FUNCTIONS
 local open_file_under_cursor = function()
   local filename = vim.fn.expand("<cfile>")
-  Snacks.notify.info(filename)
   -- Define the pattern to search for
   local pattern = filename .. [[:(\d*):(\d*)]]
 
   -- Search for the pattern under the cursor
-  vim.fn.search(pattern, 'c')
+  vim.fn.search(pattern, "c")
 
   -- Get the current line and extract the match
   local line = vim.api.nvim_get_current_line()
@@ -76,34 +75,6 @@ end
 --   -- })()
 -- end
 
-local function get_curr_search_match()
-  -- save current cursor position
-  local row, col = unpack(vim.api.nvim_win_get_cursor(0))
-  -- vim.api.nvim_feedkeys('gn"ly', "x", false)
-  vim.cmd('normal! gn')
-  -- Get the current visual mode
-  local visual_mode = vim.fn.visualmode()
-
-  -- Get the start and end positions of the visual selection
-  local start_pos = vim.fn.getpos("'<")
-  local end_pos = vim.fn.getpos("'>")
-
-  -- Check if there is a selection
-  if start_pos[2] == end_pos[2] and start_pos[3] == end_pos[3] then
-    Snacks.notify.info("no match found... returning")
-    -- No selection, return early
-    return nil
-  end
-
-  -- Visually select the match
-  vim.cmd('normal! "ly')
-  local selection = vim.fn.getreg("l")
-  selection = string.gsub(selection, "[\n\r]", "")
-  -- reset cursor position
-  vim.api.nvim_win_set_cursor(0, { row, col })
-  return selection
-end
-
 -- SEARCH THROUGH CPP COMPILER OUTPUT/PYTHON ERRORS
 local user = os.getenv("USER")
 -- local hostname = tostring(os.getenv("HOSTNAME"))
@@ -121,16 +92,11 @@ local search_cmd = "<cmd>set nowrapscan<CR>G?.<CR>k?"
 -- OPEN C++/PYTHON on ERROR
 function _G.set_terminal_keymaps()
   local opts = { buffer = 0 }
-  vim.keymap.set("t", "<esc>", [[<C-\><C-n>]], opts)
-  vim.keymap.set("t", "jj", [[<C-\><C-n>]], opts)
-  vim.keymap.set("t", "kk", [[<C-u><C-\><C-n>]], opts)
-  vim.keymap.set("t", "<C-h>", [[<Cmd>wincmd h<CR>]], opts)
-  vim.keymap.set("t", "<C-j>", [[<Cmd>wincmd j<CR>]], opts)
-  vim.keymap.set("t", "<C-k>", [[<Cmd>wincmd k<CR>]], opts)
-  vim.keymap.set("t", "<C-l>", [[<Cmd>wincmd l<CR>]], opts)
+  vim.keymap.set("t", "<esc>", function() vim.cmd("stopinsert") end, opts)
+  vim.keymap.set("t", "jj",    function() vim.cmd("stopinsert") end, opts)
+  vim.keymap.set("t", "kk",    function() vim.cmd("stopinsert") end, opts)
   -- need to enter normal mode before command and re-enter interactive mode after:
   vim.keymap.set("t", "<C-z>", [[<C-\><C-n><Cmd>ZenMode<CR>i]])
-
   vim.keymap.set("t", "<C-f>", [[<C-\><C-n>]] .. search_cmd, opts)
   vim.keymap.set("n", "<C-f>", search_cmd, opts)
   vim.keymap.set("n", "gf", open_file_under_cursor, opts)
@@ -146,6 +112,5 @@ vim.api.nvim_create_autocmd("TermOpen", {
     set_terminal_keymaps()
   end,
 })
-
 
 return M

@@ -38,6 +38,7 @@ return {
   priority = 1000,
   lazy = false,
   ---@type snacks.Config
+  opts = { styles = { terminal = { keys = { gf = false } } } },
   keys = {
     {
       "<leader>tc",
