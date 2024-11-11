@@ -54,7 +54,7 @@ end, { desc = "print current filename" })
 
 map("n", "gL", function()
   local c_row, c_column = unpack(vim.api.nvim_win_get_cursor(0))
-  local filename = vim.fn.findfile(vim.fn.expand("<cfile>"), "**")
+  local filename = vim.fn.expand("<cfile>")
   local line_nr_pattern = ":[0-9]"
   local match_line_nr = vim.fn.search(filename .. line_nr_pattern, "e")
   local line_nr = vim.fn.expand("<cword>")
@@ -63,7 +63,7 @@ map("n", "gL", function()
   -- go to left most buffer
   vim.api.nvim_command([[wincmd 100h]])
   if match_line_nr == c_row then
-    misc_util.open_file_at_location(filename, line_nr, 1)
+    misc_util.open_file(filename, line_nr, 1)
   else
     misc_util.open_file(filename)
   end
@@ -71,7 +71,7 @@ end, { desc = "go to file in other window" })
 
 map("n", "gl", function()
   local c_row, c_column = unpack(vim.api.nvim_win_get_cursor(0))
-  local filename = vim.fn.findfile(vim.fn.expand("<cfile>"), "**")
+  local filename = vim.fn.expand("<cfile>")
   local line_nr_pattern = ":[0-9]"
   local match_line_nr = vim.fn.search(filename .. line_nr_pattern, "e")
   local line_nr = vim.fn.expand("<cword>")
@@ -124,7 +124,7 @@ vim.keymap.del("n", "<leader>ft")
 vim.keymap.del("n", "<leader>fT")
 vim.keymap.del("n", "<C-f>")
 vim.keymap.del("n", "<C-b>")
-vim.keymap.del("n", ",")
+-- vim.keymap.del("n", ",")
 
 -- Clear search
 map({ "n" }, "<leader>,", "<cmd>noh<cr><esc>", { desc = "Escape and clear hlsearch" })

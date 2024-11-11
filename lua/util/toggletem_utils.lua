@@ -40,60 +40,68 @@ function M.run_in_terminal(cmd)
 end
 
 -- HELPER FUNCTIONS
-local open_cpp_file = function()
-  local filename = vim.fn.findfile(vim.fn.expand("<cfile>"), "**")
-  -- get line_nr
-  vim.fn.search(filename .. ":[0-9]", "e")
-  local line_nr = vim.fn.expand("<cword>")
-  -- get col_nr
-  vim.fn.search(":[0-9]", "e")
-  local col_nr = vim.fn.expand("<cword>")
-  -- move cursor back to beginning of row
-  local row, _ = unpack(vim.api.nvim_win_get_cursor(0))
-  vim.api.nvim_win_set_cursor(0, { row, 0 })
+local open_file_under_cursor = function()
+  local filename = vim.fn.expand("<cfile>")
+  Snacks.notify.info(filename)
+  -- Define the pattern to search for
+  local pattern = filename .. [[:(\d*):(\d*)]]
 
-  misc_util.open_file_at_location(filename, line_nr, col_nr)
+  -- Search for the pattern under the cursor
+  vim.fn.search(pattern, 'c')
+
+  -- Get the current line and extract the match
+  local line = vim.api.nvim_get_current_line()
+  local line_nr, col_nr = line:match(filename .. ":?(%d*):?(%d*)")
+  line_nr = line_nr ~= "" and line_nr or nil
+  col_nr = col_nr ~= "" and col_nr or "2"
+
+  misc_util.open_file(filename, line_nr, col_nr)
 end
 
-local open_python_file = function(line)
-
-  local _, _, path, line_nr = string.find(line, '"([^"]*)".*line (%d+)')
-  CoreUtil.info("trying to open: " .. path .. ":" .. line_nr, { title = "filename" })
-  misc_util.open_file_at_location(path, line_nr, 1)
-
-  -- local Util = require("lazyvim.util")
-  -- Util.telescope("find_files", {
-  --   default_text = default_text,
-  --   cwd = git_root,
-  --   on_complete = {
-  --     function(picker)
-  --       require("telescope.actions").select_default(picker.prompt_bufnr)
-  --     end,
-  --   },
-  -- })()
-end
+-- local open_python_file = function(line)
+--
+--   local _, _, path, line_nr = string.find(line, '"([^"]*)".*line (%d+)')
+--   CoreUtil.info("trying to open: " .. path .. ":" .. line_nr, { title = "filename" })
+--   misc_util.open_file_at_location(path, line_nr, 1)
+--
+--   -- local Util = require("lazyvim.util")
+--   -- Util.telescope("find_files", {
+--   --   default_text = default_text,
+--   --   cwd = git_root,
+--   --   on_complete = {
+--   --     function(picker)
+--   --       require("telescope.actions").select_default(picker.prompt_bufnr)
+--   --     end,
+--   --   },
+--   -- })()
+-- end
 
 local function get_curr_search_match()
   -- save current cursor position
   local row, col = unpack(vim.api.nvim_win_get_cursor(0))
-  vim.api.nvim_feedkeys('gn"ly', "x", false)
+  -- vim.api.nvim_feedkeys('gn"ly', "x", false)
+  vim.cmd('normal! gn')
+  -- Get the current visual mode
+  local visual_mode = vim.fn.visualmode()
+
+  -- Get the start and end positions of the visual selection
+  local start_pos = vim.fn.getpos("'<")
+  local end_pos = vim.fn.getpos("'>")
+
+  -- Check if there is a selection
+  if start_pos[2] == end_pos[2] and start_pos[3] == end_pos[3] then
+    Snacks.notify.info("no match found... returning")
+    -- No selection, return early
+    return nil
+  end
+
+  -- Visually select the match
+  vim.cmd('normal! "ly')
   local selection = vim.fn.getreg("l")
   selection = string.gsub(selection, "[\n\r]", "")
   -- reset cursor position
   vim.api.nvim_win_set_cursor(0, { row, col })
   return selection
-end
-
-local open_file = function()
-  -- local key = vim.api.nvim_replace_termcodes(search_cmd, true, false, true)
-  -- vim.api.nvim_feedkeys(key, 'n', false)
-  -- local l = vim.api.nvim_get_current_line()
-  local l = get_curr_search_match()
-  if string.find(l, [[.py]]) then
-    open_python_file(l)
-  else
-    open_cpp_file()
-  end
 end
 
 -- SEARCH THROUGH CPP COMPILER OUTPUT/PYTHON ERRORS
@@ -125,7 +133,7 @@ function _G.set_terminal_keymaps()
 
   vim.keymap.set("t", "<C-f>", [[<C-\><C-n>]] .. search_cmd, opts)
   vim.keymap.set("n", "<C-f>", search_cmd, opts)
-  vim.keymap.set("n", "gf", open_file, opts)
+  vim.keymap.set("n", "gf", open_file_under_cursor, opts)
 end
 
 -- vim.cmd("autocmd! TermOpen term://*toggleterm#* lua set_terminal_keymaps()")

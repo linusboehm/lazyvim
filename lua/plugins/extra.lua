@@ -230,8 +230,7 @@ return {
   -- makes some plugins dot-repeatable like leap
   { "tpope/vim-repeat", event = "VeryLazy" },
   { "dkarter/bullets.vim", version = "*" },
-  { "ThePrimeagen/git-worktree.nvim" },
-  { "folke/flash.nvim", opts = { modes = { search = { enabled = false } } } },
+  { "folke/flash.nvim", opts = { modes = { search = { enabled = false }, char = { enabled = false } } } },
   { "opdavies/toggle-checkbox.nvim", enabled = false, version = "*" },
 
   {

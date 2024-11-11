@@ -62,7 +62,6 @@ function M.dump(o)
 end
 
 function M.go_to_text_buffer()
-  -- vim.print("trying to open: " .. filename)
   local skip_types = { "aerial", "neo-tree", "dapui_scopes", "dapui_breakpoints", "dapui_stacks", "dapui_watches" }
   vim.api.nvim_command([[wincmd k]])
   local cnt = 0
@@ -72,21 +71,21 @@ function M.go_to_text_buffer()
   end
 end
 
-function M.open_file(f)
+function M.open_file(filename, line_nr, col_nr)
+  local f = vim.fn.findfile(filename, "**")
   if f == "" then
-    M.go_to_text_buffer()
     Snacks.notify.warn("Couldn't find file")
+    return false
   else
+    M.go_to_text_buffer()
     vim.schedule(function()
+      Snacks.notify.info(("Opening: %s:%s:%s"):format(f, line_nr, col_nr - 1))
       vim.cmd("e " .. f)
+      if line_nr ~= nil then
+        col_nr = col_nr or "1"
+        vim.api.nvim_win_set_cursor(0, { tonumber(line_nr), tonumber(col_nr) - 1 })
+      end
     end)
-  end
-end
-
-function M.open_file_at_location(filename, line_nr, col_nr)
-  local success = M.open_file(filename)
-  if success then
-    vim.api.nvim_win_set_cursor(0, { tonumber(line_nr), tonumber(col_nr) - 1 })
   end
 end
 
