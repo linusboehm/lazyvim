@@ -9,7 +9,7 @@ function SearchBashHistory()
   require("telescope.builtin").find_files({
     prompt_title = "Search Bash History",
     cwd = "~",
-    find_command = { "bash", "-c", "awk '!count[$0]++' ~/.bash_history | tac" },
+    find_command = { "bash", "-c", "awk '!/^#/ && !count[$0]++' ~/.bash_history | tac" },
     previewer = false,
     layout_config = {
       width = 0.75,
