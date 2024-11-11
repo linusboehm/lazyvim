@@ -38,7 +38,18 @@ return {
   priority = 1000,
   lazy = false,
   ---@type snacks.Config
-  opts = { styles = { terminal = { keys = { gf = false } } } },
+  opts = {
+    gitbrowse = {
+      url_patterns = {
+        -- other github addresses
+        ["github.e"] = {
+          branch = "/tree/{branch}",
+          file = "/blob/{branch}/{file}#L{line}",
+        },
+      },
+    },
+    styles = { terminal = { keys = { gf = false } } },
+  },
   keys = {
     {
       "<leader>tc",
