@@ -9,11 +9,33 @@ function SearchBashHistory()
   require("telescope.builtin").find_files({
     prompt_title = "Search Bash History",
     cwd = "~",
-    find_command = { "bash", "-c", "history -r; tail -n 100 ~/.bash_history | tac | awk '!/^#/ && !count[$0]++' | head -n 30" },
-    previewer = false,
+    find_command = { "bash", "-c", "history -r; tail -n 10000 ~/.bash_history | tac | awk '!/^#/ && !count[$0]++'" },
+    previewer = require("telescope.previewers").new_buffer_previewer({
+      define_preview = function(self, entry, status)
+        -- Set the buffer content to the selected line
+        vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, { entry.value })
+
+        local winid = self.state.winid
+
+        vim.wo[winid].wrap = true
+        vim.wo[winid].number = false
+        vim.wo[winid].relativenumber = false
+        vim.wo[winid].signcolumn = "no"
+
+        vim.wo[winid].linebreak = true -- Enable linebreak
+        vim.wo[winid].breakindent = true
+        vim.wo[winid].breakindentopt = "shift:2" -- Indent by 4 spaces
+
+        vim.bo[self.state.bufnr].filetype = "bash"
+      end,
+    }),
+    sorter = require("telescope.sorters").fuzzy_with_index_bias(),
+    layout_strategy = "vertical",
     layout_config = {
       width = 0.75,
       height = 0.5,
+      preview_height = 5,
+      mirror = true, -- Position preview above results
     },
     attach_mappings = function(prompt_bufnr, map)
       actions.select_default:replace(function()

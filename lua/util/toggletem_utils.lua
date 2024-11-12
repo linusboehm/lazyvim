@@ -106,10 +106,10 @@ end
 vim.api.nvim_create_autocmd("TermOpen", {
   pattern = "term://*bash",
   callback = function(ev)
-    Snacks.notify("Terminal opened!")
-    -- local cwd = vim.fn.getcwd()
-    -- vim.api.nvim_chan_send(ev.buf, "cd " .. cwd .. "\n")
-    set_terminal_keymaps()
+    if vim.bo.filetype == "snacks_terminal" then
+      Snacks.notify("Terminal opened!")
+      set_terminal_keymaps()
+    end
   end,
 })
 
