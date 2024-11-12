@@ -79,11 +79,10 @@ map("n", "gl", function()
   local match_line_nr = vim.fn.search(filename .. line_nr_pattern, "e")
   local line_nr = vim.fn.expand("<cword>")
   -- move cursor back to orig position
-  vim.api.nvim_win_set_cursor(0, { c_row, c_column })
-  -- go to left most buffer
-  vim.cmd("e" .. filename)
   if match_line_nr == c_row then
-    vim.api.nvim_win_set_cursor(0, { tonumber(line_nr), 0 })
+    misc_util.open_file(filename, line_nr, 1)
+  else
+    misc_util.open_file(filename)
   end
 end, { desc = "go to file" })
 
