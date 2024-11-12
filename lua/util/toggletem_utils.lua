@@ -9,16 +9,18 @@ local function run_cmd(cmd)
   vim.api.nvim_feedkeys(key, "n", false)
 end
 
-function M.go_to_terminal()
-  for var = 1, 5 do
+function M.go_to_terminal(cb)
+  for _ = 1, 5 do
     -- term://~/repos/trading_platform/scripts//28571:/bin/bash;#toggleterm#1
     -- if string.find(vim.fn.expand("%"), "/bin/bash;#toggleterm") then
     if vim.bo.filetype == "snacks_terminal" then
+      cb()
       return
     end
     vim.api.nvim_command([[wincmd j]])
   end
-  Snacks.terminal()
+  local opts = {win = { on_buf = cb  }}
+  Snacks.terminal(nil, opts)
 end
 
 function M.run_in_terminal(cmd)
@@ -28,8 +30,10 @@ function M.run_in_terminal(cmd)
   if vim.bo[buf_nr].modified == true then
     vim.api.nvim_command([[w]])
   end
-  M.go_to_terminal()
-  run_cmd(cmd)
+  local cb = function()
+    run_cmd(cmd)
+  end
+  M.go_to_terminal(cb)
   vim.schedule(function()
     vim.api.nvim_set_current_win(curr_win)
   end)

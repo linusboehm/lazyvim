@@ -9,8 +9,7 @@ function SearchBashHistory()
   require("telescope.builtin").find_files({
     prompt_title = "Search Bash History",
     cwd = "~",
-    find_command = { "bash", "-c", "history -r; awk '!/^#/ && !count[$0]++' ~/.bash_history | tail -n 30 | tac" },
-    -- sorting_strategy = "ascending",
+    find_command = { "bash", "-c", "history -r; tail -n 100 ~/.bash_history | tac | awk '!/^#/ && !count[$0]++' | head -n 30" },
     previewer = false,
     layout_config = {
       width = 0.75,
@@ -21,11 +20,8 @@ function SearchBashHistory()
         actions.close(prompt_bufnr)
         local selection = action_state.get_selected_entry()
         local result = selection[1]
-        Snacks.notify.info(("Selected entry: %s"):format(result))
         LAST_CMD = result
-        Snacks.notify.info((("executing: [%s]"):format(LAST_CMD)))
         term_utils.run_in_terminal(LAST_CMD)
-        -- Snacks.terminal()
       end)
       return true
     end,
