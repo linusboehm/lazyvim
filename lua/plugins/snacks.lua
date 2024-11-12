@@ -88,7 +88,7 @@ return {
     {
       "<leader>th",
       function()
-        Snacks.terminal("htop")
+        Snacks.terminal("LD_LIBRARY_PATH='' htop")
       end,
       desc = "Terminal htop",
     },
