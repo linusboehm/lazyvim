@@ -56,7 +56,18 @@ return {
   lazy = false,
   ---@type snacks.Config
   opts = {
+    bigfile = { enabled = true },
+    bufdelete = { enabled = true },
+    notifier = { enabled = true },
+    quickfile = { enabled = true },
+    statuscolumn = { enabled = true },
+    words = { enabled = true },
+    terminal = { enabled = true },
+    lazygit = { enabled = true },
+    git = { enabled = true },
     gitbrowse = {
+      enabled = true,
+      -- don't just try to open, but also copy to clipboard -> can just paste from remote box
       ---@param url string
       open = function(url)
         Snacks.notify(("git url: [%s]"):format(url), { title = "Git Browse" })
