@@ -18,6 +18,7 @@ local logo = [[
    █████░░░░░░░░░░░░░░░████            
         ███████████████                ]]
 
+
 LAST_CMD = nil
 
 function SearchBashHistory()
@@ -82,13 +83,6 @@ return {
       sections = {
         { section = "header" },
         { section = "keys", gap = 0, padding = 3 },
-        -- { pane = 2,
-        --   section = "terminal",
-        --   -- cmd = "colorscript -e square",
-        --   cmd = "echo",
-        --   height = 14,
-        --   padding = 1,
-        -- },
         -- { pane = 2, icon = " ", title = "Recent Files", section = "recent_files", indent = 2, padding = 1 },
         { pane = 1, icon = " ", title = "Projects", section = "projects", indent = 2, padding = 3 },
         {
@@ -104,6 +98,11 @@ return {
           indent = 3,
         },
         { section = "startup" },
+        -- { section = "terminal",
+        --   cmd = "$HOME/.config/nvim/lua/plugins/colorstrip",
+        --   height = 2,
+        --   padding = 1,
+        -- },
       },
     },
     notifier = { enabled = true },
