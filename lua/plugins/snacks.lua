@@ -18,7 +18,6 @@ local logo = [[
    █████░░░░░░░░░░░░░░░████            
         ███████████████                ]]
 
-
 LAST_CMD = nil
 
 function SearchBashHistory()

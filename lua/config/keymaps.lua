@@ -28,6 +28,8 @@ map({ "n", "v", "i", "t" }, "<C-Down>", "<cmd>resize -10<cr>", { desc = "Decreas
 map({ "n", "v", "i", "t" }, "<C-Left>", "<cmd>vertical resize -10<cr>", { desc = "Decrease window width" })
 map({ "n", "v", "i", "t" }, "<C-Right>", "<cmd>vertical resize +10<cr>", { desc = "Increase window width" })
 
+map({ "n" }, "<leader>bm", function() require("util.buffer_manager").open() end, { desc = "bla" })
+
 -- -- Move Lines
 -- map("n", "<A-j>", "<cmd>m .+1<cr>==", { desc = "Move down" })
 -- map("n", "<A-k>", "<cmd>m .-2<cr>==", { desc = "Move up" })
