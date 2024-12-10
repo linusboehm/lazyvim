@@ -7,7 +7,7 @@ local config = lazy.require("bufferline.config")
 local ui = lazy.require("bufferline.ui") ---@module "bufferline.ui"
 
 M = {}
-local bm_file_to_idx = nil
+M.bm_file_to_idx = nil
 
 local uv = vim.uv or vim.loop
 
@@ -84,6 +84,22 @@ local function get_contents(bufnr)
   return indices
 end
 
+local function open_missing_buffers(elements, files)
+
+  -- Create a lookup table buf -> index
+  local buf_to_index = {}
+  for index, name in ipairs(elements) do
+    buf_to_index[path_formatter(name.path)] = index
+  end
+
+  -- remove deleted elements
+  for _, file in ipairs(files) do
+    if not buf_to_index[path_formatter(file)] then
+      misc_util.open_file(file)
+    end
+  end
+end
+
 local function close_buffers_not_in_list(elements, files)
   local commands = lazy.require("bufferline.commands")
   -- Create a lookup table buf mngr file -> index
@@ -101,14 +117,14 @@ local function close_buffers_not_in_list(elements, files)
   return file_to_idx
 end
 
-local sort_by = function(buffer_a, buffer_b)
-  if bm_file_to_idx == nil then
+M.sort_by_buffer_mngr = function(buffer_a, buffer_b)
+  if M.bm_file_to_idx == nil then
     return false
   end
-  if bm_file_to_idx[path_formatter(buffer_a.path)] == nil or bm_file_to_idx[path_formatter(buffer_b.path)] == nil then
+  if M.bm_file_to_idx[path_formatter(buffer_a.path)] == nil or M.bm_file_to_idx[path_formatter(buffer_b.path)] == nil then
     return false
   end
-  return bm_file_to_idx[path_formatter(buffer_a.path)] < bm_file_to_idx[path_formatter(buffer_b.path)]
+  return M.bm_file_to_idx[path_formatter(buffer_a.path)] < M.bm_file_to_idx[path_formatter(buffer_b.path)]
 end
 
 local function update_bufferline(buf_mngr_files)
@@ -118,23 +134,19 @@ local function update_bufferline(buf_mngr_files)
 
   local elements = state.components
 
-  -- Create a lookup table path -> index
-  local buffer_path_to_idx = {}
-  for index, buf in ipairs(elements) do
-    buffer_path_to_idx[path_formatter(buf.path)] = index
-  end
-
   -- remove invalid entries from buf_mngr_files
   local filtered_buf_mngr_files = {}
   for _, name in ipairs(buf_mngr_files) do
-    if buffer_path_to_idx[name] then
+    -- only use if file exists
+    if vim.fn.findfile(name, "**") ~= "" then
       table.insert(filtered_buf_mngr_files, name)
     end
   end
 
-  bm_file_to_idx = close_buffers_not_in_list(elements, filtered_buf_mngr_files)
+  M.bm_file_to_idx = open_missing_buffers(elements, filtered_buf_mngr_files)
+  M.bm_file_to_idx = close_buffers_not_in_list(elements, filtered_buf_mngr_files)
 
-  table.sort(elements, sort_by)
+  table.sort(elements, M.sort_by_buffer_mngr)
   for index, buf in ipairs(elements) do
     buf.ordinal = index
   end

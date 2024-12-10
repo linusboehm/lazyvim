@@ -1,3 +1,6 @@
+local Snacks = require("snacks")
+local buff_mngr = require("util.buffer_manager")
+
 return {
   "akinsho/bufferline.nvim",
   event = "VeryLazy",
@@ -38,6 +41,12 @@ return {
           text_align = "left",
         },
       },
+      sort_by = function(buffer_a, buffer_b)
+        if M.bm_file_to_idx ~= nil then
+          Snacks.notify.info("In custom sort function")
+        end
+        buff_mngr.sort_by_buffer_mngr(buffer_a, buffer_b)
+      end,
       ---@param opts bufferline.IconFetcherOpts
       get_element_icon = function(opts)
         return LazyVim.config.icons.ft[opts.filetype]
