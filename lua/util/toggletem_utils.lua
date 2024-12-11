@@ -96,7 +96,6 @@ function _G.set_terminal_keymaps()
   vim.keymap.set("t", "jj",    function() vim.cmd("stopinsert") end, opts)
   vim.keymap.set("t", "kk",    function() vim.cmd("stopinsert") end, opts)
   -- need to enter normal mode before command and re-enter interactive mode after:
-  vim.keymap.set("t", "<C-z>", [[<C-\><C-n><Cmd>ZenMode<CR>i]])
   vim.keymap.set("t", "<C-f>", [[<C-\><C-n>]] .. search_cmd, opts)
   vim.keymap.set("n", "<C-f>", search_cmd, opts)
   vim.keymap.set("n", "gf", open_file_under_cursor, opts)

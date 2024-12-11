@@ -74,6 +74,7 @@ return {
   opts = {
     bigfile = { enabled = true },
     bufdelete = { enabled = true },
+    scroll = { enabled = true },
     dashboard = {
       enabled = true,
       preset = {
@@ -111,6 +112,20 @@ return {
     terminal = { enabled = true },
     lazygit = { enabled = true },
     git = { enabled = true },
+    zen = {
+      toggles = {
+        dim = false,
+        git_signs = false,
+        diagnostics = true,
+        inlay_hints = true,
+        indent = false,
+      },
+    },
+    indent = {
+      enabled = false,
+      indent = { hl = "SnacksIndent" },
+      scope = { hl = "SnacksIndent", animate = { enabled = false } },
+    },
     gitbrowse = {
       enabled = true,
       -- don't just try to open, but also copy to clipboard -> can just paste from remote box
@@ -135,6 +150,20 @@ return {
     styles = { terminal = { keys = { gf = false } } },
   },
   keys = {
+    {
+      "<leader>z",
+      function()
+        Snacks.zen.zoom()
+      end,
+      desc = "Toggle Zoom",
+    },
+    {
+      "<leader>Z",
+      function()
+        Snacks.zen()
+      end,
+      desc = "Toggle Zen Mode",
+    },
     {
       "<leader>tc",
       function()
