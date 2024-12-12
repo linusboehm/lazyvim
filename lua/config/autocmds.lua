@@ -140,21 +140,6 @@ vim.api.nvim_create_autocmd("FileType", {
   command = [[setlocal omnifunc=vim_dadbod_completion#omni]],
 })
 
--- local function db_completion()
---   require("cmp").setup.buffer({ sources = { { name = "vim-dadbod-completion" } } })
--- end
---
--- vim.api.nvim_create_autocmd("FileType", {
---   pattern = {
---     "sql",
---     "mysql",
---     "plsql",
---   },
---   callback = function()
---     vim.schedule(db_completion)
---   end,
--- })
-
 -- enable syntax highlighting for CMake files
 vim.api.nvim_create_autocmd({ "BufNewFile", "BufRead" }, {
   group = augroup("set_syntax"),
