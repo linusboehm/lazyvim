@@ -1,4 +1,5 @@
 local Snacks = require("snacks")
+local home_dir = vim.fn.expand("~")
 
 return {
   "nvim-telescope/telescope.nvim",
@@ -12,18 +13,30 @@ return {
   },
   keys = {
     -- original: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/plugins/editor.lua
-    {
-      "<leader>,",
-      "<cmd>Telescope buffers sort_mru=true sort_lastused=true<cr>",
-      desc = "Switch Buffer",
-    },
+    -- {
+    --   "<leader>,",
+    --   "<cmd>Telescope buffers sort_mru=true sort_lastused=true<cr>",
+    --   desc = "Switch Buffer",
+    -- },
     { "<leader>/", LazyVim.pick("live_grep", { cwd = Snacks.git.get_root() }), desc = "Grep (root dir)" },
+    { "<leader>sl", LazyVim.pick("live_grep", { cwd = vim.fn.stdpath('config') }), desc = "Grep nvim config" },
     { "gc", "<cmd>Telescope lsp_incoming_calls<cr>", desc = "Goto incoming calls" },
     { "<leader>;", "<cmd>Telescope command_history<cr>", desc = "Command History" },
     { "<leader><space>", false }, --, LazyVim.pick.telescope("files"), desc = "Find Files (root dir)" },
     { "<leader>gs", false }, -- "<cmd>Telescope git_status<CR>", desc = "status" },
     { "<leader>sb", false }, -- , "<cmd>Telescope current_buffer_fuzzy_find<cr>", desc = "Buffer" },
-    { "<leader>sb", "<cmd>Telescope buffers<cr>", desc = "Search buffer names" },
+    { "<leader>sb", "<cmd>Telescope buffers sort_mru=true sort_lastused=true<cr>", desc = "Search buffer names" },
+    {
+      "<leader>so",
+      LazyVim.pick("live_grep", {
+        prompt_title = "find string in anki/obsidian...",
+        search_dirs = {
+          home_dir .. '/vaults',
+          home_dir .. '/anki',
+        }
+      }),
+      desc = "Search obsidian",
+    },
     {
       "<leader>sib",
       LazyVim.pick("live_grep", {
