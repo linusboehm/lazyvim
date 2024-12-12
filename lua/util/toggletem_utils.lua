@@ -92,7 +92,7 @@ local search_cmd = "<cmd>set nowrapscan<CR>G?.<CR>k?"
 -- OPEN C++/PYTHON on ERROR
 function _G.set_terminal_keymaps()
   local opts = { buffer = 0 }
-  vim.keymap.set("t", "<esc>", function() vim.cmd("stopinsert") end, opts)
+  -- vim.keymap.set("t", "<esc>", function() vim.cmd("stopinsert") end, opts)
   vim.keymap.set("t", "jj",    function() vim.cmd("stopinsert") end, opts)
   vim.keymap.set("t", "kk",    function() vim.cmd("stopinsert") end, opts)
   -- need to enter normal mode before command and re-enter interactive mode after:
