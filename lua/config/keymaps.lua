@@ -131,7 +131,7 @@ vim.keymap.del("n", "<C-b>")
 -- vim.keymap.del("n", ",")
 
 -- Clear search
-map({ "n" }, "<leader>,", "<cmd>noh<cr><esc>", { desc = "Escape and clear hlsearch" })
+-- map({ "n" }, "<leader>,", "<cmd>noh<cr><esc>", { desc = "Escape and clear hlsearch" })
 
 -- do not use the default "better" indenting.. it prevents dot-repleat indents
 vim.keymap.del("v", ">")
