@@ -88,6 +88,16 @@ return {
       desc = "Search obsidian",
     },
     {
+      "<leader>sq",
+      LazyVim.pick("live_grep", {
+        prompt_title = "search queries...",
+        search_dirs = {
+          home_dir .. "/.local/share/db_ui",
+        },
+      }),
+      desc = "Search db queries",
+    },
+    {
       "<leader>sib",
       LazyVim.pick("live_grep", {
         prompt_title = "find string in open buffers...",
