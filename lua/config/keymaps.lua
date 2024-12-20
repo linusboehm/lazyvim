@@ -195,11 +195,6 @@ map("n", "<Leader>bc", function()
   local current_buf = vim.api.nvim_win_get_buf(current_win)
   local current_ft = vim.api.nvim_get_option_value("filetype", { buf = current_buf })
 
-  if not current_ft or current_ft == "" then
-    vim.notify("Current buffer has no filetype.", vim.log.levels.WARN)
-    return
-  end
-
   local wins = vim.api.nvim_tabpage_list_wins(0)
 
   -- Find the first window (other than current) with the same filetype
