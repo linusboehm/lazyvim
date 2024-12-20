@@ -74,7 +74,7 @@ return {
   opts = {
     bigfile = { enabled = true },
     bufdelete = { enabled = true },
-    scroll = { enabled = true },
+    scroll = { enabled = false },
     dashboard = {
       enabled = true,
       preset = {
