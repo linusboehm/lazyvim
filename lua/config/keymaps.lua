@@ -28,7 +28,9 @@ map({ "n", "v", "i", "t" }, "<C-Down>", "<cmd>resize -10<cr>", { desc = "Decreas
 map({ "n", "v", "i", "t" }, "<C-Left>", "<cmd>vertical resize -10<cr>", { desc = "Decrease window width" })
 map({ "n", "v", "i", "t" }, "<C-Right>", "<cmd>vertical resize +10<cr>", { desc = "Increase window width" })
 
-map({ "n" }, "<leader>bm", function() require("util.buffer_manager").open() end, { desc = "bla" })
+map({ "n" }, "<leader>bm", function()
+  require("util.buffer_manager").open()
+end, { desc = "bla" })
 
 -- -- Move Lines
 -- map("n", "<A-j>", "<cmd>m .+1<cr>==", { desc = "Move down" })
@@ -173,6 +175,70 @@ end, { desc = "Toggle window focus" })
 -- git-worktree
 -- stylua: ignore
 map( "n", "<Leader>gw", "<CMD>lua require('telescope').extensions.git_worktree.git_worktrees()<CR>", { desc = "git worktree" })
+map("n", "<Leader>rb", function()
+  local lazy = require("bufferline.lazy")
+  local state = lazy.require("bufferline.state") ---@module "bufferline.state"
+  local elements = state.components
+  local function path_formatter(path)
+    return vim.fn.fnamemodify(path, ":p:.")
+  end
+  local formatted_list = {}
+  for _, name in ipairs(elements) do
+    table.insert(formatted_list, path_formatter(name.path))
+  end
+  local joined_string = table.concat(formatted_list, " ")
+  require("grug-far").open({ prefills = { paths = joined_string } })
+end, { desc = "replace in buffers" })
+
+map("n", "<Leader>bc", function()
+  local current_win = vim.api.nvim_get_current_win()
+  local current_buf = vim.api.nvim_win_get_buf(current_win)
+  local current_ft = vim.api.nvim_get_option_value("filetype", { buf = current_buf })
+
+  if not current_ft or current_ft == "" then
+    vim.notify("Current buffer has no filetype.", vim.log.levels.WARN)
+    return
+  end
+
+  local wins = vim.api.nvim_tabpage_list_wins(0)
+
+  -- Find the first window (other than current) with the same filetype
+  local target_win
+  for _, w in ipairs(wins) do
+    if w ~= current_win then
+      local buf = vim.api.nvim_win_get_buf(w)
+      local ft = vim.api.nvim_get_option_value("filetype", { buf = buf })
+      if ft == current_ft then
+        target_win = w
+        break
+      end
+    end
+  end
+
+  if not target_win then
+    vim.notify("No other window with the same filetype found.", vim.log.levels.WARN)
+    return
+  end
+
+  -- Check if currently in diff mode
+  local current_diff = vim.api.nvim_get_option_value("diff", { win = current_win })
+  local target_diff = vim.api.nvim_get_option_value("diff", { win = target_win })
+  local already_diffed = current_diff or target_diff
+
+  if already_diffed then
+    -- If already diffed, turn off diff mode for all windows
+    vim.cmd("diffoff!")
+  else
+    -- If not diffed yet, run :diffthis in both
+    for _, w in ipairs({ current_win, target_win }) do
+      vim.api.nvim_set_current_win(w)
+      vim.cmd("diffthis")
+    end
+  end
+
+  -- Restore the originally active window
+  vim.api.nvim_set_current_win(current_win)
+end, { desc = "compar buffers" })
 
 vim.keymap.del("n", "<C-k>")
 -- vim.keymap.del("t", "<C-k>")
