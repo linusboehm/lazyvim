@@ -31,6 +31,9 @@ return {
         prettierd = {
           prepend_args = { "--print-width", "100", "--prose-wrap", "always" },
         },
+        sqlfluff = {
+          exit_codes = { 0, 1 },
+        },
         prettier_gitcommit = {
           command = "format_git.sh",
         },
