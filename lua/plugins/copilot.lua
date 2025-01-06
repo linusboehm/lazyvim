@@ -10,7 +10,7 @@ return {
     opts = {},
     keys = function()
       local select = require("CopilotChat.select")
-      local telescope = require("CopilotChat.integrations.telescope")
+      local fzflua = require("CopilotChat.integrations.fzflua")
       local actions = require("CopilotChat.actions")
 
       return {
@@ -36,31 +36,16 @@ return {
           mode = "v",
         },
         {
-          "<leader>ah",
-          function()
-            telescope.pick(actions.help_actions(), { selection = select.buffer })
-          end,
-          desc = "CopilotChat - Help actions",
-        },
-        {
-          "<leader>ah",
-          function()
-            telescope.pick(actions.help_actions(), { selection = select.visual })
-          end,
-          desc = "CopilotChat - Help actions",
-          mode = "v",
-        },
-        {
           "<leader>ap",
           function()
-            telescope.pick(actions.prompt_actions(), { selection = select.visual })
+            fzflua.pick(actions.prompt_actions(), { selection = select.buffer })
           end,
           desc = "CopilotChat - Prompt actions",
         },
         {
           "<leader>ap",
           function()
-            telescope.pick(actions.prompt_actions(), { selection = select.visual })
+            fzflua.pick(actions.prompt_actions(), { selection = select.visual })
           end,
           desc = "CopilotChat - Prompt actions",
           mode = "v",

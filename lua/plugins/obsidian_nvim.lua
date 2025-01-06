@@ -117,6 +117,9 @@ return {
     -- `true` indicates that you don't want obsidian.nvim to manage frontmatter.
     disable_frontmatter = false,
     open_notes_in = "current",
+    picker = {
+      name = "fzf-lua",
+    }
 
     -- see below for full list of options 👇
   },

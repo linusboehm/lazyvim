@@ -91,90 +91,37 @@ local post_proccess = function(bufnr, items, _)
 end
 
 return {
-  desc = "Aerial Symbol Browser",
-  {
-    "stevearc/aerial.nvim",
-    event = "LazyFile",
-    opts = function()
-      -- local icons = vim.deepcopy(Config.icons.kinds)
-
-      -- -- HACK: fix lua's weird choice for `Package` for control
-      -- -- structures like if/else/for/etc.
-      -- icons.lua = { Package = icons.Control }
-
-      -- ---@type table<string, string[]>|false
-      -- local filter_kind = false
-      -- if Config.kind_filter then
-      --   filter_kind = assert(vim.deepcopy(Config.kind_filter))
-      --   filter_kind._ = filter_kind.default
-      --   filter_kind.default = nil
-      -- end
-
-      local opts = {
-        -- attach_mode = "global",
-        backends = { "lsp", "treesitter", "markdown", "man" },
-        show_guides = true,
-        layout = {
-          max_width = { 30, 0.2 },
-          default_direction = "prefer_left",
-          resize_to_content = true,
-          -- win_opts = {
-          --   winhl = "Normal:NormalFloat,FloatBorder:NormalFloat,SignColumn:SignColumnSB",
-          --   signcolumn = "yes",
-          --   statuscolumn = " ",
-          -- },
-        },
-        ignore = {
-          diff_windows = false,
-          --   unlisted_buffers = false,
-          --   buftypes = false,
-          --   wintypes = false,
-        },
-        -- icons = icons,
-        -- filter_kind = filter_kind,
-        -- stylua: ignore
+  "stevearc/aerial.nvim",
+  event = "LazyFile",
+  opts = function()
+    local opts = {
+      backends = { "lsp", "treesitter", "markdown", "man" },
+      show_guides = true,
+      layout = {
+        max_width = { 30, 0.2 },
+        default_direction = "prefer_left",
+        resize_to_content = true,
+      },
+      ignore = {
+        diff_windows = false,
+      },
         filter_kind = { "Class", "Constructor", "Enum", "Function", "Interface", "Module", "Method", "String", "Struct" },
-        guides = {
-          mid_item = "├╴",
-          last_item = "└╴",
-          nested_top = "│ ",
-          whitespace = "  ",
-        },
-        post_add_all_symbols = function(bufnr, items, ctx)
-          return post_proccess(bufnr, items, ctx)
-        end,
-      }
-      return opts
-    end,
-    keys = {
-      {
-        "<leader>ua",
-        function()
-          vim.cmd("AerialToggle")
-          if vim.bo.filetype == "aerial" then
-            vim.cmd([[wincmd p]])
-          end
-        end,
-        desc = "Aerial (Symbols)",
-      },
-    },
-  },
-
-  -- Telescope integration
-  {
-    "nvim-telescope/telescope.nvim",
-    optional = true,
-    opts = function()
-      LazyVim.on_load("telescope.nvim", function()
-        require("telescope").load_extension("aerial")
-      end)
-    end,
-    keys = {
-      {
-        "<leader>ss",
-        "<cmd>Telescope aerial<cr>",
-        desc = "Goto Symbol (Aerial)",
-      },
+      post_add_all_symbols = function(bufnr, items, ctx)
+        return post_proccess(bufnr, items, ctx)
+      end,
+    }
+    return opts
+  end,
+  keys = {
+    {
+      "<leader>ua",
+      function()
+        vim.cmd("AerialToggle")
+        if vim.bo.filetype == "aerial" then
+          vim.cmd([[wincmd p]])
+        end
+      end,
+      desc = "Aerial (Symbols)",
     },
   },
 }

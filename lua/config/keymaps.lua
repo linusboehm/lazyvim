@@ -174,7 +174,6 @@ end, { desc = "Toggle window focus" })
 
 -- git-worktree
 -- stylua: ignore
-map( "n", "<Leader>gw", "<CMD>lua require('telescope').extensions.git_worktree.git_worktrees()<CR>", { desc = "git worktree" })
 map("n", "<Leader>rb", function()
   local lazy = require("bufferline.lazy")
   local state = lazy.require("bufferline.state") ---@module "bufferline.state"
@@ -233,7 +232,7 @@ map("n", "<Leader>bc", function()
 
   -- Restore the originally active window
   vim.api.nvim_set_current_win(current_win)
-end, { desc = "compar buffers" })
+end, { desc = "diff buffers" })
 
 vim.keymap.del("n", "<C-k>")
 -- vim.keymap.del("t", "<C-k>")

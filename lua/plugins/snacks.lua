@@ -21,7 +21,6 @@ local logo = [[
 LAST_CMD = nil
 
 function SearchBashHistory()
-  Snacks.notify.info("running search!")
   require("telescope.builtin").find_files({
     prompt_title = "Search Bash History",
     cwd = "~",
@@ -150,6 +149,7 @@ return {
     styles = { terminal = { keys = { gf = false } } },
   },
   keys = {
+    {"<leader>ua", false},
     {
       "<leader>z",
       function()

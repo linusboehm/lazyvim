@@ -57,24 +57,6 @@ local open_file_under_cursor = function()
   misc_util.open_file(filename, line_nr, col_nr)
 end
 
--- local open_python_file = function(line)
---
---   local _, _, path, line_nr = string.find(line, '"([^"]*)".*line (%d+)')
---   CoreUtil.info("trying to open: " .. path .. ":" .. line_nr, { title = "filename" })
---   misc_util.open_file_at_location(path, line_nr, 1)
---
---   -- local Util = require("lazyvim.util")
---   -- Util.telescope("find_files", {
---   --   default_text = default_text,
---   --   cwd = git_root,
---   --   on_complete = {
---   --     function(picker)
---   --       require("telescope.actions").select_default(picker.prompt_bufnr)
---   --     end,
---   --   },
---   -- })()
--- end
-
 -- SEARCH THROUGH CPP COMPILER OUTPUT/PYTHON ERRORS
 local user = os.getenv("USER")
 -- local hostname = tostring(os.getenv("HOSTNAME"))
