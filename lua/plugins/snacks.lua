@@ -104,13 +104,43 @@ return {
         -- },
       },
     },
+    git = { enabled = true },
+    lazygit = { enabled = true },
     notifier = { enabled = true },
     quickfile = { enabled = true },
+    scratch = {
+      enabled = true,
+      win_by_ft = {
+        cpp = {
+          keys = {
+            ["Godbolt"] = {
+              "<leader><cr>",
+              function(self)
+                vim.cmd("Godbolt")
+              end,
+              desc = "Godbolt",
+              mode = { "n", "x" },
+            },
+          },
+        },
+        python = {
+          keys = {
+            ["source"] = {
+              "<cr>",
+              function(self)
+                local name = "scratch." .. vim.fn.fnamemodify(vim.api.nvim_buf_get_name(self.buf), ":e")
+                Snacks.debug.run({ buf = self.buf, name = name })
+              end,
+              desc = "Source buffer",
+              mode = { "n", "x" },
+            },
+          },
+        },
+      },
+    },
     statuscolumn = { enabled = true },
-    words = { enabled = true },
     terminal = { enabled = true },
-    lazygit = { enabled = true },
-    git = { enabled = true },
+    words = { enabled = true },
     zen = {
       toggles = {
         dim = false,
@@ -149,7 +179,7 @@ return {
     styles = { terminal = { keys = { gf = false } } },
   },
   keys = {
-    {"<leader>ua", false},
+    { "<leader>ua", false },
     {
       "<leader>z",
       function()
