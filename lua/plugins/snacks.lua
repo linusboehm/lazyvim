@@ -221,6 +221,22 @@ return {
     lazygit = { enabled = true },
     notifier = { enabled = true },
     quickfile = { enabled = true },
+    input = {
+      win = {
+        keys = {
+          i_del_word = { "<C-w>", "delete_WORD", mode = "i" },
+          i_del_to_slash = { "<A-BS>", "delete_word", mode = "i" },
+        },
+        actions = {
+          delete_WORD = function()
+            vim.cmd("normal! diW<cr>")
+          end,
+          delete_word = function()
+            vim.cmd("normal! diw<cr>")
+          end,
+        },
+      },
+    },
     scratch = {
       enabled = true,
       win_by_ft = {
