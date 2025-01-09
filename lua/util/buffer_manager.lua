@@ -85,7 +85,6 @@ local function get_contents(bufnr)
 end
 
 local function open_missing_buffers(elements, files)
-
   -- Create a lookup table buf -> index
   local buf_to_index = {}
   for index, name in ipairs(elements) do
@@ -121,7 +120,9 @@ M.sort_by_buffer_mngr = function(buffer_a, buffer_b)
   if M.bm_file_to_idx == nil then
     return false
   end
-  if M.bm_file_to_idx[path_formatter(buffer_a.path)] == nil or M.bm_file_to_idx[path_formatter(buffer_b.path)] == nil then
+  if
+    M.bm_file_to_idx[path_formatter(buffer_a.path)] == nil or M.bm_file_to_idx[path_formatter(buffer_b.path)] == nil
+  then
     return false
   end
   return M.bm_file_to_idx[path_formatter(buffer_a.path)] < M.bm_file_to_idx[path_formatter(buffer_b.path)]

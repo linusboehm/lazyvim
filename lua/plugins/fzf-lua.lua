@@ -6,7 +6,9 @@ local function get_open_buffers()
   local elements = state.components
   local paths = {}
   for _, name in ipairs(elements) do
-    table.insert(paths, name.path)
+    if (vim.uv or vim.loop).fs_stat(name.path) then
+      table.insert(paths, name.path)
+    end
   end
   return paths
 end
