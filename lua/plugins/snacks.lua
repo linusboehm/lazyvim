@@ -210,6 +210,7 @@ return {
           indent = 3,
         },
         { section = "startup" },
+        -- { section = "terminal", cmd = "curl -s 'wttr.in/?0'", pane = 1 },
         -- { section = "terminal",
         --   cmd = "$HOME/.config/nvim/lua/plugins/colorstrip",
         --   height = 2,
