@@ -1,6 +1,9 @@
 M = {}
 
 local filetype = ""
+local out_buf = -1
+local scratch_win = -1
+local out_win = -1
 
 function M.get_filetype()
   if filetype ~= "" then
@@ -42,8 +45,14 @@ Snacks.config.style("output", {
 local function show_output(lines, opts)
   opts = Snacks.config.get("output", defaults, opts)
   opts.win = Snacks.win.resolve("output", opts.win, { show = false })
+  scratch_win = vim.api.nvim_get_current_win()
 
-  local out_buf = vim.api.nvim_create_buf(false, true)
+  local old_buf = true
+
+  if not vim.api.nvim_buf_is_valid(out_buf) or not vim.api.nvim_buf_is_loaded(out_buf) then
+    out_buf = vim.api.nvim_create_buf(false, true)
+    old_buf = false
+  end
 
   local content = {}
   for line in lines:gmatch("([^\n]*)\n?") do
@@ -58,8 +67,43 @@ local function show_output(lines, opts)
     end
   end
   vim.api.nvim_buf_set_lines(out_buf, 0, -1, false, content)
+
+  if old_buf then
+    -- when reusing an old output buffer, just focus on the window and return
+    vim.api.nvim_set_current_win(out_win)
+    return
+  end
+
   opts.win.buf = out_buf
-  return Snacks.win(opts.win):show()
+
+  vim.api.nvim_create_autocmd("BufLeave", {
+    group = vim.api.nvim_create_augroup("output_leave_" .. out_buf, { clear = true }),
+    buffer = out_buf,
+    callback = function()
+      if vim.api.nvim_win_is_valid(scratch_win) then
+        Snacks.notify.info("Left output buffer. Going to win: " .. scratch_win)
+        vim.defer_fn(function()
+          vim.api.nvim_set_current_win(scratch_win)
+        end, 0) -- Delay of 10 milliseconds
+      end
+    end,
+  })
+
+  vim.api.nvim_create_autocmd("BufHidden", {
+    group = vim.api.nvim_create_augroup("ouput_leave_" .. out_buf, { clear = true }),
+    buffer = out_buf,
+    callback = function()
+      Snacks.notify.info("Output buffer closed.")
+      out_buf = -1
+    end,
+  })
+  opts.win.keys = opts.win.keys or {}
+  opts.win.keys.reset = { "q", function() vim.cmd([[close]]) end, desc = "close" }
+
+  local ret = Snacks.win(opts.win):show()
+  -- save output window, in case we re-use it
+  out_win = vim.api.nvim_get_current_win()
+  return ret
 end
 
 --- Run the current buffer or a range of lines.
