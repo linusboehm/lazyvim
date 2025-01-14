@@ -1,6 +1,6 @@
 return {
   {
-    url = "linusboehm/godbolt.nvim",
+    url = "https://github.com/linusboehm/godbolt.nvim",
     cmd = {
       "Godbolt",
       "GodboltCompiler",
