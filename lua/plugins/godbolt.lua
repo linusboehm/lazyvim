@@ -1,6 +1,6 @@
 return {
   {
-    url = "https://git.sr.ht/~p00f/godbolt.nvim/",
+    url = "linusboehm/godbolt.nvim",
     cmd = {
       "Godbolt",
       "GodboltCompiler",
