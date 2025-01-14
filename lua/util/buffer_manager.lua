@@ -47,13 +47,6 @@ local defaults = {
   win = { style = "bufman" },
 }
 
-Snacks.util.set_hl({
-  Title = "FloatTitle",
-  Footer = "FloatFooter",
-  Key = "DiagnosticVirtualTextInfo",
-  Desc = "DiagnosticInfo",
-}, { prefix = "SnacksScratch" })
-
 Snacks.config.style("bufman", {
   width = 100,
   height = 30,

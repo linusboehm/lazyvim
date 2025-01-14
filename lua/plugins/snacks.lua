@@ -132,12 +132,14 @@ return {
         return scratch_run.get_filetype()
       end,
       win = {
-        width = 100,
-        height = 45,
+        width = scratch_run.opts.win.width,
+        height = scratch_run.opts.win.height,
+        col = scratch_run.opts.win.boarder,
         bo = { buftype = "", buflisted = false, bufhidden = "hide", swapfile = false },
         minimal = false,
+        autowrite = true,
         noautocmd = false,
-        -- position = "right",
+        -- position = "left",
         zindex = 20,
         wo = { winhighlight = "NormalFloat:Normal" },
         border = "rounded",
@@ -147,10 +149,20 @@ return {
       win_by_ft = {
         cpp = {
           keys = {
-            ["Godbolt"] = {
+            ["compile"] = {
               "<cr>",
               function(self)
-                vim.cmd("Godbolt")
+                local name = "scratch." .. vim.fn.fnamemodify(vim.api.nvim_buf_get_name(self.buf), ":e")
+                scratch_run.run_cpp({ buf = self.buf, name = name })
+              end,
+              desc = "Godbolt",
+              mode = { "n", "x" },
+            },
+            ["compile with"] = {
+              "<space><cr>",
+              function(self)
+                local name = "scratch." .. vim.fn.fnamemodify(vim.api.nvim_buf_get_name(self.buf), ":e")
+                scratch_run.run_cpp({ buf = self.buf, name = name }, "telescope")
               end,
               desc = "Godbolt",
               mode = { "n", "x" },
