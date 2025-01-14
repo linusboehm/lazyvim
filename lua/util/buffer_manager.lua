@@ -6,7 +6,7 @@ local utils = lazy.require("bufferline.utils") ---@module "bufferline.utils"
 local config = lazy.require("bufferline.config")
 local ui = lazy.require("bufferline.ui") ---@module "bufferline.ui"
 
-M = {}
+local M = {}
 M.bm_file_to_idx = nil
 
 local uv = vim.uv or vim.loop

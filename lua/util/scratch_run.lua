@@ -1,4 +1,4 @@
-M = {}
+local M = {}
 
 local width = math.floor(vim.api.nvim_get_option("columns") * 0.4)
 local height = math.floor(vim.api.nvim_get_option("lines") * 0.8)
