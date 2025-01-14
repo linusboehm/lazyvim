@@ -7,7 +7,7 @@ return {
     },
     opts = {
       languages = {
-        cpp = { compiler = "g131", options = {} },
+        cpp = { compiler = "g131", options = { userArguments = "-fsanitize=address -std=c++20 -O0"} },
         -- c = { compiler = "cg122", options = {} },
         -- rust = { compiler = "r1650", options = {} },
       },
