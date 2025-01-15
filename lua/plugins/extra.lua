@@ -2,9 +2,6 @@ local misc = require("util.misc")
 
 return {
   {
-    "nvim-telescope/telescope.nvim",
-  },
-  {
     "lukas-reineke/indent-blankline.nvim",
     enabled = false,
     main = "ibl",

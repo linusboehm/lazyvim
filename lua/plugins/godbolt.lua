@@ -28,9 +28,9 @@ return {
       {
         "<leader>cG",
         function()
-          vim.cmd("GodboltCompiler telescope")
+          vim.cmd("GodboltCompiler fzflua")
         end,
-        desc = "Godbolt/CompilerExplorer telescope",
+        desc = "Godbolt/CompilerExplorer fzf-lua",
         mode = { "n" },
       },
       {
@@ -50,9 +50,9 @@ return {
       {
         "<leader>cG",
         function()
-          vim.cmd("'<,'>GodboltCompiler telescope")
+          vim.cmd("'<,'>GodboltCompiler fzflua")
         end,
-        desc = "Godbolt/CompilerExplorer telescope",
+        desc = "Godbolt/CompilerExplorer fzf-lua",
         mode = { "v" },
       },
     },

@@ -1,26 +1,35 @@
 local M = {}
 
 local misc_util = require("util.misc")
-local CoreUtil = require("lazy.core.util")
 
 local function run_cmd(cmd)
   local keys = [[<esc>i<C-e><C-u>]] .. cmd .. [[<CR>]]
   local key = vim.api.nvim_replace_termcodes(keys, true, false, true)
-  vim.api.nvim_feedkeys(key, "n", false)
+  vim.api.nvim_input(key)
+end
+
+local function find_window_with_filetype(filetype)
+  for _, win in ipairs(vim.api.nvim_list_wins()) do
+    local buf = vim.api.nvim_win_get_buf(win)
+    if vim.api.nvim_buf_get_option(buf, "filetype") == filetype then
+      return win
+    end
+  end
+  return nil
 end
 
 function M.go_to_terminal(cb)
-  for _ = 1, 5 do
-    -- term://~/repos/trading_platform/scripts//28571:/bin/bash;#toggleterm#1
-    -- if string.find(vim.fn.expand("%"), "/bin/bash;#toggleterm") then
-    if vim.bo.filetype == "snacks_terminal" then
-      cb()
-      return
-    end
-    vim.api.nvim_command([[wincmd j]])
+  local sc_cb = function()
+    vim.schedule(cb)
   end
-  local opts = {win = { on_buf = cb  }}
-  Snacks.terminal(nil, opts)
+  local term_win = find_window_with_filetype("snacks_terminal")
+  if term_win then
+    vim.api.nvim_set_current_win(term_win)
+    cb()
+  else
+    local opts = { win = { on_buf = cb } }
+    Snacks.terminal(nil, opts)
+  end
 end
 
 function M.run_in_terminal(cmd)
@@ -75,8 +84,12 @@ local search_cmd = "<cmd>set nowrapscan<CR>G?.<CR>k?"
 function _G.set_terminal_keymaps()
   local opts = { buffer = 0 }
   -- vim.keymap.set("t", "<esc>", function() vim.cmd("stopinsert") end, opts)
-  vim.keymap.set("t", "jj",    function() vim.cmd("stopinsert") end, opts)
-  vim.keymap.set("t", "kk",    function() vim.cmd("stopinsert") end, opts)
+  vim.keymap.set("t", "jj", function()
+    vim.cmd("stopinsert")
+  end, opts)
+  vim.keymap.set("t", "kk", function()
+    vim.cmd("stopinsert")
+  end, opts)
   -- need to enter normal mode before command and re-enter interactive mode after:
   vim.keymap.set("t", "<C-f>", [[<C-\><C-n>]] .. search_cmd, opts)
   vim.keymap.set("n", "<C-f>", search_cmd, opts)

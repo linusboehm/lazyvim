@@ -1,7 +1,7 @@
 local term_utils = require("util.toggletem_utils")
-local actions = require("telescope.actions")
-local action_state = require("telescope.actions.state")
 local scratch_run = require("util.scratch_run")
+
+local fzf_lua = require("fzf-lua")
 
 local logo = [[
                     ███████            
@@ -22,48 +22,38 @@ local logo = [[
 LAST_CMD = nil
 
 function SearchBashHistory()
-  require("telescope.builtin").find_files({
-    prompt_title = "Search Bash History",
-    cwd = "~",
-    find_command = { "bash", "-c", "history -r; tail -n 10000 ~/.bash_history | tac | awk '!/^#/ && !count[$0]++'" },
-    previewer = require("telescope.previewers").new_buffer_previewer({
-      define_preview = function(self, entry, status)
-        -- Set the buffer content to the selected line
-        vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, { entry.value })
-
-        local winid = self.state.winid
-
-        vim.wo[winid].wrap = true
-        vim.wo[winid].number = false
-        vim.wo[winid].relativenumber = false
-        vim.wo[winid].signcolumn = "no"
-
-        vim.wo[winid].linebreak = true -- Enable linebreak
-        vim.wo[winid].breakindent = true
-        vim.wo[winid].breakindentopt = "shift:2" -- Indent by 4 spaces
-
-        vim.bo[self.state.bufnr].filetype = "bash"
+  local opts = vim.tbl_extend("force", {
+    prompt = "history" .. "> ",
+    preview = {
+      type = "cmd",
+      fn = function(items)
+        return string.format("echo %s | bat --style=plain --color=always -l bash --theme='tokyonight_night'", items[1])
       end,
-    }),
-    sorter = require("telescope.sorters").fuzzy_with_index_bias(),
-    layout_strategy = "vertical",
-    layout_config = {
-      width = 0.75,
-      height = 0.5,
-      preview_height = 5,
-      mirror = true, -- Position preview above results
     },
-    attach_mappings = function(prompt_bufnr, map)
-      actions.select_default:replace(function()
-        actions.close(prompt_bufnr)
-        local selection = action_state.get_selected_entry()
-        local result = selection[1]
-        LAST_CMD = result
-        term_utils.run_in_terminal(LAST_CMD)
-      end)
-      return true
+    fzf_opts = {
+      ["--scheme"] = "history",
+    },
+    winopts = {
+      preview = {
+        wrap = "wrap",
+        vertical = "up:3",
+        layout = "vertical",
+      },
+    },
+    fn_transform = function(x)
+      return fzf_lua.utils.ansi_codes.magenta(x)
     end,
-  })
+    actions = {
+      ["default"] = function(selected)
+        if not selected or vim.tbl_isempty(selected) then
+          return
+        end
+        LAST_CMD = selected[1]
+        term_utils.run_in_terminal(LAST_CMD)
+      end,
+    },
+  }, opts or {})
+  fzf_lua.fzf_exec("history -r; tail -n 10000 ~/.bash_history | tac | awk '!/^#/ && !count[$0]++'", opts)
 end
 
 return {
@@ -162,7 +152,7 @@ return {
               "<space><cr>",
               function(self)
                 local name = "scratch." .. vim.fn.fnamemodify(vim.api.nvim_buf_get_name(self.buf), ":e")
-                scratch_run.run_cpp({ buf = self.buf, name = name }, "telescope")
+                scratch_run.run_cpp({ buf = self.buf, name = name }, "fzflua")
               end,
               desc = "Godbolt",
               mode = { "n", "x" },
