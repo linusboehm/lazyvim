@@ -18,10 +18,7 @@ local function find_window_with_filetype(filetype)
   return nil
 end
 
-function M.go_to_terminal(cb)
-  local sc_cb = function()
-    vim.schedule(cb)
-  end
+local function call_in_terminal(cb)
   local term_win = find_window_with_filetype("snacks_terminal")
   if term_win then
     vim.api.nvim_set_current_win(term_win)
@@ -42,7 +39,7 @@ function M.run_in_terminal(cmd)
   local cb = function()
     run_cmd(cmd)
   end
-  M.go_to_terminal(cb)
+  call_in_terminal(cb)
   vim.schedule(function()
     vim.api.nvim_set_current_win(curr_win)
   end)
