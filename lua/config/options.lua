@@ -15,3 +15,5 @@ opt.laststatus = 2 -- Show statusline per buffer
 vim.g.lazygit_config = false
 
 vim.g.autoformat = false
+
+vim.g.lazyvim_picker = "snacks"

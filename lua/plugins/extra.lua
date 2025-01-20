@@ -1,6 +1,7 @@
 local misc = require("util.misc")
 
 return {
+  { "folke/tokyonight.nvim", lazy = true, opts = { style = "moon" } },
   {
     "lukas-reineke/indent-blankline.nvim",
     enabled = false,

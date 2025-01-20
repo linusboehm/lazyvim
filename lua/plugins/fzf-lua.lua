@@ -16,7 +16,9 @@ end
 return {
   {
     "ibhagwan/fzf-lua",
+    enabled = false,
     cmd = "FzfLua",
+    -- stylua: ignore
     keys = {
       { "gc", "<cmd>FzfLua lsp_incoming_calls<cr>", desc = "Goto fzf incoming calls" },
 
@@ -42,7 +44,7 @@ return {
       { '<leader>s"', false, "<cmd>FzfLua registers<cr>", desc = "Registers" },
       { "<leader>sa", false, "<cmd>FzfLua autocmds<cr>", desc = "Auto Commands" },
       -- { "<leader>sb", "<cmd>FzfLua grep_curbuf<cr>", desc = "Buffer" },
-      { "<leader>sb", "<cmd>FzfLua buffers sort_mru=true sort_lastused=true<cr>", desc = "Search buffer names" },
+      -- { "<leader>sb", "<cmd>FzfLua buffers sort_mru=true sort_lastused=true<cr>", desc = "Search buffer names" },
       { "<leader>sg", false, LazyVim.pick("live_grep"), desc = "Grep (Root Dir)" },
       { "<leader>sG", false, LazyVim.pick("live_grep", { root = false }), desc = "Grep (cwd)" },
       { "<leader>sH", false, "<cmd>FzfLua highlights<cr>", desc = "Search Highlight Groups" },
@@ -54,46 +56,14 @@ return {
       { "<leader>br", "<cmd>FzfLua oldfiles<cr>", desc = "Recent" },
       -- { "<leader>so", false },
       -- { "<leader>sl", false, LazyVim.pick.config_files(), desc = "Find nvim config file" },
-      {
-        "<leader>so",
-        LazyVim.pick("live_grep", {
-          search_paths = { home_dir .. "/vaults", home_dir .. "/anki" },
-        }),
-        desc = "Search obsidian",
-      },
-      {
-        "<leader>sq",
-        LazyVim.pick("live_grep", {
-          cwd = home_dir .. "/.local/share/db_ui",
-        }),
-        desc = "Search db queries",
-      },
+      { "<leader>so", LazyVim.pick("live_grep", { search_paths = { home_dir .. "/vaults", home_dir .. "/anki" }, }), desc = "Search obsidian", },
+      { "<leader>sq", LazyVim.pick("live_grep", { cwd = home_dir .. "/.local/share/db_ui", }), desc = "Search db queries" },
       { "<leader>sM", "<cmd>FzfLua man_pages<cr>", desc = "Man Pages" },
       { "<leader>sm", false, "<cmd>FzfLua marks<cr>", desc = "Jump to Mark" },
       { "<leader>sw", LazyVim.pick("grep_cword", { cwd = Snacks.git.get_root() }), desc = "Word (Root Dir)" },
-
-      {
-        "<leader>sW",
-        function()
-          require("fzf-lua").grep_cword({ search_paths = get_open_buffers() })
-        end,
-        desc = "Word in buffer",
-      },
-      {
-        "<leader>sW",
-        function()
-          require("fzf-lua").grep_visual({ search_paths = get_open_buffers() })
-        end,
-        mode = "v",
-        desc = "Selection in open biffers",
-      },
-      {
-        "<leader>sib",
-        function()
-          require("fzf-lua").live_grep({ search_paths = get_open_buffers() })
-        end,
-        desc = "Search in buffers",
-      },
+      { "<leader>sW", function() require("fzf-lua").grep_cword({ search_paths = get_open_buffers() }) end, desc = "Word in buffer" },
+      { "<leader>sW", function() require("fzf-lua").grep_visual({ search_paths = get_open_buffers() }) end, mode = "v", desc = "Selection in open buffers" },
+      { "<leader>sib", function() require("fzf-lua").live_grep({ search_paths = get_open_buffers() }) end, desc = "Search in buffers" },
     },
   },
 }
