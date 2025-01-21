@@ -267,7 +267,7 @@ return {
 
     -- Grep
     -- { "<leader>sb", function() Snacks.picker.lines() end, desc = "Buffer Lines" },
-    { "<leader>sb", false, desc = "Buffer Lines" },
+    -- { "<leader>sb", false, desc = "Buffer Lines" },
     { "<leader>sB", false, desc = "Grep Open Buffers" },
     { "<leader>sio", function() Snacks.picker.grep_buffers() end, desc = "Grep Open Buffers" },
     { "<leader>sib", function() local file_p = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ":.") Snacks.picker.grep({glob=file_p}) end, desc = "Grep current buffer" },
