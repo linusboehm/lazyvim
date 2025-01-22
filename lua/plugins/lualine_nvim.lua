@@ -20,11 +20,11 @@ local recording = function(is_active)
   if not is_active then
     return {}
   end
-  -- return {
-  --   require("noice").api.status.mode.get,
-  --   cond = require("noice").api.status.mode.has,
-  --   color = { fg = "#ff9e64" },
-  -- }
+  return {
+    require("noice").api.status.mode.get,
+    cond = require("noice").api.status.mode.has,
+    color = { fg = "#ff9e64" },
+  }
 end
 
 local section_settings = function(is_active)
