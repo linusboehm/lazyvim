@@ -176,7 +176,7 @@ return {
       },
     },
     statuscolumn = { enabled = true },
-    terminal = { enabled = true, interactive = false },
+    terminal = { enabled = true, interactive = false, win = { wo = { winbar = "" }}},
     words = { enabled = true },
     zen = {
       toggles = {
