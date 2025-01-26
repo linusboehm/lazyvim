@@ -79,7 +79,7 @@ local search_cmd = "<cmd>set nowrapscan<CR>G?.<CR>k?"
   .. [[<CR><cmd>set wrapscan<CR>]]
 
 -- OPEN C++/PYTHON on ERROR
-function _G.set_terminal_keymaps()
+local function set_terminal_keymaps()
   local opts = { buffer = 0 }
   -- vim.keymap.set("t", "<esc>", function() vim.cmd("stopinsert") end, opts)
   vim.keymap.set("t", "jj", function()
@@ -94,13 +94,37 @@ function _G.set_terminal_keymaps()
   vim.keymap.set("n", "gf", open_file_under_cursor, opts)
 end
 
+local was_insert = true
+
+local function set_terminal_autocommands()
+  local buf = vim.api.nvim_win_get_buf(0)
+
+  vim.api.nvim_create_autocmd("BufEnter", {
+    buffer = buf,
+    callback = function()
+      if was_insert then
+        vim.cmd.startinsert()
+      end
+    end,
+  })
+
+  vim.api.nvim_create_autocmd("BufLeave", {
+    buffer = buf,
+    callback = function()
+      was_insert = vim.api.nvim_get_mode().mode == "t"
+    end,
+  })
+end
+
 -- vim.cmd("autocmd! TermOpen term://*toggleterm#* lua set_terminal_keymaps()")
 vim.api.nvim_create_autocmd("TermOpen", {
   pattern = "term://*bash",
   callback = function(ev)
     if vim.bo.filetype == "snacks_terminal" then
-      Snacks.notify("Terminal opened!")
       set_terminal_keymaps()
+      -- remember if was in insert mode ore not
+      set_terminal_autocommands()
+      vim.cmd.startinsert()
     end
   end,
 })
