@@ -98,7 +98,7 @@ return {
       },
     },
     git = { enabled = true },
-    lazygit = { enabled = true },
+    lazygit = { enabled = true, interactive = true },
     notifier = { enabled = true },
     quickfile = { enabled = true },
     input = {
@@ -176,7 +176,7 @@ return {
       },
     },
     statuscolumn = { enabled = true },
-    terminal = { enabled = true },
+    terminal = { enabled = true, interactive = false },
     words = { enabled = true },
     zen = {
       toggles = {
