@@ -50,9 +50,7 @@ vim.api.nvim_create_autocmd({ "BufEnter" }, {
     if git_root ~= "/" then
       local path = vim.o.path
       if not string.find(path, git_root, 1, true) then
-        print(vim.o.path)
         vim.o.path = path .. "," .. git_root .. "/"
-        print(vim.o.path)
       end
     end
   end,
