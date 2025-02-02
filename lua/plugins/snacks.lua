@@ -22,6 +22,41 @@ local logo = [[
 
 LAST_CMD = nil
 
+-- -- Snacks pikcer for bash hisotry, sorting doesn't work yet
+-- local layouts = require("snacks.picker.config.layouts")
+-- local custom_l = vim.deepcopy(layouts.dropdown)
+-- custom_l.layout[1].height = 0.15
+--
+--
+-- Snacks.picker({
+--   finder = "proc",
+--   cmd = "bash",
+--   args = { "-c", "history -r; tail -n 10000 ~/.bash_history | tac | awk '!/^#/ && !count[$0]++'" },
+--   -- name = "cmd",
+--   format = "text",
+--   preview = function(ctx)
+--     if ctx.item.buf and not ctx.item.file and not vim.api.nvim_buf_is_valid(ctx.item.buf) then
+--       ctx.preview:notify("Buffer no longer exists", "error")
+--       return
+--     end
+--     ctx.preview:set_lines({ ctx.item.text })
+--     ctx.preview:highlight({ ft = "bash", buf = ctx.buf })
+--   end,
+--   layout = custom_l,
+--   win = { preview = { wo = { number = false, relativenumber = false, signcolumn = "no", wrap = true } } },
+--   confirm = function(picker, item)
+--     picker:close()
+--     if item then
+--       LAST_CMD = item.text
+--       term_utils.run_in_terminal(LAST_CMD)
+--     end
+--   end,
+--   formatters = { text = { ft = "bash" } },
+-- })
+
+
+
+
 function SearchBashHistory()
   local opts = vim.tbl_extend("force", {
     prompt = "history" .. "> ",
