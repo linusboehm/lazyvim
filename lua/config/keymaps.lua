@@ -28,6 +28,9 @@ map({ "n", "v", "i", "t" }, "<C-Down>", "<cmd>resize -10<cr>", { desc = "Decreas
 map({ "n", "v", "i", "t" }, "<C-Left>", "<cmd>vertical resize -10<cr>", { desc = "Decrease window width" })
 map({ "n", "v", "i", "t" }, "<C-Right>", "<cmd>vertical resize +10<cr>", { desc = "Increase window width" })
 
+-- TESTS
+map({ "n" }, "<leader>tt", require("util.custom_functions").dict_to_squiggle_py)
+
 map({ "n" }, "<leader>bm", function()
   require("util.buffer_manager").open()
 end, { desc = "bla" })

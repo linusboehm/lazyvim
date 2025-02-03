@@ -79,7 +79,9 @@ function M.open_file(filename, line_nr, col_nr)
   else
     M.go_to_text_buffer()
     vim.schedule(function()
-      if col_nr == nil then col_nr = "1" end
+      if col_nr == nil then
+        col_nr = "1"
+      end
       Snacks.notify.info(("Opening: %s:%s:%s"):format(f, line_nr, col_nr - 1))
       vim.cmd("e " .. f)
       if line_nr ~= nil then
