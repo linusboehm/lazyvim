@@ -188,7 +188,7 @@ return {
               "<space><cr>",
               function(self)
                 local name = "scratch." .. vim.fn.fnamemodify(vim.api.nvim_buf_get_name(self.buf), ":e")
-                scratch_run.run_cpp({ buf = self.buf, name = name }, "fzflua")
+                scratch_run.run_cpp({ buf = self.buf, name = name }, "snacks_picker")
               end,
               desc = "Godbolt",
               mode = { "n", "x" },
