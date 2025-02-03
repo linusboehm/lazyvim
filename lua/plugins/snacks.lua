@@ -54,9 +54,6 @@ LAST_CMD = nil
 --   formatters = { text = { ft = "bash" } },
 -- })
 
-
-
-
 function SearchBashHistory()
   local opts = vim.tbl_extend("force", {
     prompt = "history" .. "> ",
@@ -133,7 +130,14 @@ return {
       },
     },
     git = { enabled = true },
-    lazygit = { enabled = true, interactive = true },
+
+    lazygit = {
+      enabled = true,
+      interactive = true,
+      config = {
+        os = { editPreset = "" }, -- use `editPreset = "nvim-remote"` to edit in main nvim window
+      },
+    },
     notifier = { enabled = true },
     quickfile = { enabled = true },
     input = {
@@ -211,7 +215,7 @@ return {
       },
     },
     statuscolumn = { enabled = true },
-    terminal = { enabled = true, interactive = false, win = { wo = { winbar = "" }}},
+    terminal = { enabled = true, interactive = false, win = { wo = { winbar = "" } } },
     words = { enabled = true },
     zen = {
       toggles = {
