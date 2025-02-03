@@ -10,7 +10,7 @@ return {
     opts = {},
     keys = function()
       local select = require("CopilotChat.select")
-      local fzflua = require("CopilotChat.integrations.fzflua")
+      local snacks_integration = require("CopilotChat.integrations.snacks")
       local actions = require("CopilotChat.actions")
 
       return {
@@ -38,14 +38,14 @@ return {
         {
           "<leader>ap",
           function()
-            fzflua.pick(actions.prompt_actions(), { selection = select.buffer })
+            snacks_integration.pick(actions.prompt_actions(), { selection = select.buffer, layout = "dropdown" })
           end,
           desc = "CopilotChat - Prompt actions",
         },
         {
           "<leader>ap",
           function()
-            fzflua.pick(actions.prompt_actions(), { selection = select.visual })
+            snacks_integration.pick(actions.prompt_actions(), { selection = select.visual, layout = "dropdown" })
           end,
           desc = "CopilotChat - Prompt actions",
           mode = "v",
