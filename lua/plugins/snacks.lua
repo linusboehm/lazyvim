@@ -2,8 +2,6 @@ local term_utils = require("util.toggletem_utils")
 local scratch_run = require("util.scratch_run")
 local home_dir = vim.fn.expand("~")
 
-local fzf_lua = require("fzf-lua")
-
 local logo = [[
                     ███████            
                   ██░░░░░░░██          
@@ -22,71 +20,43 @@ local logo = [[
 
 LAST_CMD = nil
 
--- -- Snacks pikcer for bash hisotry, sorting doesn't work yet
--- local layouts = require("snacks.picker.config.layouts")
--- local custom_l = vim.deepcopy(layouts.dropdown)
--- custom_l.layout[1].height = 0.15
---
---
--- Snacks.picker({
---   finder = "proc",
---   cmd = "bash",
---   args = { "-c", "history -r; tail -n 10000 ~/.bash_history | tac | awk '!/^#/ && !count[$0]++'" },
---   -- name = "cmd",
---   format = "text",
---   preview = function(ctx)
---     if ctx.item.buf and not ctx.item.file and not vim.api.nvim_buf_is_valid(ctx.item.buf) then
---       ctx.preview:notify("Buffer no longer exists", "error")
---       return
---     end
---     ctx.preview:set_lines({ ctx.item.text })
---     ctx.preview:highlight({ ft = "bash", buf = ctx.buf })
---   end,
---   layout = custom_l,
---   win = { preview = { wo = { number = false, relativenumber = false, signcolumn = "no", wrap = true } } },
---   confirm = function(picker, item)
---     picker:close()
---     if item then
---       LAST_CMD = item.text
---       term_utils.run_in_terminal(LAST_CMD)
---     end
---   end,
---   formatters = { text = { ft = "bash" } },
--- })
+-- Snacks pikcer for bash hisotry, sorting doesn't work yet
+local layouts = require("snacks.picker.config.layouts")
+local custom_l = vim.deepcopy(layouts.dropdown)
+custom_l.layout[1].height = 0.15
 
 function SearchBashHistory()
-  local opts = vim.tbl_extend("force", {
-    prompt = "history" .. "> ",
-    preview = {
-      type = "cmd",
-      fn = function(items)
-        return string.format("echo %s | bat --style=plain --color=always -l bash --theme='tokyonight_night'", items[1])
-      end,
-    },
-    fzf_opts = {
-      ["--scheme"] = "history",
-    },
-    winopts = {
-      preview = {
-        wrap = "wrap",
-        vertical = "up:3",
-        layout = "vertical",
-      },
-    },
-    fn_transform = function(x)
-      return fzf_lua.utils.ansi_codes.magenta(x)
+  Snacks.picker({
+    title = "bash history",
+    finder = "proc",
+    cmd = "bash",
+    args = { "-c", "history -r; tail -n 10000 ~/.bash_history | tac | awk '!/^#/ && !count[$0]++'" },
+    -- name = "cmd",
+    format = "text",
+    preview = function(ctx)
+      if ctx.item.buf and not ctx.item.file and not vim.api.nvim_buf_is_valid(ctx.item.buf) then
+        ctx.preview:notify("Buffer no longer exists", "error")
+        return
+      end
+      ctx.preview:set_lines({ ctx.item.text })
+      ctx.preview:highlight({ ft = "bash", buf = ctx.buf })
     end,
-    actions = {
-      ["default"] = function(selected)
-        if not selected or vim.tbl_isempty(selected) then
-          return
-        end
-        LAST_CMD = selected[1]
-        term_utils.run_in_terminal(LAST_CMD)
-      end,
+    layout = custom_l,
+    matcher = {
+      filename_bonus = false,
+      history_bonus = true,
     },
-  }, opts or {})
-  fzf_lua.fzf_exec("history -r; tail -n 10000 ~/.bash_history | tac | awk '!/^#/ && !count[$0]++'", opts)
+    sort = { fields = { "score:desc", "idx" } },
+    win = { preview = { wo = { number = false, relativenumber = false, signcolumn = "no", wrap = true } } },
+    confirm = function(picker, item)
+      picker:close()
+      if item then
+        LAST_CMD = item.text
+        term_utils.run_in_terminal(LAST_CMD)
+      end
+    end,
+    formatters = { text = { ft = "bash" } },
+  })
 end
 
 return {

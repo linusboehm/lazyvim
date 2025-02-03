@@ -28,9 +28,9 @@ return {
       {
         "<leader>cG",
         function()
-          vim.cmd("GodboltCompiler fzflua")
+          vim.cmd("GodboltCompiler snacks_picker")
         end,
-        desc = "Godbolt/CompilerExplorer fzf-lua",
+        desc = "Godbolt/CompilerExplorer pick compiler",
         mode = { "n" },
       },
       {
@@ -50,9 +50,9 @@ return {
       {
         "<leader>cG",
         function()
-          vim.cmd("'<,'>GodboltCompiler fzflua")
+          vim.cmd("'<,'>GodboltCompiler snacks_picker")
         end,
-        desc = "Godbolt/CompilerExplorer fzf-lua",
+        desc = "Godbolt/CompilerExplorer pick compiler",
         mode = { "v" },
       },
     },
