@@ -103,7 +103,7 @@ return {
 
   -- makes some plugins dot-repeatable like leap
   { "tpope/vim-repeat", event = "VeryLazy" },
-  { "dkarter/bullets.vim", version = "*" },
+  { "dkarter/bullets.vim", enabled = false, version = "*" }, -- clashed with Snacks.picker for some reason
   { "folke/flash.nvim", opts = { modes = { search = { enabled = false }, char = { enabled = false } } } },
   { "opdavies/toggle-checkbox.nvim", enabled = false, version = "*" },
 
