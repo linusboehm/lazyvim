@@ -9,10 +9,10 @@ return {
       formatters_by_ft = {
         ["cmake"] = { "cmake_format" },
         ["cpp"] = { "clang_format" },
-        ["markdown"] = { prettier, "markdownlint" },
+        ["markdown"] = { "prettier", "markdownlint" },
         -- ["sql"] = { "sql_formatter", "sqlfluff" },
         ["sql"] = { "sqlfluff" },
-        ["markdown.mdx"] = { prettier },
+        ["markdown.mdx"] = { "prettier" },
         -- ["python"] = { "ruff_fix", "isort", "darker" },
         ["python"] = {},
         -- ["python"] = { "yapf" },
