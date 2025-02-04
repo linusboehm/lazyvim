@@ -34,14 +34,14 @@ return {
       },
     },
   },
-  { "brenoprata10/nvim-highlight-colors", opts = {} },
+  { "brenoprata10/nvim-highlight-colors", opts = {} }, -- color hex codes
   { "nvimtools/none-ls.nvim", enabled = false },
   {
-    "windwp/nvim-autopairs",
+    "echasnovski/mini.pairs",
     event = "VeryLazy",
-    config = function()
-      require("nvim-autopairs").setup({})
-    end,
+    opts = {
+      modes = { insert = true, command = false, terminal = false },
+    },
   },
 
   {
@@ -71,7 +71,7 @@ return {
   { "tpope/vim-repeat", event = "VeryLazy" },
   { "dkarter/bullets.vim", enabled = false, version = "*" }, -- clashed with Snacks.picker for some reason
   { "folke/flash.nvim", opts = { modes = { search = { enabled = false }, char = { enabled = false } } } },
-  { "opdavies/toggle-checkbox.nvim", enabled = false, version = "*" },
+  { "opdavies/toggle-checkbox.nvim", enabled = false, version = "*" }, -- clashed with Snacks.picker for some reason
 
   {
     "echasnovski/mini.comment",
