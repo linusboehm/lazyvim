@@ -52,10 +52,11 @@ return {
       },
     },
     ui = {
-      checkboxes = {
-        [" "] = { char = "󰄱", hl_group = "ObsidianTodo" },
-        ["X"] = { char = "", hl_group = "ObsidianDone" },
-      },
+      enable = false,
+      -- checkboxes = {
+      --   [" "] = { char = "󰄱", hl_group = "ObsidianTodo" },
+      --   ["X"] = { char = "", hl_group = "ObsidianDone" },
+      -- },
     },
     new_notes_location = "notes_subdir",
 
