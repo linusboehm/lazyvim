@@ -201,7 +201,33 @@ return {
       indent = { hl = "SnacksIndent" },
       scope = { hl = "SnacksIndent", animate = { enabled = false } },
     },
-    picker = { previewers = { git = { native = true } } },
+    picker = {
+      previewers = { git = { native = true } },
+      win = {
+        input = {
+          keys = {
+            ["<c-l>"] = { "focus_preview", mode = { "i", "n" } },
+            ["<c-h>"] = { "focus_preview", mode = { "i", "n" } },
+          },
+        },
+        list = {
+          keys = {
+            ["<c-l>"] = { "focus_preview", mode = { "i", "n" } },
+            ["<c-h>"] = { "focus_preview", mode = { "i", "n" } },
+            ["<c-k>"] = { "focus_input", mode = { "i", "n" } },
+            ["<c-j>"] = { "focus_input", mode = { "i", "n" } },
+          },
+        },
+        preview = {
+          keys = {
+            ["<c-l>"] = { "focus_input", mode = { "i", "n" } },
+            ["<c-h>"] = { "focus_input", mode = { "i", "n" } },
+            ["<c-k>"] = { "focus_list", mode = { "i", "n" } },
+            ["<c-j>"] = { "focus_list", mode = { "i", "n" } },
+          },
+        },
+      },
+    },
     gitbrowse = {
       enabled = true,
       -- don't just try to open, but also copy to clipboard -> can just paste from remote box
