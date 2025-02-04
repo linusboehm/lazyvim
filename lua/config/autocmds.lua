@@ -73,15 +73,15 @@ vim.api.nvim_create_autocmd({ "BufEnter" }, {
 --   end,
 -- })
 
--- wrap and check for spell in text filetypes
-vim.api.nvim_create_autocmd("FileType", {
-  group = augroup("wrap_spell"),
-  pattern = { "gitcommit", "markdown" },
-  callback = function()
-    vim.opt_local.wrap = true
-    vim.opt_local.spell = true
-  end,
-})
+-- -- wrap and check for spell in text filetypes
+-- vim.api.nvim_create_autocmd("FileType", {
+--   group = augroup("wrap_spell"),
+--   pattern = { "gitcommit", "markdown" },
+--   callback = function()
+--     vim.opt_local.wrap = true
+--     vim.opt_local.spell = true
+--   end,
+-- })
 
 vim.api.nvim_create_autocmd("FileType", {
   pattern = {
@@ -95,4 +95,15 @@ vim.api.nvim_create_autocmd({ "BufNewFile", "BufRead" }, {
   group = augroup("set_syntax"),
   pattern = "*CMake*.txt",
   command = "set syntax=cmake",
+})
+
+vim.api.nvim_create_autocmd("FileType", {
+  group = augroup("markdown_checkbox"),
+  pattern = "markdown",
+  callback = function()
+    local opts = { buffer = 0 }
+    vim.keymap.set({ "n", "v" }, "<leader>cb", function()
+      require("util.toggle_checkbox").toggle()
+    end, opts)
+  end,
 })
