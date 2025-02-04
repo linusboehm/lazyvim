@@ -3,13 +3,6 @@ local misc = require("util.misc")
 return {
   { "folke/tokyonight.nvim", lazy = true, opts = { style = "moon" } },
   {
-    "lukas-reineke/indent-blankline.nvim",
-    enabled = false,
-    main = "ibl",
-    commit = "29be0919b91fb59eca9e90690d76014233392bef",
-  },
-
-  {
     "folke/todo-comments.nvim",
     opts = {
       highlight = {
@@ -49,33 +42,6 @@ return {
     config = function()
       require("nvim-autopairs").setup({})
     end,
-  },
-  -- -- add nightfox
-  -- { "EdenEast/nightfox.nvim" },
-  -- -- -- Configure LazyVim to load gruvbox
-  -- -- { "LazyVim/LazyVim", opts = { colorscheme = "nightfox" } },
-
-  {
-    "nvim-neo-tree/neo-tree.nvim",
-    enabled = false,
-    keys = {
-      {
-        "<leader>e",
-        function()
-          require("neo-tree.command").execute({ toggle = true, dir = require("lazyvim.util").root.get() })
-        end,
-        desc = "Explorer NeoTree (root dir)",
-      },
-      {
-        "<leader>E",
-        function()
-          require("neo-tree.command").execute({ toggle = true, dir = vim.loop.cwd() })
-        end,
-        desc = "Explorer NeoTree (cwd)",
-      },
-      -- { "<leader>e", false}, --, "<leader>fe", desc = "Explorer NeoTree (root dir)", remap = true },
-      -- { "<leader>E", false}, --, "<leader>fE", desc = "Explorer NeoTree (cwd)", remap = true },
-    },
   },
 
   {
