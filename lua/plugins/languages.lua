@@ -11,8 +11,8 @@ return {
         "cpp",
         "json",
         "lua",
-        "markdown",
-        "markdown_inline",
+        -- "markdown",
+        -- "markdown_inline",
         "python",
         "query",
         "regex",
@@ -41,20 +41,6 @@ return {
     },
   },
 
-  -- add jsonls and schemastore packages, and setup treesitter for json, json5 and jsonc
-  { import = "lazyvim.plugins.extras.lang.json" },
-  -- { import = "lazyvim.plugins.extras.editor.aerial" },
-  { import = "lazyvim.plugins.extras.formatting.black" },
-  { import = "lazyvim.plugins.extras.formatting.prettier" },
-  { import = "lazyvim.plugins.extras.lang.clangd" },
-  -- { import = "lazyvim.plugins.extras.editor.harpoon2" },
-  { import = "lazyvim.plugins.extras.lang.cmake" },
-  { import = "lazyvim.plugins.extras.lang.json" },
-  { import = "lazyvim.plugins.extras.lang.markdown" },
-  { import = "lazyvim.plugins.extras.lang.python" },
-  { import = "lazyvim.plugins.extras.lang.yaml" },
-  { import = "lazyvim.plugins.extras.dap.core" },
-
   -- add any tools you want to have installed below
   {
     "williamboman/mason.nvim",
@@ -70,7 +56,7 @@ return {
         -- "cpptools",
         -- "darker",
         -- "flake8",
-        "marksman",
+        -- "marksman",
         "markdownlint",
         "prettier",
         "prettierd",
