@@ -7,7 +7,14 @@ return {
       { "nvim-lua/plenary.nvim" }, -- for curl, log wrapper
     },
     event = "VeryLazy",
-    opts = {},
+    opts = {
+      mappings = {
+        reset = {
+          normal = "<C-w>",
+          insert = "<C-w>",
+        },
+      },
+    },
     keys = function()
       local select = require("CopilotChat.select")
       local snacks_integration = require("CopilotChat.integrations.snacks")
