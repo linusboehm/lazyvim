@@ -52,7 +52,7 @@ return {
       },
     },
     ui = {
-      enable = false,
+      enable = false, -- use render-markdown for rendering
       -- checkboxes = {
       --   [" "] = { char = "󰄱", hl_group = "ObsidianTodo" },
       --   ["X"] = { char = "", hl_group = "ObsidianDone" },
