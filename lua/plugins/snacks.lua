@@ -20,6 +20,18 @@ local logo = [[
 
 LAST_CMD = nil
 
+local idx = 1
+local preferred = {
+  "default",
+  "bottom",
+  "dropdown",
+}
+
+local set_next_preferred_layout = function(picker)
+  idx = idx % #preferred + 1
+  picker:set_layout(preferred[idx])
+end
+
 -- Snacks pikcer for bash hisotry, sorting doesn't work yet
 local layouts = require("snacks.picker.config.layouts")
 local custom_l = vim.deepcopy(layouts.dropdown)
@@ -203,12 +215,13 @@ return {
     },
     picker = {
       previewers = { git = { native = true } },
-      formatters = { file = { truncate = 10000,}, },
+      formatters = { file = { truncate = 10000 } },
       win = {
         input = {
           keys = {
             ["<c-l>"] = { "focus_preview", mode = { "i", "n" } },
             ["<c-h>"] = { "focus_preview", mode = { "i", "n" } },
+            ["<c-v>"] = { "cycle_layouts", mode = { "i", "n" } },
           },
         },
         list = {
@@ -227,6 +240,11 @@ return {
             ["<c-j>"] = { "focus_list", mode = { "i", "n" } },
           },
         },
+      },
+      actions = {
+        cycle_layouts = function(picker)
+          set_next_preferred_layout(picker)
+        end,
       },
     },
     gitbrowse = {
