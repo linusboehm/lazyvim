@@ -30,6 +30,8 @@ map({ "n", "v", "i", "t" }, "<C-Right>", "<cmd>vertical resize +10<cr>", { desc 
 
 -- TESTS
 map({ "n" }, "<leader>tt", require("util.custom_functions").dict_to_squiggle_py)
+map({ "n" }, "<leader>oq", require("util.custom_functions").open_qa)
+map({ "n" }, "<leader>op", require("util.custom_functions").open_prod)
 
 map({ "n" }, "<leader>bm", function()
   require("util.buffer_manager").open()
@@ -57,7 +59,7 @@ map("n", "<leader>pf", function()
   local escaped_git_root = git_root:gsub("([%-%.%+%[%]%(%)%$%^%%%?%*])", "%%%1")
   Snacks.notify.info(git_root)
   local row, _ = unpack(vim.api.nvim_win_get_cursor(0))
-  short_path = path:gsub(escaped_git_root .. "/", "")
+  local short_path = path:gsub(escaped_git_root .. "/", "")
   CoreUtil.info(short_path, { title = "current file name" })
   vim.fn.setreg("+", short_path .. ":" .. row)
 end, { desc = "print current filename" })

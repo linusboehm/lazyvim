@@ -1,3 +1,5 @@
+local misc_util = require("util.misc")
+
 local M = {}
 
 -- this is a script to turn dict() calls in python to {}
@@ -54,6 +56,23 @@ M.dict_to_squiggle_py = function()
       end, 1)
     end)
   end, 1)
+end
+
+M.open_qa = function()
+  local path = vim.api.nvim_buf_get_name(0)
+  local qa_path = path:gsub("prod", "qa")
+  local row, col = unpack(vim.api.nvim_win_get_cursor(0))
+  vim.cmd('wincmd w')
+  misc_util.open_file(qa_path, row)
+end
+
+M.open_prod = function()
+  local path = vim.api.nvim_buf_get_name(0)
+  path = path:gsub("%-qa%-", "-")
+  local qa_path = path:gsub("%/qa%/", "/prod/")
+  local row, col = unpack(vim.api.nvim_win_get_cursor(0))
+  vim.cmd('wincmd w')
+  misc_util.open_file(qa_path, row)
 end
 
 return M
