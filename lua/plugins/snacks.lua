@@ -203,6 +203,7 @@ return {
     },
     picker = {
       previewers = { git = { native = true } },
+      formatters = { file = { truncate = 10000,}, },
       win = {
         input = {
           keys = {
