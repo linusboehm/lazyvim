@@ -92,6 +92,12 @@ local function set_terminal_keymaps()
   vim.keymap.set("t", "<C-f>", [[<C-\><C-n>]] .. search_cmd, opts)
   vim.keymap.set("n", "<C-f>", search_cmd, opts)
   vim.keymap.set("n", "gf", open_file_under_cursor, opts)
+  vim.keymap.set("t", "<c-l>", [[<cmd>TmuxNavigateRight<cr>]], opts)
+  vim.keymap.set("t", "<c-h>", [[<cmd>TmuxNavigateLeft<cr>]], opts)
+  vim.keymap.set("t", "<c-j>", [[<cmd>TmuxNavigateDown<cr>]], opts)
+  vim.keymap.set("t", "<C-K>", function()
+    misc_util.go_to_text_buffer()
+  end, { desc = "Go to upper window" })
 end
 
 local was_insert = true
