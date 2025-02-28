@@ -111,7 +111,17 @@ local function close_buffers_not_in_list(elements, files)
   return file_to_idx
 end
 
+local function print_with_delay()
+  local current_time = vim.loop.now() / 1000
+  if current_time - last_print_time > 1 then
+    Snacks.notify.info("sorting")
+    Snacks.debug.inspect(M.bm_file_to_idx)
+    last_print_time = current_time
+  end
+end
+
 M.sort_by_buffer_mngr = function(buffer_a, buffer_b)
+  print_with_delay()
   if M.bm_file_to_idx == nil then
     return false
   end
@@ -139,7 +149,7 @@ local function update_bufferline(buf_mngr_files)
     end
   end
 
-  M.bm_file_to_idx = open_missing_buffers(elements, filtered_buf_mngr_files)
+  open_missing_buffers(elements, filtered_buf_mngr_files)
   M.bm_file_to_idx = close_buffers_not_in_list(elements, filtered_buf_mngr_files)
 
   table.sort(elements, M.sort_by_buffer_mngr)
@@ -220,7 +230,7 @@ end
 --- it will be closed instead.
 function M.open()
   -- local is_new = not uv.fs_stat(file)
-  local mngr_buf = vim.fn.bufadd(get_file("buf_man"))
+  local mngr_buf = vim.fn.bufadd(get_file("buf_man", "buffer_mngr"))
   if not vim.api.nvim_buf_is_loaded(mngr_buf) then
     vim.fn.bufload(mngr_buf)
   end

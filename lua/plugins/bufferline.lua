@@ -45,7 +45,11 @@ return {
         if require("util.buffer_manager").bm_file_to_idx ~= nil then
           Snacks.notify.info("In custom sort function")
         end
-        buff_mngr.sort_by_buffer_mngr(buffer_a, buffer_b)
+        Snacks.notify.info("In custom sort function2")
+        return buff_mngr.sort_by_buffer_mngr(buffer_a, buffer_b)
+        -- local modified_a = vim.fn.getftime(buffer_a.path)
+        -- local modified_b = vim.fn.getftime(buffer_b.path)
+        -- return modified_a > modified_b
       end,
       get_element_icon = function(opts)
         return LazyVim.config.icons.ft[opts.filetype]
