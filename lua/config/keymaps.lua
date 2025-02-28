@@ -338,11 +338,11 @@ map("x", "aC", select_multiline_comment_outer, { desc = "comment", noremap = tru
 map("o", "aC", select_multiline_comment_outer, { desc = "comment", noremap = true, silent = true })
 
 map("n", "<leader>tp", function()
-  require("util.scratch_run2").open_scratch_run("python")
+  require("util.scratch_run").open_scratch_run("python")
 end, { desc = "python scratch buffer" })
 
 map("n", "<leader>tc", function()
-  require("util.scratch_run2").open_scratch_run("cpp")
+  require("util.scratch_run").open_scratch_run("cpp")
 end, { desc = "cpp scratch buffer" })
 
 map("n", "<leader>ce", function()
