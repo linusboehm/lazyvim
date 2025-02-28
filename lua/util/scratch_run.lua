@@ -168,7 +168,7 @@ local two_win_layout = {
 ---@param layout snacks.layout
 ---@param win? "asm"|"stdout"|"source"
 ---@param opts? {show?: boolean} when enable is true, the window will be shown if hidden
-function focus(layout, win, opts)
+local function focus(layout, win, opts)
   opts = opts or {}
   local ret ---@type snacks.win?
   for _, name in ipairs({ "asm", "stdout", "source" }) do
@@ -186,6 +186,31 @@ function focus(layout, win, opts)
   end
 end
 
+---@param opts table
+local function run_cpp(opts)
+  local start_line, end_line
+  local mode = vim.fn.mode()
+  if mode:find("[vV]") then
+    start_line = vim.fn.line("'<")
+    end_line = vim.fn.line("'>")
+  else
+    start_line = 1
+    end_line = vim.fn.line("$")
+  end
+  local out = { win = stdout_win.win, buf = stdout_win.buf }
+  local asm = { win = asm_win.win, buf = asm_win.buf }
+  if opts.flags then
+    asm_win:set_title("asm (" .. opts.flags .. ")", "center")
+  else
+    asm_win:set_title("asm", "center")
+  end
+
+  opts = vim.tbl_extend("force", opts, { ft = "cpp", asm = asm, out = out, exec = true })
+  local bang = false
+  local compiler = opts.compiler or nil -- can a godbold compiler (e.g. g131), empty, or "snacks_picker"
+  require("godbolt.cmd").godbolt(start_line, end_line, bang, compiler, opts)
+end
+
 local default_actions = {
   focus_stdout = function()
     focus(layout, "stdout", { show = true })
@@ -201,23 +226,23 @@ local default_actions = {
       close(layout)
     end)
   end,
-  run_cpp = function()
-    local start_line, end_line
-    local mode = vim.fn.mode()
-    if mode:find("[vV]") then
-      start_line = vim.fn.line("'<")
-      end_line = vim.fn.line("'>")
-    else
-      start_line = 1
-      end_line = vim.fn.line("$")
-    end
-    local out = { win = stdout_win.win, buf = stdout_win.buf }
-    local asm = { win = asm_win.win, buf = asm_win.buf }
-
-    local opts = { ft = "cpp", asm = asm, out = out, exec = true }
-    local bang = false
-    local picker = nil -- can be empty or "snacks_picker"
-    require("godbolt.cmd").godbolt(start_line, end_line, bang, picker, opts)
+  run_cpp_o0 = function()
+    run_cpp({ flags = "-O0" })
+  end,
+  run_cpp_o1 = function()
+    run_cpp({ flags = "-O1" })
+  end,
+  run_cpp_o2 = function()
+    run_cpp({ flags = "-O2" })
+  end,
+  run_cpp_o3 = function()
+    run_cpp({ flags = "-O3" })
+  end,
+  run_cpp_asan = function()
+    run_cpp({})
+  end,
+  run_cpp_picker = function()
+    run_cpp({ compiler = "snacks_picker" })
   end,
   run_py = function()
     local lines = get_lines(source_win.buf)
@@ -305,9 +330,15 @@ local function get_vim_with_key_desc(opts)
     return a[1] < b[1]
   end)
 
+  table.insert(win.opts.footer, { " " })
+  table.insert(win.opts.footer, { " <cr><cr> ", "SnacksScratchKey" })
+  table.insert(win.opts.footer, { " -O3 ", "SnacksScratchDesc" })
+  table.insert(win.opts.footer, { " " })
+  table.insert(win.opts.footer, { " <cr>0-3 ", "SnacksScratchKey" })
+  table.insert(win.opts.footer, { " -O0-3 ", "SnacksScratchDesc" })
   for _, key in ipairs(win.keys) do
     local keymap = vim.fn.keytrans(vim.keycode(key[1]))
-    if not key.desc or not string.find(key.desc, "focus") then
+    if not key.desc or not (string.find(key.desc, "focus") or string.find(key.desc, "-O")) then
       table.insert(win.opts.footer, { " " })
       table.insert(win.opts.footer, { " " .. keymap .. " ", "SnacksScratchKey" })
       table.insert(win.opts.footer, { " " .. (key.desc or keymap) .. " ", "SnacksScratchDesc" })
@@ -424,7 +455,13 @@ M.open_scratch_run = function(filetype)
   if filetype == "cpp" then
     opts = three_win_layout --[[@as snacks.layout.Config]]
     source_opts.keys = vim.tbl_extend("force", source_opts.keys, {
-      ["<cr>"] = { "run_cpp", mode = { "n", "v" }, desc = "run" },
+      ["<cr><cr>"] = { "run_cpp_o3", mode = { "n", "v" }, desc = "-O3" },
+      ["<cr>0"] = { "run_cpp_o0", mode = { "n", "v" }, desc = "-O0" },
+      ["<cr>1"] = { "run_cpp_o1", mode = { "n", "v" }, desc = "-O1" },
+      ["<cr>2"] = { "run_cpp_o2", mode = { "n", "v" }, desc = "-O3" },
+      ["<cr>3"] = { "run_cpp_o3", mode = { "n", "v" }, desc = "-O3" },
+      ["<cr>a"] = { "run_cpp_asan", mode = { "n", "v" }, desc = "asan" },
+      ["<cr>p"] = { "run_cpp_picker", mode = { "n", "v" }, desc = "picker" },
     })
   else
     source_opts.keys = vim.tbl_extend("force", source_opts.keys, {
