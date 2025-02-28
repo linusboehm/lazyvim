@@ -324,18 +324,12 @@ local asm_opts = vim.tbl_extend("force", out_opts, {
 ---@param opts snacks.win.Config
 local function get_vim_with_key_desc(opts)
   local win = Snacks.win(opts)
-  win.opts.footer = {}
+  win.opts.footer = win.opts.footer or {}
 
   table.sort(win.keys, function(a, b)
     return a[1] < b[1]
   end)
 
-  table.insert(win.opts.footer, { " " })
-  table.insert(win.opts.footer, { " <cr><cr> ", "SnacksScratchKey" })
-  table.insert(win.opts.footer, { " -O3 ", "SnacksScratchDesc" })
-  table.insert(win.opts.footer, { " " })
-  table.insert(win.opts.footer, { " <cr>0-3 ", "SnacksScratchKey" })
-  table.insert(win.opts.footer, { " -O0-3 ", "SnacksScratchDesc" })
   for _, key in ipairs(win.keys) do
     local keymap = vim.fn.keytrans(vim.keycode(key[1]))
     if not key.desc or not (string.find(key.desc, "focus") or string.find(key.desc, "-O")) then
@@ -463,6 +457,13 @@ M.open_scratch_run = function(filetype)
       ["<cr>a"] = { "run_cpp_asan", mode = { "n", "v" }, desc = "asan" },
       ["<cr>p"] = { "run_cpp_picker", mode = { "n", "v" }, desc = "picker" },
     })
+    source_opts.footer = {}
+    table.insert(source_opts.footer, { " " })
+    table.insert(source_opts.footer, { " <cr><cr> ", "SnacksScratchKey" })
+    table.insert(source_opts.footer, { " -O3 ", "SnacksScratchDesc" })
+    table.insert(source_opts.footer, { " " })
+    table.insert(source_opts.footer, { " <cr>0-3 ", "SnacksScratchKey" })
+    table.insert(source_opts.footer, { " -O0-3 ", "SnacksScratchDesc" })
   else
     source_opts.keys = vim.tbl_extend("force", source_opts.keys, {
       ["<cr>"] = { "run_py", mode = { "n", "v" }, desc = "run" },
