@@ -337,6 +337,14 @@ map("o", "iC", select_multiline_comment_inner, { desc = "comment", noremap = tru
 map("x", "aC", select_multiline_comment_outer, { desc = "comment", noremap = true, silent = true })
 map("o", "aC", select_multiline_comment_outer, { desc = "comment", noremap = true, silent = true })
 
+map("n", "<leader>tp", function()
+  require("util.scratch_run2").open_scratch_run("python")
+end, { desc = "python scratch buffer" })
+
+map("n", "<leader>tc", function()
+  require("util.scratch_run2").open_scratch_run("cpp")
+end, { desc = "cpp scratch buffer" })
+
 map("n", "<leader>ce", function()
   misc_util.dump_color_codes()
 end, { desc = "write code to file" })

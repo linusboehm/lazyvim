@@ -62,7 +62,7 @@ M.open_qa = function()
   local path = vim.api.nvim_buf_get_name(0)
   local qa_path = path:gsub("prod", "qa")
   local row, col = unpack(vim.api.nvim_win_get_cursor(0))
-  vim.cmd('wincmd w')
+  vim.cmd("wincmd w")
   misc_util.open_file(qa_path, row)
 end
 
@@ -71,7 +71,7 @@ M.open_prod = function()
   path = path:gsub("%-qa%-", "-")
   local qa_path = path:gsub("%/qa%/", "/prod/")
   local row, col = unpack(vim.api.nvim_win_get_cursor(0))
-  vim.cmd('wincmd w')
+  vim.cmd("wincmd w")
   misc_util.open_file(qa_path, row)
 end
 

@@ -140,61 +140,61 @@ return {
     },
     scratch = {
       enabled = true,
-      ft = function()
-        return scratch_run.get_filetype()
-      end,
-      win = {
-        width = scratch_run.opts.win.width,
-        height = scratch_run.opts.win.height,
-        col = scratch_run.opts.win.boarder,
-        bo = { buftype = "", buflisted = false, bufhidden = "hide", swapfile = false },
-        minimal = false,
-        autowrite = true,
-        noautocmd = false,
-        -- position = "left",
-        zindex = 20,
-        wo = { winhighlight = "NormalFloat:Normal" },
-        border = "rounded",
-        title_pos = "center",
-        footer_pos = "center",
-      },
-      win_by_ft = {
-        cpp = {
-          keys = {
-            ["compile"] = {
-              "<cr>",
-              function(self)
-                local name = "scratch." .. vim.fn.fnamemodify(vim.api.nvim_buf_get_name(self.buf), ":e")
-                scratch_run.run_cpp({ buf = self.buf, name = name })
-              end,
-              desc = "Godbolt",
-              mode = { "n", "x" },
-            },
-            ["compile with"] = {
-              "<space><cr>",
-              function(self)
-                local name = "scratch." .. vim.fn.fnamemodify(vim.api.nvim_buf_get_name(self.buf), ":e")
-                scratch_run.run_cpp({ buf = self.buf, name = name }, "snacks_picker")
-              end,
-              desc = "Godbolt",
-              mode = { "n", "x" },
-            },
-          },
-        },
-        python = {
-          keys = {
-            ["source"] = {
-              "<cr>",
-              function(self)
-                local name = "scratch." .. vim.fn.fnamemodify(vim.api.nvim_buf_get_name(self.buf), ":e")
-                scratch_run.run_python({ buf = self.buf, name = name })
-              end,
-              desc = "Source buffer",
-              mode = { "n", "x" },
-            },
-          },
-        },
-      },
+      -- ft = function()
+      --   return scratch_run.get_filetype()
+      -- end,
+      -- win = {
+      --   width = scratch_run.opts.win.width,
+      --   height = scratch_run.opts.win.height,
+      --   col = scratch_run.opts.win.boarder,
+      --   bo = { buftype = "", buflisted = false, bufhidden = "hide", swapfile = false },
+      --   minimal = false,
+      --   autowrite = true,
+      --   noautocmd = false,
+      --   -- position = "left",
+      --   zindex = 20,
+      --   wo = { winhighlight = "NormalFloat:Normal" },
+      --   border = "rounded",
+      --   title_pos = "center",
+      --   footer_pos = "center",
+      -- },
+      -- win_by_ft = {
+      --   cpp = {
+      --     keys = {
+      --       ["compile"] = {
+      --         "<cr>",
+      --         function(self)
+      --           local name = "scratch." .. vim.fn.fnamemodify(vim.api.nvim_buf_get_name(self.buf), ":e")
+      --           scratch_run.run_cpp({ buf = self.buf, name = name })
+      --         end,
+      --         desc = "Godbolt",
+      --         mode = { "n", "x" },
+      --       },
+      --       ["compile with"] = {
+      --         "<space><cr>",
+      --         function(self)
+      --           local name = "scratch." .. vim.fn.fnamemodify(vim.api.nvim_buf_get_name(self.buf), ":e")
+      --           scratch_run.run_cpp({ buf = self.buf, name = name }, "snacks_picker")
+      --         end,
+      --         desc = "Godbolt",
+      --         mode = { "n", "x" },
+      --       },
+      --     },
+      --   },
+      --   python = {
+      --     keys = {
+      --       ["source"] = {
+      --         "<cr>",
+      --         function(self)
+      --           local name = "scratch." .. vim.fn.fnamemodify(vim.api.nvim_buf_get_name(self.buf), ":e")
+      --           scratch_run.run_python({ buf = self.buf, name = name })
+      --         end,
+      --         desc = "Source buffer",
+      --         mode = { "n", "x" },
+      --       },
+      --     },
+      --   },
+      -- },
     },
     statuscolumn = { enabled = true },
     terminal = { enabled = true, interactive = false, win = { wo = { winbar = "" } } },
@@ -287,8 +287,7 @@ return {
         end
       end,
       desc = "Terminal python",
-    }, { "<leader>tp", function() scratch_run.scratch_ft("python") end, desc = "Toggle Scratch Buffer", },
-    { "<leader>tc", function() scratch_run.scratch_ft("cpp") end, desc = "Toggle Scratch Buffer", },
+    },
     -- ---------------------------------
     -- picker keys
     { "<leader>,", false, desc = "Buffers" },

@@ -257,8 +257,8 @@ function M.open(opts)
   for _, key in ipairs(ret.keys) do
     local keymap = vim.fn.keytrans(vim.keycode(key[1]))
     table.insert(ret.opts.footer, { " " })
-    table.insert(ret.opts.footer, { " " .. keymap .. " ", "BufferManagerKey" })
-    table.insert(ret.opts.footer, { " " .. (key.desc or keymap) .. " ", "BufferManagerDesc" })
+    table.insert(ret.opts.footer, { " " .. keymap .. " ", "SnacksScratchKey" })
+    table.insert(ret.opts.footer, { " " .. (key.desc or keymap) .. " ", "SnacksScratchDesc" })
   end
   table.insert(ret.opts.footer, { " " })
 
