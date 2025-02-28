@@ -319,7 +319,6 @@ local asm_opts = vim.tbl_extend("force", out_opts, {
     ["<c-j>"] = { "focus_stdout", mode = { "i", "n" } },
   },
 })
--- TODO(lboehm): set filetype to asm for asm
 
 ---@param opts snacks.win.Config
 local function get_vim_with_key_desc(opts)
