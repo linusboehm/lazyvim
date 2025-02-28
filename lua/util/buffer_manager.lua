@@ -6,6 +6,7 @@ local utils = lazy.require("bufferline.utils") ---@module "bufferline.utils"
 local config = lazy.require("bufferline.config")
 local ui = lazy.require("bufferline.ui") ---@module "bufferline.ui"
 local closed = true
+local last_print_time = 0
 
 local M = {}
 M.bm_file_to_idx = nil
@@ -111,24 +112,15 @@ local function close_buffers_not_in_list(elements, files)
   return file_to_idx
 end
 
-local function print_with_delay()
-  local current_time = vim.loop.now() / 1000
-  if current_time - last_print_time > 1 then
-    Snacks.notify.info("sorting")
-    Snacks.debug.inspect(M.bm_file_to_idx)
-    last_print_time = current_time
-  end
-end
-
 M.sort_by_buffer_mngr = function(buffer_a, buffer_b)
-  print_with_delay()
   if M.bm_file_to_idx == nil then
     return false
   end
-  if
-    M.bm_file_to_idx[path_formatter(buffer_a.path)] == nil or M.bm_file_to_idx[path_formatter(buffer_b.path)] == nil
-  then
+  if M.bm_file_to_idx[path_formatter(buffer_a.path)] == nil then
     return false
+  end
+  if M.bm_file_to_idx[path_formatter(buffer_b.path)] == nil then
+    return true
   end
   return M.bm_file_to_idx[path_formatter(buffer_a.path)] < M.bm_file_to_idx[path_formatter(buffer_b.path)]
 end
@@ -223,6 +215,21 @@ local attach = function()
       end)
     end,
   })
+
+  vim.api.nvim_create_autocmd({ "BufDelete" }, {
+    group = vim.api.nvim_create_augroup("snacks_run_del_" .. buf_win.buf, { clear = true }),
+    callback = function(args)
+      local bufnr = args.buf
+      local filename = vim.api.nvim_buf_get_name(bufnr)
+      local filtered = {}
+      for file, value in pairs(M.bm_file_to_idx) do
+        if file ~= path_formatter(filename) then
+          filtered[file] = value
+        end
+      end
+      M.bm_file_to_idx = filtered
+    end,
+  })
 end
 
 --- Open a buffer manager buffer with the given options.
@@ -276,5 +283,35 @@ function M.open()
   closed = false
   return buf_win:show()
 end
+
+-- update the ordering whenever a new buffer is opened
+vim.api.nvim_create_autocmd("BufRead", {
+  pattern = "*",
+  callback = function()
+    -- need to wait until the bufferline is updated to have the latest state.components
+    vim.defer_fn(function()
+      local commands = lazy.require("bufferline.commands")
+      local _, element = commands.get_current_element_index(state, { include_hidden = true })
+      -- ignore buffers that are not in the bufferline
+      if not element or not element.group or not buf_win then
+        return
+      end
+      Snacks.notify.info("updating bufferline order")
+
+      local elements = state.components
+      table.sort(elements, M.sort_by_buffer_mngr)
+      for index, buf in ipairs(elements) do
+        buf.ordinal = index
+        M.bm_file_to_idx[path_formatter(buf.path)] = index
+      end
+      state.custom_sort = utils.get_ids(state.components)
+      local opts = config.options
+      if opts.persist_buffer_sort then
+        utils.save_positions(state.custom_sort)
+      end
+      ui.refresh()
+    end, 20)
+  end,
+})
 
 return M
