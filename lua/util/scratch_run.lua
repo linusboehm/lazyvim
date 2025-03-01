@@ -12,6 +12,8 @@ local stdout_win = nil
 ---@type snacks.win
 local asm_win = nil
 local layout = nil
+---@type table
+local last_opts = { flags = "" }
 
 ---@type snacks.picker.layout.Config
 local resolved_layout = nil
@@ -206,9 +208,7 @@ local function run_cpp(opts)
   end
 
   opts = vim.tbl_extend("force", opts, { ft = "cpp", asm = asm, out = out, exec = true })
-  local bang = false
-  local compiler = opts.compiler or nil -- can a godbold compiler (e.g. g131), empty, or "snacks_picker"
-  require("godbolt.cmd").godbolt(start_line, end_line, bang, compiler, opts)
+  last_opts = require("godbolt.cmd").godbolt(start_line, end_line, opts)
 end
 
 local default_actions = {
@@ -238,11 +238,23 @@ local default_actions = {
   run_cpp_o3 = function()
     run_cpp({ flags = "-O3" })
   end,
+  run_cpp_last = function()
+    if last_opts then
+      last_opts.fuzzy = false
+    end
+    run_cpp(last_opts)
+  end,
   run_cpp_asan = function()
     run_cpp({})
   end,
   run_cpp_picker = function()
-    run_cpp({ compiler = "snacks_picker" })
+    closed = true
+    run_cpp({
+      fuzzy = true,
+      on_picked = function()
+        closed = false
+      end,
+    })
   end,
   run_py = function()
     local lines = get_lines(source_win.buf)
@@ -275,24 +287,32 @@ local default_actions = {
   end,
 }
 
+local default_keys = {
+  ["<c-l>"] = { "focus_stdout", mode = { "i", "n" } },
+  ["<c-h>"] = { "focus_stdout", mode = { "i", "n" } },
+  ["q"] = "close",
+}
+
 ---@type snacks.win.Config
 local source_opts = {
   bo = { buftype = "", buflisted = false, bufhidden = "hide", swapfile = false },
   wo = { winhighlight = "NormalFloat:Normal" },
   minimal = false,
   footer_pos = "center",
-  keys = {
-    ["<c-l>"] = { "focus_stdout", mode = { "i", "n" } },
-    ["<c-h>"] = { "focus_stdout", mode = { "i", "n" } },
-    ["q"] = "close",
-  },
+  keys = default_keys,
   fixbuf = true,
   actions = default_actions,
 }
 
 ---@type snacks.win.Config
 local out_opts = {
-  bo = { buftype = "", buflisted = false, bufhidden = "hide", swapfile = false },
+  bo = {
+    bufhidden = "wipe",
+    buftype = "nofile",
+    buflisted = false,
+    swapfile = false,
+    undofile = false,
+  },
   wo = { winhighlight = "NormalFloat:Normal" },
   minimal = true,
   footer_pos = "center",
@@ -445,10 +465,11 @@ M.open_scratch_run = function(filetype)
   end
 
   local opts = two_win_layout --[[@as snacks.layout.Config]]
+  source_opts.keys = default_keys
   if filetype == "cpp" then
     opts = three_win_layout --[[@as snacks.layout.Config]]
     source_opts.keys = vim.tbl_extend("force", source_opts.keys, {
-      ["<cr><cr>"] = { "run_cpp_o3", mode = { "n", "v" }, desc = "-O3" },
+      ["<cr><cr>"] = { "run_cpp_last", mode = { "n", "v" }, desc = "run last" },
       ["<cr>0"] = { "run_cpp_o0", mode = { "n", "v" }, desc = "-O0" },
       ["<cr>1"] = { "run_cpp_o1", mode = { "n", "v" }, desc = "-O1" },
       ["<cr>2"] = { "run_cpp_o2", mode = { "n", "v" }, desc = "-O3" },
