@@ -13,7 +13,7 @@ local stdout_win = nil
 local asm_win = nil
 local layout = nil
 ---@type table
-local last_opts = { flags = "" }
+local last_opts = {}
 
 ---@type snacks.picker.layout.Config
 local resolved_layout = nil
@@ -44,10 +44,8 @@ local get_file = function(filetype)
 end
 
 ---@param buf integer
-local function get_lines(buf)
-  local ns = vim.api.nvim_create_namespace("snacks_debug")
+local function get_lines_nrs(buf)
   -- Get the lines to run
-  local lines ---@type string[]
   local mode = vim.fn.mode()
   if mode:find("[vV]") then
     if mode == "v" then
@@ -55,23 +53,42 @@ local function get_lines(buf)
     elseif mode == "V" then
       vim.cmd("normal! V")
     end
-    local from = vim.api.nvim_buf_get_mark(buf, "<")
+    local start_line, start_col = vim.api.nvim_buf_get_mark(buf, "<")
     local to = vim.api.nvim_buf_get_mark(buf, ">")
 
     -- for some reason, sometimes the column is off by one
     -- see: https://github.com/folke/snacks.nvim/issues/190
-    local col_to = math.min(to[2] + 1, #vim.api.nvim_buf_get_lines(buf, to[1] - 1, to[1], false)[1])
+    local end_col = math.min(to[2] + 1, #vim.api.nvim_buf_get_lines(buf, to[1] - 1, to[1], false)[1])
 
-    lines = vim.api.nvim_buf_get_text(buf, from[1] - 1, from[2], to[1] - 1, col_to, {})
+    return start_line[1] - 1, start_col, to[1] - 1, end_col
+  else
+    return 0, 0, -1, 0
+  end
+end
+
+---@param buf integer
+local function get_lines(buf)
+  -- Get the lines to run
+  local lines ---@type string[]
+  local mode = vim.fn.mode()
+  local start_line, start_col, end_line, end_col = get_lines_nrs(buf)
+  if mode:find("[vV]") then
+    if mode == "v" then
+      vim.cmd("normal! v")
+    elseif mode == "V" then
+      vim.cmd("normal! V")
+    end
+    lines = vim.api.nvim_buf_get_text(buf, start_line, start_col, end_line, end_col, {})
     -- Insert empty lines to keep the line numbers
-    for _ = 1, from[1] - 1 do
+    for _ = 1, start_line do
       table.insert(lines, 1, "")
     end
     vim.fn.feedkeys("gv", "nx")
   else
-    lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+    lines = vim.api.nvim_buf_get_lines(buf, start_line, end_line, false)
   end
 
+  local ns = vim.api.nvim_create_namespace("snacks_debug")
   -- Clear diagnostics and extmarks
   local function reset()
     vim.diagnostic.reset(ns, buf)
@@ -188,27 +205,47 @@ local function focus(layout, win, opts)
   end
 end
 
----@param opts table
-local function run_cpp(opts)
-  local start_line, end_line
-  local mode = vim.fn.mode()
-  if mode:find("[vV]") then
-    start_line = vim.fn.line("'<")
-    end_line = vim.fn.line("'>")
-  else
-    start_line = 1
-    end_line = vim.fn.line("$")
-  end
-  local out = { win = stdout_win.win, buf = stdout_win.buf }
-  local asm = { win = asm_win.win, buf = asm_win.buf }
-  if opts.flags then
-    asm_win:set_title("asm (" .. opts.flags .. ")", "center")
-  else
-    asm_win:set_title("asm", "center")
-  end
+local get_defult_args = function()
+  local start_line, _, end_line, _ = get_lines_nrs(source_win.buf)
+  return {
+    line1 = start_line + 1,
+    line2 = end_line,
+    asm_buf = asm_win.buf,
+    compiler = { id = "g141" },
+    flags = "-O1",
+    default_flags = "-fsanitize=address -std=c++20 -O0",
+    lang = "c++",
+    out_buf = stdout_win.buf,
+    on_opts_callback = function(opts)
+      local title = "asm ("
+      if opts.flags ~= "" then
+        title = title .. opts.flags .. ", "
+      end
+      title = title .. opts.compiler.name .. ")"
+      if opts.flags then
+        asm_win:set_title(title, "center")
+      else
+        asm_win:set_title("asm", "center")
+      end
+      last_opts = opts
+    end,
+  }
+end
 
-  opts = vim.tbl_extend("force", opts, { ft = "cpp", asm = asm, out = out, exec = true })
-  last_opts = require("godbolt.cmd").godbolt(start_line, end_line, opts)
+---@class scratch_run.run_opts
+---@field asm_buf? integer
+---@field bang? boolean
+---@field compiler? ce.compile.compiler
+---@field fargs? table
+---@field flags? string
+---@field default_flags? string
+---@field lang? string
+---@field out_buf? integer
+---@field on_opts_callback? function
+
+---@param opts scratch_run.run_opts
+local function run_cpp(opts)
+  require("compiler-explorer").compile(opts)
 end
 
 local default_actions = {
@@ -221,40 +258,46 @@ local default_actions = {
   focus_source = function()
     focus(layout, "source", { show = true })
   end,
+  show_tooltip = function()
+    require("compiler-explorer").show_tooltip()
+  end,
   close = function()
     norm(function()
       close(layout)
     end)
   end,
   run_cpp_o0 = function()
-    run_cpp({ flags = "-O0" })
+    local opts = vim.tbl_extend("force", get_defult_args(), { flags = "-O0" })
+    run_cpp(opts)
   end,
   run_cpp_o1 = function()
-    run_cpp({ flags = "-O1" })
+    local opts = vim.tbl_extend("force", get_defult_args(), { flags = "-O1" })
+    run_cpp(opts)
   end,
   run_cpp_o2 = function()
-    run_cpp({ flags = "-O2" })
+    local opts = vim.tbl_extend("force", get_defult_args(), { flags = "-O2" })
+    run_cpp(opts)
   end,
   run_cpp_o3 = function()
-    run_cpp({ flags = "-O3" })
+    local opts = vim.tbl_extend("force", get_defult_args(), { flags = "-O3" })
+    run_cpp(opts)
   end,
   run_cpp_last = function()
-    if last_opts then
-      last_opts.fuzzy = false
-    end
-    run_cpp(last_opts)
+    -- buffer numbers have to be rest in case they changed
+    last_opts.asm_buf = nil
+    last_opts.out_buf = nil
+    local opts = vim.tbl_extend("force", get_defult_args(), last_opts)
+    run_cpp(opts)
   end,
   run_cpp_asan = function()
-    run_cpp({})
+    local opts = vim.tbl_extend("force", get_defult_args(), { flags = "-fsanitize=address -std=c++20 -O0" })
+    run_cpp(opts)
   end,
   run_cpp_picker = function()
-    closed = true
-    run_cpp({
-      fuzzy = true,
-      on_picked = function()
-        closed = false
-      end,
-    })
+    local opts = get_defult_args()
+    opts.compiler = nil
+    opts.flags = nil
+    run_cpp(opts)
   end,
   run_py = function()
     local lines = get_lines(source_win.buf)
@@ -331,12 +374,16 @@ local stdout_opts = vim.tbl_extend("force", out_opts, {
 })
 ---@type snacks.win.Config
 local asm_opts = vim.tbl_extend("force", out_opts, {
+  bo = {
+    filetype = "asm",
+  },
   keys = {
     ["q"] = "close",
     ["<c-l>"] = { "focus_source", mode = { "i", "n" } },
     ["<c-h>"] = { "focus_source", mode = { "i", "n" } },
     ["<c-k>"] = { "focus_stdout", mode = { "i", "n" } },
     ["<c-j>"] = { "focus_stdout", mode = { "i", "n" } },
+    ["K"] = { "show_tooltip" },
   },
 })
 
@@ -494,7 +541,8 @@ M.open_scratch_run = function(filetype)
 
   source_win = get_vim_with_key_desc(source_opts)
   stdout_win = Snacks.win(stdout_opts)
-  asm_win = Snacks.win(asm_opts)
+  -- asm_win = Snacks.win(asm_opts)
+  asm_win = get_vim_with_key_desc(asm_opts)
 
   layout = Snacks.layout.new(vim.tbl_deep_extend("force", opts, {
     show = false,
