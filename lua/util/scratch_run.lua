@@ -216,8 +216,11 @@ local get_defult_args = function()
     default_flags = "-fsanitize=address -std=c++20 -O0",
     lang = "c++",
     out_buf = stdout_win.buf,
-    on_opts_callback = function(opts)
+    on_selected = function(opts, update_opts)
       closed = false
+      if not update_opts then
+        return
+      end
       local title = "asm ("
       if opts.flags ~= "" then
         title = title .. opts.flags .. ", "
@@ -242,7 +245,7 @@ end
 ---@field default_flags? string
 ---@field lang? string
 ---@field out_buf? integer
----@field on_opts_callback? function
+---@field on_selected? function
 
 ---@param opts scratch_run.run_opts
 local function run_cpp(opts)
@@ -300,6 +303,9 @@ local default_actions = {
     opts.compiler = nil
     opts.flags = nil
     run_cpp(opts)
+  end,
+  open_url = function()
+    require("compiler-explorer").open_website()
   end,
   run_py = function()
     local lines = get_lines(source_win.buf)
@@ -525,6 +531,7 @@ M.open_scratch_run = function(filetype)
       ["<cr>3"] = { "run_cpp_o3", mode = { "n", "v" }, desc = "-O3" },
       ["<cr>a"] = { "run_cpp_asan", mode = { "n", "v" }, desc = "asan" },
       ["<cr>p"] = { "run_cpp_picker", mode = { "n", "v" }, desc = "picker" },
+      ["<cr>o"] = { "open_url", mode = { "n", "v" }, desc = "open url" },
     })
     source_opts.footer = {}
     table.insert(source_opts.footer, { " " })

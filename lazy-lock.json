@@ -10,7 +10,7 @@
   "catppuccin": { "branch": "main", "commit": "7ab1a6ec70a664ecb95d84669efc20aaf4f4ed1b" },
   "clangd_extensions.nvim": { "branch": "main", "commit": "db28f29be928d18cbfb86fbfb9f83f584f658feb" },
   "cmake-tools.nvim": { "branch": "master", "commit": "1d96327bf64189110286811a2b502c8c2262d4ca" },
-  "compiler-explorer.nvim": { "branch": "master", "commit": "473ce82d6c5f46fe9f2c86539168938a1ca1a2fa" },
+  "compiler-explorer.nvim": { "branch": "master", "commit": "706d2465ae3d1378506fcc7d6df6cb7794a78308" },
   "conform.nvim": { "branch": "master", "commit": "a6f5bdb78caa305496357d17e962bbc4c0b392e2" },
   "copilot.lua": { "branch": "master", "commit": "30321e33b03cb924fdcd6a806a0dc6fa0b0eafb9" },
   "diffview.nvim": { "branch": "main", "commit": "4516612fe98ff56ae0415a259ff6361a89419b0a" },
