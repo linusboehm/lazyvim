@@ -1,6 +1,5 @@
 return {
-  "epwalsh/obsidian.nvim",
-  version = "*", -- recommended, use latest release instead of latest commit
+  "obsidian-nvim/obsidian.nvim",
   lazy = true,
 
   event = {
@@ -119,7 +118,7 @@ return {
     disable_frontmatter = false,
     open_notes_in = "current",
     picker = {
-      name = "fzf-lua",
+      name = "snacks.pick",
     }
 
     -- see below for full list of options 👇

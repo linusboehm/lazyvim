@@ -217,6 +217,7 @@ local get_defult_args = function()
     lang = "c++",
     out_buf = stdout_win.buf,
     on_opts_callback = function(opts)
+      closed = false
       local title = "asm ("
       if opts.flags ~= "" then
         title = title .. opts.flags .. ", "
@@ -294,6 +295,7 @@ local default_actions = {
     run_cpp(opts)
   end,
   run_cpp_picker = function()
+    closed = true
     local opts = get_defult_args()
     opts.compiler = nil
     opts.flags = nil

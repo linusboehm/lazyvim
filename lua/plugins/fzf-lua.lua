@@ -15,6 +15,7 @@ end
 
 return {
   {
+    enabled = false,
     "ibhagwan/fzf-lua",
     cmd = "FzfLua",
     -- stylua: ignore
