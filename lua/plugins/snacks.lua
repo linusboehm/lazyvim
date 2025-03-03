@@ -214,7 +214,7 @@ return {
       scope = { hl = "SnacksIndent", animate = { enabled = false } },
     },
     picker = {
-      previewers = { git = { native = true } },
+      previewers = { git = { native = true }, diff = { native = false, cmd = { "delta" } } },
       formatters = { file = { truncate = 10000 } },
       win = {
         input = {
