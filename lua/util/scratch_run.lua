@@ -4,7 +4,7 @@ local main = -1
 local Snacks = require("snacks")
 local svim = vim.fn.has("nvim-0.11") == 1 and vim or require("snacks.compat")
 local uv = vim.uv or vim.loop
-local closed = false
+local closed = true
 ---@type snacks.win
 local source_win = nil
 ---@type snacks.win
@@ -364,7 +364,7 @@ local out_opts = {
     swapfile = false,
     undofile = false,
   },
-  wo = { winhighlight = "NormalFloat:Normal" },
+  wo = { winhighlight = "NormalFloat:Normal", number = true, wrap = true },
   minimal = true,
   footer_pos = "center",
   fixbuf = true,
@@ -511,6 +511,9 @@ end
 
 ---@param filetype "python"|"cpp"
 M.open_scratch_run = function(filetype)
+  if not closed then
+    return
+  end
   main = vim.api.nvim_get_current_win()
   closed = false
 
@@ -524,19 +527,16 @@ M.open_scratch_run = function(filetype)
   if filetype == "cpp" then
     opts = three_win_layout --[[@as snacks.layout.Config]]
     source_opts.keys = vim.tbl_extend("force", source_opts.keys, {
-      ["<cr><cr>"] = { "run_cpp_last", mode = { "n", "v" }, desc = "run last" },
+      ["<cr><cr>"] = { "run_cpp_last", mode = { "n", "v" }, desc = "last" },
       ["<cr>0"] = { "run_cpp_o0", mode = { "n", "v" }, desc = "-O0" },
       ["<cr>1"] = { "run_cpp_o1", mode = { "n", "v" }, desc = "-O1" },
       ["<cr>2"] = { "run_cpp_o2", mode = { "n", "v" }, desc = "-O3" },
       ["<cr>3"] = { "run_cpp_o3", mode = { "n", "v" }, desc = "-O3" },
       ["<cr>a"] = { "run_cpp_asan", mode = { "n", "v" }, desc = "asan" },
       ["<cr>p"] = { "run_cpp_picker", mode = { "n", "v" }, desc = "picker" },
-      ["<cr>o"] = { "open_url", mode = { "n", "v" }, desc = "open url" },
+      ["<cr>o"] = { "open_url", mode = { "n", "v" }, desc = "url" },
     })
     source_opts.footer = {}
-    table.insert(source_opts.footer, { " " })
-    table.insert(source_opts.footer, { " <cr><cr> ", "SnacksScratchKey" })
-    table.insert(source_opts.footer, { " -O3 ", "SnacksScratchDesc" })
     table.insert(source_opts.footer, { " " })
     table.insert(source_opts.footer, { " <cr>0-3 ", "SnacksScratchKey" })
     table.insert(source_opts.footer, { " -O0-3 ", "SnacksScratchDesc" })
