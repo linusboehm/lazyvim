@@ -407,8 +407,9 @@ local function get_vim_with_key_desc(opts)
   for _, key in ipairs(win.keys) do
     local keymap = vim.fn.keytrans(vim.keycode(key[1]))
     if not key.desc or not (string.find(key.desc, "focus") or string.find(key.desc, "-O")) then
+      keymap = keymap:gsub("<CR>", "󰌒 ")
       table.insert(win.opts.footer, { " " })
-      table.insert(win.opts.footer, { " " .. keymap .. " ", "SnacksScratchKey" })
+      table.insert(win.opts.footer, { keymap, "SnacksScratchKey" })
       table.insert(win.opts.footer, { " " .. (key.desc or keymap) .. " ", "SnacksScratchDesc" })
     end
   end
@@ -527,19 +528,19 @@ M.open_scratch_run = function(filetype)
   if filetype == "cpp" then
     opts = three_win_layout --[[@as snacks.layout.Config]]
     source_opts.keys = vim.tbl_extend("force", source_opts.keys, {
-      ["<cr><cr>"] = { "run_cpp_last", mode = { "n", "v" }, desc = "last" },
-      ["<cr>0"] = { "run_cpp_o0", mode = { "n", "v" }, desc = "-O0" },
-      ["<cr>1"] = { "run_cpp_o1", mode = { "n", "v" }, desc = "-O1" },
-      ["<cr>2"] = { "run_cpp_o2", mode = { "n", "v" }, desc = "-O3" },
-      ["<cr>3"] = { "run_cpp_o3", mode = { "n", "v" }, desc = "-O3" },
-      ["<cr>a"] = { "run_cpp_asan", mode = { "n", "v" }, desc = "asan" },
-      ["<cr>p"] = { "run_cpp_picker", mode = { "n", "v" }, desc = "picker" },
-      ["<cr>o"] = { "open_url", mode = { "n", "v" }, desc = "url" },
+      ["<CR><CR>"] = { "run_cpp_last", mode = { "n", "v" }, desc = "last" },
+      ["<CR>0"] = { "run_cpp_o0", mode = { "n", "v" }, desc = "-O0" },
+      ["<CR>1"] = { "run_cpp_o1", mode = { "n", "v" }, desc = "-O1" },
+      ["<CR>2"] = { "run_cpp_o2", mode = { "n", "v" }, desc = "-O3" },
+      ["<CR>3"] = { "run_cpp_o3", mode = { "n", "v" }, desc = "-O3" },
+      ["<CR>a"] = { "run_cpp_asan", mode = { "n", "v" }, desc = "asan" },
+      ["<CR>p"] = { "run_cpp_picker", mode = { "n", "v" }, desc = "picker" },
+      ["<CR>o"] = { "open_url", mode = { "n", "v" }, desc = "url" },
     })
     source_opts.footer = {}
     table.insert(source_opts.footer, { " " })
-    table.insert(source_opts.footer, { " <cr>0-3 ", "SnacksScratchKey" })
-    table.insert(source_opts.footer, { " -O0-3 ", "SnacksScratchDesc" })
+    table.insert(source_opts.footer, { "󰌒 0..3", "SnacksScratchKey" })
+    table.insert(source_opts.footer, { " -O0..3 ", "SnacksScratchDesc" })
   else
     source_opts.keys = vim.tbl_extend("force", source_opts.keys, {
       ["<cr>"] = { "run_py", mode = { "n", "v" }, desc = "run" },
