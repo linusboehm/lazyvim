@@ -22,7 +22,7 @@ return {
         mode = { "n", "v" },
       },
       {
-        "<leader><up>",
+        "<s-up>",
         function()
           mc.lineSkipCursor(-1)
         end,
@@ -30,7 +30,7 @@ return {
         mode = { "n", "v" },
       },
       {
-        "<leader><down>",
+        "<s-down>",
         function()
           mc.lineSkipCursor(1)
         end,
@@ -99,7 +99,7 @@ return {
           elseif mc.hasCursors() then
             mc.clearCursors()
           else
-            -- Default <esc> handler.
+            vim.cmd("noh")
           end
         end,
         desc = "Clear cursors",
