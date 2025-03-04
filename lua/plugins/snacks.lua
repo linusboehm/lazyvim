@@ -1,5 +1,4 @@
 local term_utils = require("util.toggletem_utils")
-local scratch_run = require("util.scratch_run")
 local home_dir = vim.fn.expand("~")
 
 local logo = [[
@@ -213,6 +212,7 @@ return {
       indent = { hl = "SnacksIndent" },
       scope = { hl = "SnacksIndent", animate = { enabled = false } },
     },
+    explorer = { enabled = true },
     picker = {
       previewers = { git = { native = true }, diff = { builtin = true, cmd = { "delta" } } },
       formatters = { file = { truncate = 10000 } },
@@ -304,6 +304,7 @@ return {
     { "<leader>fg", false, desc = "Find Files (git-files)" },
     { "<leader>fr", false, desc = "Recent" },
     { "<leader>fR", false, desc = "Recent (cwd)" },
+    { "<leader>e", function() Snacks.explorer() end, desc = "File Explorer" },
 
     -- find
     { "<leader>sb", function() Snacks.picker.buffers() end, desc = "Buffers" },

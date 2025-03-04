@@ -33,14 +33,14 @@ return {
           .. (diag.warning and icons.Warn .. diag.warning or "")
         return vim.trim(ret)
       end,
-      offsets = {
-        {
-          filetype = "neo-tree",
-          text = "Neo-tree",
-          highlight = "Directory",
-          text_align = "left",
-        },
-      },
+      -- offsets = {
+      --   {
+      --     filetype = "neo-tree",
+      --     text = "Neo-tree",
+      --     highlight = "Directory",
+      --     text_align = "left",
+      --   },
+      -- },
       persist_buffer_sort = true, -- whether or not custom sorted buffers should persist
       -- sort_by = function(buffer_a, buffer_b)
       --   -- if require("util.buffer_manager").bm_file_to_idx ~= nil then

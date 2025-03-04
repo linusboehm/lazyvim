@@ -1,5 +1,3 @@
-local misc = require("util.misc")
-
 return {
   { "folke/tokyonight.nvim", lazy = true, opts = { style = "moon" } },
   {
@@ -36,6 +34,7 @@ return {
   },
   { "brenoprata10/nvim-highlight-colors", opts = {} }, -- color hex codes
   { "nvimtools/none-ls.nvim", enabled = false },
+  { "nvim-neo-tree/neo-tree.nvim", enabled = false },
   {
     "echasnovski/mini.pairs",
     event = "VeryLazy",
