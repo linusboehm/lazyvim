@@ -12,7 +12,6 @@
     "lazyvim.plugins.extras.lang.python",
     "lazyvim.plugins.extras.lang.sql",
     "lazyvim.plugins.extras.lang.yaml",
-    "lazyvim.plugins.extras.lsp.none-ls",
     "lazyvim.plugins.extras.ui.treesitter-context"
   ],
   "install_version": 7,

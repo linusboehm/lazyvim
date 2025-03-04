@@ -32,7 +32,6 @@
   "mini.surround": { "branch": "main", "commit": "f90069c7441a5fb04c3de42eacf93e16b64dd3eb" },
   "multicursor.nvim": { "branch": "1.0", "commit": "7497aedc0ea7d0397d7d924b619a5feb585c80d1" },
   "noice.nvim": { "branch": "main", "commit": "0427460c2d7f673ad60eb02b35f5e9926cf67c59" },
-  "none-ls.nvim": { "branch": "main", "commit": "ed8f80849ef1ad31c2f74679fafdef7801091247" },
   "nui.nvim": { "branch": "main", "commit": "53e907ffe5eedebdca1cd503b00aa8692068ca46" },
   "nvim-highlight-colors": { "branch": "main", "commit": "a770df5fbd98abbb0fc1a95d9a3f2bb1e51e3e2c" },
   "nvim-lint": { "branch": "master", "commit": "6e9dd545a1af204c4022a8fcd99727ea41ffdcc8" },
