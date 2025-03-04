@@ -292,7 +292,16 @@ return {
     -- picker keys
     { "<leader>,", false, desc = "Buffers" },
     -- { "<leader>sb", function() Snacks.picker.buffers() end, desc = "Buffers" },
-    -- { "<leader>/", LazyVim.pick("grep"), desc = "Grep (Root Dir)" },
+    -- { "<leader>/", function()
+    --                   local res = Snacks.picker.get({source = "explorer"})
+    --                   if #res > 0
+    --                   then
+    --                     res[1].input.win:focus()
+    --                   else
+    --                     Snacks.explorer({focus = "input"})
+    --                   end
+    --               end,
+    --   desc = "Grep (Root Dir)" },
     { "<leader>:", false, desc = "Command History" },
     { "<leader>;", function() Snacks.picker.command_history() end, desc = "Command History" },
     { "<leader><space>", false, desc = "Find Files (Root Dir)" },
@@ -304,7 +313,7 @@ return {
     { "<leader>fg", false, desc = "Find Files (git-files)" },
     { "<leader>fr", false, desc = "Recent" },
     { "<leader>fR", false, desc = "Recent (cwd)" },
-    { "<leader>e", function() Snacks.explorer() end, desc = "File Explorer" },
+    { "<leader>e", function() Snacks.explorer({focus = "input"}) end, desc = "File Explorer" },
 
     -- find
     { "<leader>sb", function() Snacks.picker.buffers() end, desc = "Buffers" },
@@ -313,6 +322,7 @@ return {
     -- { "<leader>sF", LazyVim.pick("files", { root = false }), desc = "Find Files (cwd)" }, -- TODO(lboehm): find under dir of currently open file
     -- { "<leader>fg", function() Snacks.picker.git_files() end, desc = "Find Files (git-files)" },
     { "<leader>br", LazyVim.pick("oldfiles"), desc = "Recent" },
+    -- { "<leader>br", function() Snacks.picker.recent() end, desc = "Recent" },
     -- { "<leader>fR", LazyVim.pick("oldfiles", { filter = { cwd = true }}), desc = "Recent (cwd)" },
     -- git
     { "<leader>gc", function() Snacks.picker.git_log() end, desc = "Git Log" },
