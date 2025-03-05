@@ -9,7 +9,7 @@ return {
           max_items = 50,
           selection = { preselect = false, auto_insert = false },
         },
-        -- accept = { auto_brackets = { enabled = true } },
+        accept = { auto_brackets = { enabled = true } },
         menu = {
           draw = {
             treesitter = { "lsp" },
