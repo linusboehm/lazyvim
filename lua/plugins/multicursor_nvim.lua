@@ -1,8 +1,17 @@
 return {
   "jake-stewart/multicursor.nvim",
   branch = "1.0",
+  opts = {
+    vim.keymap.set({ "n", "x" }, "mw", function()
+      local mc = require("multicursor-nvim")
+      mc.operator({ motion = "iw", visual = true })
+      -- Or you can pass a pattern, press `mwi{` will select every \w,
+      -- basically every char in a `{ a, b, c, d }`.
+      -- mc.operator({ pattern = [[\<\w]] })
+    end),
+  },
   keys = function()
-    local mc = require "multicursor-nvim"
+    local mc = require("multicursor-nvim")
 
     return {
       {
@@ -72,6 +81,17 @@ return {
         mode = { "n", "v" },
       },
       {
+        "<leader>mr",
+        mc.restoreCursors,
+        desc = "Restore cursors",
+      },
+      -- {
+      --   "<leader>mr",
+      --   mc.visualToCursors(),
+      --   desc = "Visual to cursors",
+      --   mode = { "n", "v" },
+      -- },
+      {
         "<c-leftmouse>",
         mc.handleMouse,
         desc = "Add cursor",
@@ -118,19 +138,19 @@ return {
         mode = { "v" },
       },
       {
-        "I",
+        "<leader>mI",
         mc.insertVisual,
         desc = "Insert for each line of visual selection",
         mode = { "v" },
       },
       {
-        "A",
+        "<leader>mA",
         mc.appendVisual,
         desc = "Append for each line of visual selection",
         mode = { "v" },
       },
       {
-        "M",
+        "<leader>mM",
         mc.matchCursors,
         desc = "match new cursors within visual selection regex",
         mode = { "v" },
@@ -143,18 +163,27 @@ return {
         desc = "Rotate visual selection contents",
         mode = { "v" },
       },
+      -- {
+      --   "<leader>mT",
+      --   function()
+      --     mc.transposeCursors(-1)
+      --   end,
+      --   desc = "Rotate visual selection contents",
+      --   mode = { "v" },
+      -- },
       {
-        "<leader>mT",
+        "<leader>ms",
         function()
-          mc.transposeCursors(-1)
+          mc.searchAllAddCursors()
         end,
-        desc = "Rotate visual selection contents",
-        mode = { "v" },
+        desc = "add cursors to search matches",
       },
+      { "g<c-a>", mc.sequenceIncrement, mode = { "n", "x" } },
+      { "g<c-x>", mc.sequenceDecrement, mode = { "n", "x" } },
     }
   end,
   config = function()
-    local mc = require "multicursor-nvim"
+    local mc = require("multicursor-nvim")
     mc.setup()
     -- Customize how cursors look.
     vim.api.nvim_set_hl(0, "MultiCursorCursor", { link = "Cursor" })
