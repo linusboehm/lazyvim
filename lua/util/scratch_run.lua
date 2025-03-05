@@ -363,6 +363,7 @@ local out_opts = {
     buflisted = false,
     swapfile = false,
     undofile = false,
+    modifiable = false,
   },
   wo = { winhighlight = "NormalFloat:Normal", number = true, wrap = true },
   minimal = true,
@@ -383,6 +384,12 @@ local stdout_opts = vim.tbl_extend("force", out_opts, {
 ---@type snacks.win.Config
 local asm_opts = vim.tbl_extend("force", out_opts, {
   bo = {
+    bufhidden = "wipe",
+    buftype = "nofile",
+    buflisted = false,
+    swapfile = false,
+    undofile = false,
+    modifiable = false,
     filetype = "asm",
   },
   keys = {
