@@ -213,7 +213,7 @@ local get_defult_args = function()
     asm_buf = asm_win.buf,
     compiler = { id = "g141" },
     flags = "-O1",
-    default_flags = "-fsanitize=address -std=c++20 -O0",
+    default_flags = "-fsanitize=address -std=c++20 -O0 -static-libasan",
     lang = "c++",
     out_buf = stdout_win.buf,
     on_selected = function(opts, update_opts)
@@ -294,7 +294,7 @@ local default_actions = {
     run_cpp(opts)
   end,
   run_cpp_asan = function()
-    local opts = vim.tbl_extend("force", get_defult_args(), { flags = "-fsanitize=address -std=c++20 -O0" })
+    local opts = vim.tbl_extend("force", get_defult_args(), { flags = "-fsanitize=address -std=c++20 -O0 -static-libasan" })
     run_cpp(opts)
   end,
   run_cpp_picker = function()
