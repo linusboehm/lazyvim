@@ -268,7 +268,10 @@ return {
         },
       },
     },
-    styles = { terminal = { keys = { gf = false } } },
+    styles = {
+      terminal = { keys = { gf = false } },
+      notification = { wo = { wrap = true } },
+    },
   },
   -- stylua: ignore
   keys = {
@@ -276,6 +279,7 @@ return {
     { "<leader>z", function() Snacks.zen.zoom() end, desc = "Toggle Zoom", },
     { "<leader>Z", function() Snacks.zen() end, desc = "Toggle Zen Mode", },
     { "<leader>ts", function() SearchBashHistory() end, desc = "search terminal command", },
+    { "<leader>n", function() Snacks.picker.notifications({ win = { preview = { wo = { wrap = true } } } }) end, desc = "Notification History" },
     { "<leader>th", function() Snacks.terminal("LD_LIBRARY_PATH='' htop") end, desc = "Terminal htop", },
     { "<leader>tl",
       function()
@@ -321,7 +325,8 @@ return {
     { "<leader>sf", LazyVim.pick("files"), desc = "Find Files (Root Dir)" },
     -- { "<leader>sF", LazyVim.pick("files", { root = false }), desc = "Find Files (cwd)" }, -- TODO(lboehm): find under dir of currently open file
     -- { "<leader>fg", function() Snacks.picker.git_files() end, desc = "Find Files (git-files)" },
-    { "<leader>br", LazyVim.pick("oldfiles"), desc = "Recent" },
+    -- { "<leader>br", LazyVim.pick("oldfiles"), desc = "Recent" },
+    { "<leader>br", function() Snacks.picker.recent() end, desc = "Recent" },
     -- { "<leader>br", function() Snacks.picker.recent() end, desc = "Recent" },
     -- { "<leader>fR", LazyVim.pick("oldfiles", { filter = { cwd = true }}), desc = "Recent (cwd)" },
     -- git
