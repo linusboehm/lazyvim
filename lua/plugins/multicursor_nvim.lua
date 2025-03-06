@@ -2,6 +2,9 @@ return {
   "jake-stewart/multicursor.nvim",
   branch = "1.0",
   opts = {
+    -- In normal/visual mode, press `mwap` will create a cursor in every match of
+    -- the word captured by `iw` (or visually selected range) inside the bigger
+    -- range specified by `ap`. Useful to replace a word inside a function, e.g. mwif.
     vim.keymap.set({ "n", "x" }, "mw", function()
       local mc = require("multicursor-nvim")
       mc.operator({ motion = "iw", visual = true })
@@ -133,7 +136,11 @@ return {
       },
       {
         "<leader>ms",
-        mc.splitCursors,
+        function()
+          mc.splitCursors()
+          vim.api.nvim_input("O")
+          vim.api.nvim_input("<esc>")
+        end,
         desc = "Split visual selection by regex",
         mode = { "v" },
       },
@@ -167,6 +174,9 @@ return {
       --   "<leader>mT",
       --   function()
       --     mc.transposeCursors(-1)
+      --   function()
+      --   end()
+      --   vim.cmd("noh")
       --   end,
       --   desc = "Rotate visual selection contents",
       --   mode = { "v" },
