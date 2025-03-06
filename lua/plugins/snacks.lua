@@ -326,7 +326,7 @@ return {
     -- { "<leader>sF", LazyVim.pick("files", { root = false }), desc = "Find Files (cwd)" }, -- TODO(lboehm): find under dir of currently open file
     -- { "<leader>fg", function() Snacks.picker.git_files() end, desc = "Find Files (git-files)" },
     -- { "<leader>br", LazyVim.pick("oldfiles"), desc = "Recent" },
-    { "<leader>br", function() Snacks.picker.recent() end, desc = "Recent" },
+    { "<leader>br", function() Snacks.picker.recent({ filter = { cwd = false }}) end, desc = "Recent" },
     -- { "<leader>br", function() Snacks.picker.recent() end, desc = "Recent" },
     -- { "<leader>fR", LazyVim.pick("oldfiles", { filter = { cwd = true }}), desc = "Recent (cwd)" },
     -- git
@@ -339,8 +339,8 @@ return {
     -- { "<leader>sb", false, desc = "Buffer Lines" },
     { "<leader>sB", false, desc = "Grep Open Buffers" },
     { "<leader>sio", function() Snacks.picker.grep_buffers() end, desc = "Grep Open Buffers" },
-    { "<leader>sib", function() local file_p = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ":.") Snacks.picker.grep({glob=file_p}) end, desc = "Grep current buffer" },
-    { "<leader>sis", function() local path = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ":p:h") Snacks.picker.grep({dirs={ path }}) end, desc = "Grep subdirs" },
+    { "<leader>sib", function() local file_p = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ":.") Snacks.picker.grep({ glob = file_p }) end, desc = "Grep current buffer" },
+    { "<leader>sis", function() local path = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ":p:h") Snacks.picker.grep({ dirs = { path } }) end, desc = "Grep subdirs" },
     { "<leader>so", function() Snacks.picker.grep({dirs={home_dir .. "/vaults/work/", home_dir .. "/anki/"}}) end, desc = "Grep obsidian" },
     { "<leader>sl", function() Snacks.picker.grep({dirs={"/home/lboehm/.local/share/nvim/lazy/"}}) end, desc = "Search lua/nvim plugins" },
 
