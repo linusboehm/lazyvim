@@ -360,6 +360,8 @@ return {
     { "<leader>sH", function() Snacks.picker.highlights() end, desc = "Highlights" },
     { "<leader>sj", function() Snacks.picker.jumps() end, desc = "Jumps" },
     { "<leader>sk", function() Snacks.picker.keymaps() end, desc = "Keymaps" },
+    { "<c-/>", function() Snacks.terminal() end, desc = "Toggle terminal" },
+    { "<c-_>", function() Snacks.terminal() end, desc = "Toggle terminal" },
     -- { "<leader>sl", function() Snacks.picker.loclist() end, desc = "Location List" },
     -- { "<leader>sl", false, desc = "Location List" },
     -- { "<leader>sM", function() Snacks.picker.man() end, desc = "Man Pages" },

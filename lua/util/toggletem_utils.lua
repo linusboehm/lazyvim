@@ -20,13 +20,16 @@ end
 
 local function call_in_terminal(cb)
   local term_win = find_window_with_filetype("snacks_terminal")
-  if term_win then
-    vim.api.nvim_set_current_win(term_win)
-    cb()
-  else
-    local opts = { win = { on_buf = cb } }
-    Snacks.terminal(nil, opts)
+  if not term_win then
+    Snacks.terminal()
+    term_win = find_window_with_filetype("snacks_terminal")
   end
+  if not term_win then
+    Snacks.notify.error("Failed to open terminal")
+    return
+  end
+  vim.api.nvim_set_current_win(term_win)
+  cb()
 end
 
 function M.run_in_terminal(cmd)
