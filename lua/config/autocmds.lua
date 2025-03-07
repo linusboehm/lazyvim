@@ -92,9 +92,9 @@ vim.api.nvim_create_autocmd("FileType", {
 
 -- enable syntax highlighting for CMake files
 vim.api.nvim_create_autocmd({ "BufNewFile", "BufRead" }, {
-  group = augroup("set_syntax"),
+  group = augroup("set_filetype"),
   pattern = "*CMake*.txt",
-  command = "set syntax=cmake",
+  command = "setfiletype cmake",
 })
 
 vim.api.nvim_create_autocmd("FileType", {
