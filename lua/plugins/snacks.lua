@@ -280,7 +280,7 @@ return {
     { "<leader>Z", function() Snacks.zen() end, desc = "Toggle Zen Mode", },
     { "<leader>ts", function() SearchBashHistory() end, desc = "search terminal command", },
     { "<leader>n", function() Snacks.picker.notifications({ win = { preview = { wo = { wrap = true } } } }) end, desc = "Notification History" },
-    { "<leader>th", function() Snacks.terminal("LD_LIBRARY_PATH='' htop") end, desc = "Terminal htop", },
+    { "<leader>th", function() Snacks.terminal("htop") end, desc = "Terminal htop", },
     { "<leader>tl",
       function()
         if LAST_CMD == nil then
