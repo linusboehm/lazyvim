@@ -135,7 +135,7 @@ return {
         mode = { "n" },
       },
       {
-        "<leader>ms",
+        "<leader>mS",
         function()
           mc.splitCursors()
           vim.api.nvim_input("O")
@@ -157,7 +157,7 @@ return {
         mode = { "v" },
       },
       {
-        "<leader>mM",
+        "<leader>ms",
         mc.matchCursors,
         desc = "match new cursors within visual selection regex",
         mode = { "v" },
