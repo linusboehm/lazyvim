@@ -342,7 +342,7 @@ return {
     { "<leader>sib", function() local file_p = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ":.") Snacks.picker.grep({ glob = file_p }) end, desc = "Grep current buffer" },
     { "<leader>sis", function() local path = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ":p:h") Snacks.picker.grep({ dirs = { path } }) end, desc = "Grep subdirs" },
     { "<leader>so", function() Snacks.picker.grep({dirs={home_dir .. "/vaults/work/", home_dir .. "/anki/"}}) end, desc = "Grep obsidian" },
-    { "<leader>sl", function() Snacks.picker.grep({dirs={"/home/lboehm/.local/share/nvim/lazy/"}}) end, desc = "Search lua/nvim plugins" },
+    { "<leader>sl", function() Snacks.picker.grep({dirs={home_dir .. "/.local/share/nvim/lazy/"}}) end, desc = "Search lua/nvim plugins" },
 
 
     { "<leader>sg", LazyVim.pick("live_grep"), desc = "Grep (Root Dir)" },
