@@ -8,6 +8,7 @@ return {
     },
     event = "VeryLazy",
     opts = {
+      model = 'o3-mini',
       mappings = {
         reset = {
           normal = "<C-w>",
