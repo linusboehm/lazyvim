@@ -333,7 +333,9 @@ local default_actions = {
           break
         end
       end
+      vim.api.nvim_set_option_value("modifiable", true, { buf = stdout_win.buf })
       vim.api.nvim_buf_set_lines(stdout_win.buf, 0, -1, false, content)
+      vim.api.nvim_set_option_value("modifiable", true, { buf = stdout_win.buf })
     end
   end,
 }
