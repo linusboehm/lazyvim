@@ -31,17 +31,59 @@ local set_next_preferred_layout = function(picker)
   picker:set_layout(preferred[idx])
 end
 
--- Snacks pikcer for bash hisotry, sorting doesn't work yet
 local layouts = require("snacks.picker.config.layouts")
 local custom_l = vim.deepcopy(layouts.dropdown)
 custom_l.layout[1].height = 0.15
 
-function SearchBashHistory()
+local get_file = function()
+  local uv = vim.uv or vim.loop
+  local branch = ""
+  if uv.fs_stat(".git") then
+    local ret = vim.fn.systemlist("git branch --show-current")[1]
+    if vim.v.shell_error == 0 then
+      branch = ret
+    end
+  end
+
+  local filekey = {
+    tostring(vim.v.count1),
+    "cmd_hist",
+    svim.fs.normalize(assert(uv.cwd())),
+    branch,
+  }
+
+  local root = vim.fn.stdpath("data") .. "/cmd_hist"
+  local fname = Snacks.util.file_encode(table.concat(filekey, "|"))
+  local file = root .. "/" .. fname
+  file = svim.fs.normalize(file)
+  return file
+end
+
+local function append_line_to_file(filename, line)
+  if line == nil then
+    return
+  end
+  local dir = filename:match("^(.*)/")
+  if dir then
+    os.execute("mkdir -p " .. dir)
+  end
+  local file, err = io.open(filename, "a")
+  if not file then
+    Snacks.notify.info("Could not open file: " .. err)
+    return
+  end
+  file:write(line .. "\n")
+  file:close()
+  Snacks.notify.info("Appended to file: " .. filename)
+  vim.cmd("e " .. vim.fn.fnameescape(filename))
+end
+
+function FindCmd(filename)
   Snacks.picker({
     title = "bash history",
     finder = "proc",
     cmd = "bash",
-    args = { "-c", "history -r; tail -n 10000 ~/.bash_history | tac | awk '!/^#/ && !count[$0]++'" },
+    args = { "-c", "tail -n 10000 ".. filename .. " | tac | awk '!/^#/ && !count[$0]++'" },
     -- name = "cmd",
     format = "text",
     preview = function(ctx)
@@ -278,7 +320,9 @@ return {
     { "<leader>ua", false },
     { "<leader>z", function() Snacks.zen.zoom() end, desc = "Toggle Zoom", },
     { "<leader>Z", function() Snacks.zen() end, desc = "Toggle Zen Mode", },
-    { "<leader>ts", function() SearchBashHistory() end, desc = "search terminal command", },
+    { "<leader>ts", function() FindCmd("~/.bash_history") end, desc = "search terminal command", },
+    { "<leader>td", function() FindCmd(get_file()) end, desc = "search dir hist command", },
+    { "<leader>ta", function() append_line_to_file(get_file(), LAST_CMD) end, desc = "Append command to dir history", },
     { "<leader>n", function() Snacks.picker.notifications({ win = { preview = { wo = { wrap = true } } } }) end, desc = "Notification History" },
     { "<leader>th", function() Snacks.terminal("htop") end, desc = "Terminal htop", },
     { "<leader>tl",
