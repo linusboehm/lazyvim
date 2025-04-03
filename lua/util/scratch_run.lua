@@ -164,8 +164,8 @@ local three_win_layout = {
     {
       box = "vertical",
       border = "none",
-      { win = "stdout", height = 0.5, border = "rounded" },
       { win = "asm", border = "rounded" },
+      { win = "stdout", height = 0.2, border = "rounded" },
     },
   },
 }
@@ -537,6 +537,8 @@ M.open_scratch_run = function(filetype)
   if filetype == "cpp" then
     opts = three_win_layout --[[@as snacks.layout.Config]]
     source_opts.keys = vim.tbl_extend("force", source_opts.keys, {
+      ["<c-l>"] = { "focus_asm", mode = { "i", "n" } },
+      ["<c-h>"] = { "focus_asm", mode = { "i", "n" } },
       ["<CR><CR>"] = { "run_cpp_last", mode = { "n", "v" }, desc = "last" },
       ["<CR>0"] = { "run_cpp_o0", mode = { "n", "v" }, desc = "-O0" },
       ["<CR>1"] = { "run_cpp_o1", mode = { "n", "v" }, desc = "-O1" },
