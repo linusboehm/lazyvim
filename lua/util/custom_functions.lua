@@ -65,8 +65,7 @@ function M.build_and_run()
   if handle then handle:close() end
   git_root_rel = git_root_rel:gsub("%s+$", "")  -- trim whitespace
   if #git_root_rel == 0 then
-    Snacks.notify.info("Not inside a git repository.")
-    return
+    git_root_rel = "./"
   end
   local git_root = Snacks.git.get_root()
   local source_dir = remove_prefix(vim.fn.expand("%:p:h"), git_root)
