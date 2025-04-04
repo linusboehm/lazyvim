@@ -59,6 +59,19 @@ function M.goto_next_slide()
   end, 50)
 end
 
+local function get_taskset()
+  local taskset_str = ""
+  local file = io.open("/sys/devices/system/cpu/isolated", "r")
+  if file then
+    local content = file:read("*a")
+    file:close()
+    if content:find("27") then
+      taskset_str = "taskset -c 27 "
+    end
+  end
+  return taskset_str
+end
+
 function M.build_and_run()
   local handle = io.popen("git rev-parse --show-cdup 2> /dev/null")
   local git_root_rel = handle and handle:read("*a") or ""
@@ -72,7 +85,8 @@ function M.build_and_run()
   local base = vim.fn.expand("%:t:r")
   local exec_path = "build/gcc-release" .. source_dir .. "/perf_stuff." .. base
   local build_cmd = "cmake --workflow --preset gcc-release"
-  local cmd = "(cd " .. git_root_rel .. " && " .. build_cmd .. " && ./" .. exec_path .. ")"
+  local maybe_taskset = get_taskset()
+  local cmd = "(cd " .. git_root_rel .. " && " .. build_cmd .. " && " .. maybe_taskset .. "./" .. exec_path .. ")"
   require("util.toggletem_utils").run_in_terminal(cmd)
 end
 
