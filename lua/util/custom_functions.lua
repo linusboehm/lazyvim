@@ -7,6 +7,58 @@ local function remove_prefix(full_path, prefix)
   return full_path:gsub("^" .. escaped_prefix, "")
 end
 
+function M.goto_next_slide()
+  -- Get the current working directory, its basename, and its parent
+  local current = vim.fn.getcwd()
+  local current_basename = vim.fn.fnamemodify(current, ':t')
+  local parent = vim.fn.fnamemodify(current, ':h')
+
+  -- Get all directories in the parent that match "slide*"
+  local dir_paths = vim.fn.globpath(parent, "slide*/", true, true)
+  if vim.tbl_isempty(dir_paths) then
+    print("No slide directories found in " .. parent)
+    return
+  end
+
+  -- Sort directories lexicographically
+  table.sort(dir_paths)
+
+  -- Find the current directory's index in the sorted list
+  local current_index = nil
+  for i, path in ipairs(dir_paths) do
+    path = path:gsub("/$", "")
+    local basename = vim.fn.fnamemodify(path, ':t')
+    if basename == current_basename then
+      current_index = i
+      break
+    end
+  end
+
+  if not current_index then
+    print("Current directory not found among slide directories.")
+    return
+  end
+
+  local next_index = current_index + 1
+  if next_index > #dir_paths then
+    print("No next slide directory found.")
+    return
+  end
+
+  local next_path = dir_paths[next_index]
+  next_path = next_path:gsub("/$", "")
+  next_path = vim.fn.fnamemodify(next_path, ':t')
+  local cmd = "cd ../" .. next_path
+  Snacks.notify.info(cmd)
+  vim.cmd(cmd)
+  vim.cmd("bufdo bd!")
+  require("persistence").load()
+  require("util.toggletem_utils").run_in_terminal(cmd .. " && clear")
+  vim.defer_fn(function()
+    Snacks.terminal()
+  end, 50)
+end
+
 function M.build_and_run()
   local handle = io.popen("git rev-parse --show-cdup 2> /dev/null")
   local git_root_rel = handle and handle:read("*a") or ""
