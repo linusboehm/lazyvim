@@ -2,8 +2,31 @@ local misc_util = require("util.misc")
 
 local M = {}
 
+local function remove_prefix(full_path, prefix)
+  local escaped_prefix = vim.pesc(prefix)
+  return full_path:gsub("^" .. escaped_prefix, "")
+end
+
+function M.build_and_run()
+  local handle = io.popen("git rev-parse --show-cdup 2> /dev/null")
+  local git_root_rel = handle and handle:read("*a") or ""
+  if handle then handle:close() end
+  git_root_rel = git_root_rel:gsub("%s+$", "")  -- trim whitespace
+  if #git_root_rel == 0 then
+    Snacks.notify.info("Not inside a git repository.")
+    return
+  end
+  local git_root = Snacks.git.get_root()
+  local source_dir = remove_prefix(vim.fn.expand("%:p:h"), git_root)
+  local base = vim.fn.expand("%:t:r")
+  local exec_path = "build/gcc-release" .. source_dir .. "/perf_stuff." .. base
+  local build_cmd = "cmake --workflow --preset gcc-release"
+  local cmd = "(cd " .. git_root_rel .. " && " .. build_cmd .. " && ./" .. exec_path .. ")"
+  require("util.toggletem_utils").run_in_terminal(cmd)
+end
+
 -- this is a script to turn dict() calls in python to {}
-M.dict_to_squiggle_py = function()
+function M.dict_to_squiggle_py ()
   -- Get the current cursor position
   local row, col = unpack(vim.api.nvim_win_get_cursor(0))
   row = row - 1 -- Convert to 0-based index
