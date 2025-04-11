@@ -250,7 +250,7 @@ return {
       },
     },
     indent = {
-      enabled = false,
+      enabled = true,
       indent = { hl = "SnacksIndent" },
       scope = { hl = "SnacksIndent", animate = { enabled = false } },
     },
