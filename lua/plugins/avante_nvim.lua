@@ -56,6 +56,48 @@ return {
       end,
       desc = "Avante add open buffers",
     },
+    {
+      "<leader>aB",
+      function()
+        local avante_utils = require("avante.utils")
+        local sidebar = require("avante").get()
+        local open = sidebar:is_open()
+        if not open then
+          require("avante.api").ask()
+          sidebar = require("avante").get()
+        end
+        local curr_path = vim.api.nvim_buf_get_name(0)
+        local git_root = Snacks.git.get_root()
+        curr_path = curr_path:gsub(git_root .. "/", "")
+
+        local selected = sidebar.file_selector:get_selected_filepaths()
+        if not vim.tbl_contains(selected, curr_path) then
+          sidebar.file_selector:add_selected_file(curr_path)
+        end
+        for _, path in pairs(selected) do
+          if path ~= curr_path then
+            sidebar.file_selector:remove_selected_file(path)
+          end
+        end
+      end,
+      desc = "Clear files",
+    },
+    {
+      "<leader>al",
+      function()
+        -- Open sidebar first (only once)
+        local sidebar = require("avante").get()
+        local open = sidebar:is_open()
+        -- ensure avante sidebar is open
+        if not open then
+          require("avante.api").ask()
+          sidebar = require("avante").get()
+        end
+
+        sidebar:retry_user_request()
+      end,
+      desc = "Run last command",
+    },
   },
   dependencies = {
     "nvim-treesitter/nvim-treesitter",
