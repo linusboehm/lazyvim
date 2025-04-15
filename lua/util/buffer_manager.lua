@@ -43,6 +43,34 @@ local default_actions = {
       buf_win:close()
     end)
   end,
+  -- avante_add = function()
+  --   -- Open sidebar first (only once)
+  --   local sidebar = require("avante").get()
+  --   local open = sidebar:is_open()
+  --   local avante_utils = require("avante.utils")
+  --   -- ensure avante sidebar is open
+  --   if not open then
+  --     require("avante.api").ask()
+  --     sidebar = require("avante").get()
+  --   end
+  --   local start_line = vim.api.nvim_buf_get_mark(0, "<")[1]
+  --   local end_line = vim.api.nvim_buf_get_mark(0, ">")[1]
+  --   Snacks.notify.info("Adding " .. start_line .. " to " .. end_line)
+  --   local lines = vim.api.nvim_buf_get_lines(0, start_line - 1, end_line, false)
+  --   local git_root = Snacks.git.get_root()
+  --   for i, line in ipairs(lines) do
+  --     lines[i] = line:gsub(git_root .. "/", "")
+  --     Snacks.notify.info("Adding " .. line)
+  --   end
+  --
+  --   local paths = sidebar.file_selector:get_selected_filepaths()
+  --   Snacks.notify.info("comparing " .. vim.inspect(paths))
+  --   for _, path in pairs(paths) do
+  --     if not vim.tbl_contains(lines, path) then
+  --       sidebar.file_selector:remove_selected_file(path)
+  --     end
+  --   end
+  -- end,
 }
 
 ---@type snacks.win.Config
@@ -59,6 +87,7 @@ local window_opts = {
   keys = {
     ["<cr>"] = { "open_file", mode = { "i", "n" }, desc = "open file" },
     ["q"] = "close",
+    -- ["a"] = { "avante_add", mode = { "v" }, desc = "avante add" },
   },
   fixbuf = true,
   actions = default_actions,
@@ -237,6 +266,9 @@ end
 --- it will be closed instead.
 function M.open()
   -- local is_new = not uv.fs_stat(file)
+
+  local curr_path = path_formatter(vim.api.nvim_buf_get_name(0))
+
   local mngr_buf = vim.fn.bufadd(get_file("buf_man", "buffer_mngr"))
   if not vim.api.nvim_buf_is_loaded(mngr_buf) then
     vim.fn.bufload(mngr_buf)
@@ -255,12 +287,19 @@ function M.open()
     return
   end
   local contents = {}
+  local file_idx = 0
   for index, buf in ipairs(elements) do
     contents[index] = path_formatter(buf.path)
+    if contents[index] == curr_path then
+      file_idx = index
+    end
   end
   vim.api.nvim_buf_set_lines(mngr_buf, 0, -1, false, contents)
 
   window_opts.buf = mngr_buf
+  window_opts.on_win = function(win)
+    vim.api.nvim_win_set_cursor(win.win, { file_idx, 0 })
+  end
   buf_win = Snacks.win(window_opts)
 
   buf_win.opts.footer = {}
