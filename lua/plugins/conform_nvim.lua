@@ -1,6 +1,5 @@
 local prettier = { "prettier", "prettierd" }
 return {
-  {
     "stevearc/conform.nvim",
     dependencies = {
       { "lewis6991/gitsigns.nvim", lazy = true },
@@ -14,8 +13,6 @@ return {
         ["sql"] = { "sqlfluff" },
         ["markdown.mdx"] = { "prettier" },
         -- ["python"] = { "ruff_fix", "isort", "darker" },
-        ["python"] = {},
-        -- ["python"] = { "yapf" },
         ["shell"] = { "shfmt", "shellharden" },
         ["sh"] = { "shfmt", "shellharden" },
         ["gitcommit"] = { "prettier_gitcommit" },
@@ -97,5 +94,4 @@ return {
         desc = "format git hunks",
       },
     },
-  },
 }
