@@ -160,6 +160,11 @@ return {
       config = {
         os = { editPreset = "" }, -- use `editPreset = "nvim-remote"` to edit in main nvim window
       },
+      win = {
+        keys  = {
+          ["jj"] = false,
+        },
+      },
     },
     notifier = { enabled = true },
     quickfile = { enabled = true },
