@@ -161,7 +161,7 @@ return {
         os = { editPreset = "" }, -- use `editPreset = "nvim-remote"` to edit in main nvim window
       },
       win = {
-        keys  = {
+        keys = {
           ["jj"] = false,
         },
       },
@@ -333,7 +333,7 @@ return {
     { "<leader>tl",
       function()
         if LAST_CMD == nil then
-          SearchBashHistory()
+          FindCmd("~/.bash_history")
         else
           Snacks.notify.info((("executing: [%s]"):format(LAST_CMD)))
           term_utils.run_in_terminal(LAST_CMD)
