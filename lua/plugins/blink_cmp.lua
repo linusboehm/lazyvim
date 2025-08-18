@@ -16,6 +16,7 @@ return {
           },
         },
       },
+      fuzzy = { implementation = "prefer_rust_with_warning" },
       sources = {
         providers = {
           dadbod = { name = "Dadbod", module = "vim_dadbod_completion.blink", score_offset = 3 },
