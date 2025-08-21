@@ -92,7 +92,8 @@ end
 
 return {
   "stevearc/aerial.nvim",
-  event = "LazyFile",
+  -- event = "LazyFile",
+  cmd = 'AerialToggle',
   opts = function()
     local opts = {
       backends = { "lsp", "treesitter", "markdown", "man" },

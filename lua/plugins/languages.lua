@@ -44,6 +44,8 @@ return {
   -- add any tools you want to have installed below
   {
     "williamboman/mason.nvim",
+    -- enabled = false,
+    event = "VeryLazy",
     opts = {
       ensure_installed = {
         -- "black",
