@@ -6,9 +6,9 @@ return {
       { "zbirenbaum/copilot.lua" }, -- or github/copilot.vim
       { "nvim-lua/plenary.nvim" }, -- for curl, log wrapper
     },
-    event = "VeryLazy",
+    cmd = "CopilotChat",
     opts = {
-      model = 'o3-mini',
+      model = 'claude-sonnet-4',
       mappings = {
         reset = {
           normal = "<C-w>",
