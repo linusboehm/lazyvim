@@ -49,7 +49,7 @@ function M.run_in_terminal(cmd)
 end
 
 -- HELPER FUNCTIONS
-local open_file_under_cursor = function()
+local function open_file_under_cursor()
   local filename = vim.fn.expand("<cfile>")
   -- Define the pattern to search for
   local pattern = filename .. [[:(\d*):(\d*)]]
@@ -59,7 +59,7 @@ local open_file_under_cursor = function()
 
   -- Get the current line and extract the match
   local line = vim.api.nvim_get_current_line()
-  local line_nr, col_nr = line:match(filename .. ":?(%d*):?(%d*)")
+  local line_nr, col_nr = line:match(filename:gsub("[%(%)%.%+%-%*%?%[%]%^%$%%]", "%%%1") .. ":(%d*):(%d*)")
   line_nr = line_nr ~= "" and line_nr or nil
   col_nr = col_nr ~= "" and col_nr or "2"
 
