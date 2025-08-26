@@ -1,6 +1,7 @@
 return {
   {
     "saghen/blink.cmp",
+    event = "VeryLazy",
     ---@module 'blink.cmp'
     ---@type blink.cmp.Config
     opts = {
@@ -21,6 +22,9 @@ return {
         providers = {
           dadbod = { name = "Dadbod", module = "vim_dadbod_completion.blink", score_offset = 3 },
         },
+        -- per_filetype = {
+        --   codecompanion = { "codecompanion" },
+        -- },
       },
       keymap = {
         preset = "enter",

@@ -10,21 +10,21 @@ return {
         lua = { "selene" },
         markdown = { "markdownlint" },
         proto = { "protolint" },
-        sh = { "shellcheck" },
+        -- sh = { "shellcheck" },
       },
       linters = {
         markdownlint = {
           args = { "--config", "/home/lboehm/.markdownlint.yaml" },
         },
-        shellcheck = {
-          args = {
-            "--format",
-            "json",
-            "-e",
-            "SC1091,2164,2059",
-            "-",
-          },
-        },
+        -- shellcheck = {
+        --   args = {
+        --     "--format",
+        --     "json",
+        --     "-e",
+        --     "SC1091,2164,2059",
+        --     "-",
+        --   },
+        -- },
       },
     },
   },

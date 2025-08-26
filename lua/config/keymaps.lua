@@ -258,75 +258,75 @@ vim.api.nvim_command('iabbrev <expr>dd strftime("%e-%b-%Y")')
 vim.api.nvim_command('iabbrev <expr>tt strftime("%H:%M")')
 vim.api.nvim_command('iabbrev <expr>dt strftime("%e-%b-%Y %H:%M")')
 
-local function select_multiline_comment(outer)
-  local parser = vim.treesitter.get_parser(0)
-  local tree = parser:parse()[1]
-  local root = tree:root()
-
-  local cursor_row, _ = unpack(vim.api.nvim_win_get_cursor(0))
-  cursor_row = cursor_row - 1
-
-  local query = vim.treesitter.query.parse(
-    vim.bo.filetype,
-    [[
-      [
-        (comment) @comment
-      ]
-    ]]
-  )
-
-  local start_row, start_col, end_row, end_col
-  for _, node in query:iter_captures(root, 0, cursor_row, cursor_row + 1) do
-    local s_row, s_col, e_row, e_col = vim.treesitter.get_node_range(node)
-    if s_row <= cursor_row and e_row >= cursor_row then
-      start_row, start_col = s_row, s_col
-      end_row, end_col = e_row, e_col
-      break
-    end
-  end
-
-  local comm_string = vim.api.nvim_buf_get_option(0, "commentstring"):match("([^%s]*)"):gsub("%W", "%%%1")
-
-  if start_row and end_row then
-    -- Extend the selection upwards to include adjacent single-line comments
-    local new_start_row, new_start_col = start_row, start_col
-    while true do
-      local prev_row = new_start_row - 1
-      local prev_line = vim.fn.getline(prev_row + 1)
-      if not prev_line:match("^%s*" .. comm_string) then
-        break
-      end
-      new_start_row = prev_row
-      new_start_col = 0
-    end
-
-    -- Extend the selection downwards to include adjacent single-line comments
-    local new_end_row, new_end_col = end_row, end_col
-    while true do
-      local next_row = new_end_row + 1
-      local next_line = vim.fn.getline(next_row + 1)
-      if not next_line:match("^%s*" .. comm_string) then
-        break
-      end
-      new_end_row = next_row
-      new_end_col = #next_line
-    end
-
-    if outer then
-      -- delete consecutive empty lines
-      local prev_line = vim.fn.getline(new_start_row)
-      local next_line = vim.fn.getline(new_end_row + 2)
-      if prev_line == "" and next_line == "" then
-        new_start_row = new_start_row - 1
-        new_start_col = 0
-      end
-    end
-
-    vim.fn.setpos("'<", { 0, new_start_row + 1, new_start_col + 1, 0 })
-    vim.fn.setpos("'>", { 0, new_end_row + 1, new_end_col + 1, 0 })
-    vim.cmd("normal! gv")
-  end
-end
+-- local function select_multiline_comment(outer)
+--   local parser = vim.treesitter.get_parser(0)
+--   local tree = parser:parse()[1]
+--   local root = tree:root()
+--
+--   local cursor_row, _ = unpack(vim.api.nvim_win_get_cursor(0))
+--   cursor_row = cursor_row - 1
+--
+--   local query = vim.treesitter.query.parse(
+--     vim.bo.filetype,
+--     [[
+--       [
+--         (comment) @comment
+--       ]
+--     ]]
+--   )
+--
+--   local start_row, start_col, end_row, end_col
+--   for _, node in query:iter_captures(root, 0, cursor_row, cursor_row + 1) do
+--     local s_row, s_col, e_row, e_col = vim.treesitter.get_node_range(node)
+--     if s_row <= cursor_row and e_row >= cursor_row then
+--       start_row, start_col = s_row, s_col
+--       end_row, end_col = e_row, e_col
+--       break
+--     end
+--   end
+--
+--   local comm_string = vim.api.nvim_buf_get_option(0, "commentstring"):match("([^%s]*)"):gsub("%W", "%%%1")
+--
+--   if start_row and end_row then
+--     -- Extend the selection upwards to include adjacent single-line comments
+--     local new_start_row, new_start_col = start_row, start_col
+--     while true do
+--       local prev_row = new_start_row - 1
+--       local prev_line = vim.fn.getline(prev_row + 1)
+--       if not prev_line:match("^%s*" .. comm_string) then
+--         break
+--       end
+--       new_start_row = prev_row
+--       new_start_col = 0
+--     end
+--
+--     -- Extend the selection downwards to include adjacent single-line comments
+--     local new_end_row, new_end_col = end_row, end_col
+--     while true do
+--       local next_row = new_end_row + 1
+--       local next_line = vim.fn.getline(next_row + 1)
+--       if not next_line:match("^%s*" .. comm_string) then
+--         break
+--       end
+--       new_end_row = next_row
+--       new_end_col = #next_line
+--     end
+--
+--     if outer then
+--       -- delete consecutive empty lines
+--       local prev_line = vim.fn.getline(new_start_row)
+--       local next_line = vim.fn.getline(new_end_row + 2)
+--       if prev_line == "" and next_line == "" then
+--         new_start_row = new_start_row - 1
+--         new_start_col = 0
+--       end
+--     end
+--
+--     vim.fn.setpos("'<", { 0, new_start_row + 1, new_start_col + 1, 0 })
+--     vim.fn.setpos("'>", { 0, new_end_row + 1, new_end_col + 1, 0 })
+--     vim.cmd("normal! gv")
+--   end
+-- end
 
 local function select_multiline_comment_inner()
   select_multiline_comment(false)
@@ -352,4 +352,4 @@ map("n", "<leader>ce", function()
   misc_util.dump_color_codes()
 end, { desc = "write code to file" })
 
-vim.cmd("command! ExportTSSyntax lua export_treesitter_syntax()")
+-- vim.cmd("command! ExportTSSyntax lua export_treesitter_syntax()")

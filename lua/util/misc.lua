@@ -91,34 +91,34 @@ function M.open_file(filename, line_nr, col_nr)
   end
 end
 
-local function get_color_code(input)
-  -- Initialize results
-
-  -- Extract the Semantic Tokens section
-  local semantic_tokens_section = input:match("Semantic Tokens(.-)\n\n")
-  if semantic_tokens_section then
-    -- Find the first entry in the Semantic Tokens section
-    local sem_token = semantic_tokens_section:match("links to%s+([%w_%.%@]+)")
-    return vim.api.nvim_exec2("hi " .. sem_token, { output = true }).output:match("=(#%x%x%x%x%x%x)")
-  end
-
-  -- Extract the Treesitter section
-  local treesitter_section = input:match("Treesitter(.-)\n\n")
-  if treesitter_section then
-    local color_code = nil
-    -- Find the last entry in the Treesitter section
-    for entry in treesitter_section:gmatch("  %- ([^\n]+)") do
-      local sem_token = entry:match("links to%s+([%w_%.%@]+)")
-      local curr_color = vim.api.nvim_exec2("hi " .. sem_token, { output = true }).output:match("=(#%x%x%x%x%x%x)")
-      if curr_color ~= nil then
-        color_code = curr_color
-      end
-    end
-    return color_code
-  end
-
-  return nil
-end
+-- local function get_color_code(input)
+--   -- Initialize results
+--
+--   -- Extract the Semantic Tokens section
+--   local semantic_tokens_section = input:match("Semantic Tokens(.-)\n\n")
+--   if semantic_tokens_section then
+--     -- Find the first entry in the Semantic Tokens section
+--     local sem_token = semantic_tokens_section:match("links to%s+([%w_%.%@]+)")
+--     return vim.api.nvim_exec2("hi " .. sem_token, { output = true }).output:match("=(#%x%x%x%x%x%x)")
+--   end
+--
+--   -- Extract the Treesitter section
+--   local treesitter_section = input:match("Treesitter(.-)\n\n")
+--   if treesitter_section then
+--     local color_code = nil
+--     -- Find the last entry in the Treesitter section
+--     for entry in treesitter_section:gmatch("  %- ([^\n]+)") do
+--       local sem_token = entry:match("links to%s+([%w_%.%@]+)")
+--       local curr_color = vim.api.nvim_exec2("hi " .. sem_token, { output = true }).output:match("=(#%x%x%x%x%x%x)")
+--       if curr_color ~= nil then
+--         color_code = curr_color
+--       end
+--     end
+--     return color_code
+--   end
+--
+--   return nil
+-- end
 
 function M.dump_color_codes()
   vim.api.nvim_win_set_cursor(0, { 1, 0 })

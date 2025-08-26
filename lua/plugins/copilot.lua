@@ -18,8 +18,8 @@ return {
     },
     keys = function()
       local select = require("CopilotChat.select")
-      local snacks_integration = require("CopilotChat.integrations.snacks")
-      local actions = require("CopilotChat.actions")
+      -- local snacks_integration = require("CopilotChat.integrations.snacks")
+      -- local actions = require("CopilotChat.actions")
 
       return {
         {
@@ -43,21 +43,21 @@ return {
           desc = "CopilotChat - Quick chat",
           mode = "v",
         },
-        {
-          "<leader>ap",
-          function()
-            snacks_integration.pick(actions.prompt_actions(), { selection = select.buffer, layout = "dropdown" })
-          end,
-          desc = "CopilotChat - Prompt actions",
-        },
-        {
-          "<leader>ap",
-          function()
-            snacks_integration.pick(actions.prompt_actions(), { selection = select.visual, layout = "dropdown" })
-          end,
-          desc = "CopilotChat - Prompt actions",
-          mode = "v",
-        },
+        -- {
+        --   "<leader>ap",
+        --   function()
+        --     snacks_integration.pick(actions.prompt_actions(), { selection = select.buffer, layout = "dropdown" })
+        --   end,
+        --   desc = "CopilotChat - Prompt actions",
+        -- },
+        -- {
+        --   "<leader>ap",
+        --   function()
+        --     snacks_integration.pick(actions.prompt_actions(), { selection = select.visual, layout = "dropdown" })
+        --   end,
+        --   desc = "CopilotChat - Prompt actions",
+        --   mode = "v",
+        -- },
         {
           "<leader>am",
           "<cmd>CopilotChatCommit<cr>",
