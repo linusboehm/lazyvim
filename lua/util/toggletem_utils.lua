@@ -52,14 +52,15 @@ end
 local function open_file_under_cursor()
   local filename = vim.fn.expand("<cfile>")
   -- Define the pattern to search for
-  local pattern = filename .. [[:(\d*):(\d*)]]
+  local pattern = filename .. [[:(\d+)]]
 
   -- Search for the pattern under the cursor
   vim.fn.search(pattern, "c")
 
   -- Get the current line and extract the match
   local line = vim.api.nvim_get_current_line()
-  local line_nr, col_nr = line:match(filename:gsub("[%(%)%.%+%-%*%?%[%]%^%$%%]", "%%%1") .. ":(%d*):(%d*)")
+  local escaped_filename = filename:gsub("[%(%)%.%+%-%*%?%[%]%^%$%%]", "%%%1")
+  local line_nr, col_nr = line:match(escaped_filename .. ":(%d+):?(%d*)")
   line_nr = line_nr ~= "" and line_nr or nil
   col_nr = col_nr ~= "" and col_nr or "2"
 
