@@ -9,6 +9,13 @@ return {
         -- pyright will be automatically installed with mason and loaded with lspconfig
         pyright = {},
         sqlls = {},
+
+        -- Configure clangd to exclude proto files
+        clangd = {
+          filetypes = { "c", "cpp", "objc", "objcpp", "cuda" }, -- removed "proto"
+        },
+        -- Add buf_ls for proto files
+        buf_ls = {},
       },
     },
     init = function()
