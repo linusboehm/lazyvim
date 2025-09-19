@@ -236,6 +236,10 @@ end
 --- If a window is already open with the same buffer,
 --- it will be closed instead.
 function M.open()
+  -- Save the current buffer info before doing anything else
+  local original_buf = vim.api.nvim_get_current_buf()
+  local original_buf_name = vim.api.nvim_buf_get_name(original_buf)
+
   -- local is_new = not uv.fs_stat(file)
   local mngr_buf = vim.fn.bufadd(get_file("buf_man", "buffer_mngr"))
   if not vim.api.nvim_buf_is_loaded(mngr_buf) then
@@ -263,6 +267,18 @@ function M.open()
   window_opts.buf = mngr_buf
   buf_win = Snacks.win(window_opts)
 
+  -- Find the current buffer and set cursor position
+  local current_buf_path = path_formatter(original_buf_name)
+  local cursor_line = 1
+
+  for index, buf in ipairs(elements) do
+    local buf_path = path_formatter(buf.path)
+    if buf_path == current_buf_path then
+      cursor_line = index
+      break
+    end
+  end
+
   buf_win.opts.footer = {}
   table.sort(buf_win.keys, function(a, b)
     return a[1] < b[1]
@@ -281,7 +297,13 @@ function M.open()
 
   attach()
   closed = false
-  return buf_win:show()
+  local result = buf_win:show()
+
+  -- Set cursor position to the current buffer's line
+  if vim.api.nvim_win_is_valid(buf_win.win) then
+    vim.api.nvim_win_set_cursor(buf_win.win, { cursor_line, 0 })
+  end
+  return result
 end
 
 -- update the ordering whenever a new buffer is opened
