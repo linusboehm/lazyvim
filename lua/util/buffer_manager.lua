@@ -6,12 +6,20 @@ local utils = lazy.require("bufferline.utils") ---@module "bufferline.utils"
 local config = lazy.require("bufferline.config")
 local ui = lazy.require("bufferline.ui") ---@module "bufferline.ui"
 local closed = true
-local last_print_time = 0
 
 local M = {}
 M.bm_file_to_idx = nil
 
 local uv = vim.uv or vim.loop
+
+-- Set up highlight group for modified buffers
+vim.api.nvim_set_hl(0, "BufferManagerModified", { fg = "#ffcba6" })
+
+-- Define signs for git status
+vim.fn.sign_define("BufferManagerGitAdd", { text = "▎", texthl = "GitSignsAdd" })
+vim.fn.sign_define("BufferManagerGitChange", { text = "▎", texthl = "GitSignsChange" })
+vim.fn.sign_define("BufferManagerGitDelete", { text = "▎", texthl = "GitSignsDelete" })
+vim.fn.sign_define("BufferManagerGitMixed", { text = "▎", texthl = "GitSignsChange" })
 
 ---@type snacks.win
 local buf_win = nil
@@ -32,7 +40,7 @@ end
 
 local default_actions = {
   open_file = function()
-    local filename = vim.fn.expand("<cfile>")
+    local filename = vim.api.nvim_get_current_line()
     closed = true
     buf_win:close()
     misc_util.open_file(filename)
@@ -48,10 +56,11 @@ local default_actions = {
 ---@type snacks.win.Config
 local window_opts = {
   bo = { buftype = "", buflisted = false, bufhidden = "hide", swapfile = false },
-  wo = { winhighlight = "NormalFloat:Normal" },
+  wo = { winhighlight = "NormalFloat:Normal", signcolumn = "yes:1" },
   border = "rounded",
   title_pos = "center",
   minimal = false,
+  relative = "editor",
   width = 100,
   height = 30,
   footer_pos = "center",
@@ -66,6 +75,71 @@ local window_opts = {
 
 local function path_formatter(path)
   return vim.fn.fnamemodify(path, ":p:.")
+end
+
+---@param bufnr number
+---@param filepath string
+---@return string|nil git_sign, string|nil highlight
+local function get_buffer_indicators(bufnr, filepath)
+  local git_sign = nil
+  local highlight = nil
+
+  -- Check if buffer has unsaved changes
+  if vim.bo[bufnr].modified then
+    highlight = "BufferManagerModified"
+  end
+
+  -- First try to get git status from gitsigns (for visible buffers)
+  local ok, gitsigns_status = pcall(vim.api.nvim_buf_get_var, bufnr, "gitsigns_status_dict")
+  if ok and gitsigns_status then
+    -- Determine which sign to use based on git status
+    local has_added = gitsigns_status.added and gitsigns_status.added > 0
+    local has_changed = gitsigns_status.changed and gitsigns_status.changed > 0
+    local has_removed = gitsigns_status.removed and gitsigns_status.removed > 0
+
+    if has_added and not has_changed and not has_removed then
+      git_sign = "BufferManagerGitAdd"
+    elseif has_removed and not has_added and not has_changed then
+      git_sign = "BufferManagerGitDelete"
+    elseif has_changed and not has_added and not has_removed then
+      git_sign = "BufferManagerGitChange"
+    elseif has_added or has_changed or has_removed then
+      git_sign = "BufferManagerGitMixed"
+    end
+  else
+    -- Fallback: check git status directly for non-visible buffers
+    -- First check if the file is in a git repository
+    local absolute_path = vim.fn.fnamemodify(filepath, ":p")
+    local file_dir = vim.fn.fnamemodify(absolute_path, ":h")
+
+    -- Get git root for the file's directory
+    local git_root = vim.fn.systemlist("cd " .. vim.fn.shellescape(file_dir) .. " && git rev-parse --show-toplevel")[1]
+    if vim.v.shell_error == 0 and git_root then
+      -- Verify the file is actually within this git repository
+      if vim.startswith(absolute_path, git_root) then
+        -- Check if file has modifications relative to its git root
+        local git_status = vim.fn.system(
+          "cd " .. vim.fn.shellescape(git_root) .. " && git status --porcelain " .. vim.fn.shellescape(absolute_path)
+        )
+        if git_status and git_status ~= "" then
+          local status_code = git_status:sub(1, 2)
+          -- Parse git status codes
+          -- First char: index status, Second char: worktree status
+          if status_code:match("^A") or status_code:match("^%?%?") then
+            git_sign = "BufferManagerGitAdd"
+          elseif status_code:match("^D") or status_code:match("^ D") then
+            git_sign = "BufferManagerGitDelete"
+          elseif status_code:match("^M") or status_code:match("^ M") then
+            git_sign = "BufferManagerGitChange"
+          else
+            git_sign = "BufferManagerGitMixed"
+          end
+        end
+      end
+    end
+  end
+
+  return git_sign, highlight
 end
 
 ---@param bufnr number
@@ -259,10 +333,30 @@ function M.open()
     return
   end
   local contents = {}
+  local highlights = {}
+  local git_signs = {}
   for index, buf in ipairs(elements) do
+    local git_sign, highlight = get_buffer_indicators(buf.id, buf.path)
     contents[index] = path_formatter(buf.path)
+    if highlight then
+      highlights[index] = highlight
+    end
+    if git_sign then
+      git_signs[index] = git_sign
+    end
   end
   vim.api.nvim_buf_set_lines(mngr_buf, 0, -1, false, contents)
+
+  -- Apply highlights for modified buffers
+  for line, hl_group in pairs(highlights) do
+    vim.api.nvim_buf_add_highlight(mngr_buf, -1, hl_group, line - 1, 0, -1)
+  end
+
+  -- Clear existing signs and place new ones
+  vim.fn.sign_unplace("BufferManagerGitSigns", { buffer = mngr_buf })
+  for line, sign_name in pairs(git_signs) do
+    vim.fn.sign_place(0, "BufferManagerGitSigns", sign_name, mngr_buf, { lnum = line })
+  end
 
   window_opts.buf = mngr_buf
   buf_win = Snacks.win(window_opts)
