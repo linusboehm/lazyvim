@@ -41,7 +41,7 @@ return {
         },
         coby_format = {
           command = "python3.12",
-          args = { vim.fn.expand("~") .. "/.local/bin/coby-format", "--check-ids", "--verify", "-" }, -- Read from stdin
+          args = { vim.fn.expand("~") .. "/.local/bin/coby-format", "--check-ids", "--verify" },
           stdin = true,
         },
       },

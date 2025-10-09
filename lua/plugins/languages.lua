@@ -1,27 +1,31 @@
 local misc_util = require("util.misc")
 
 return {
-  -- change treesitter parsers
   {
     "nvim-treesitter/nvim-treesitter",
     enable = false,
-    opts = {
-      ensure_installed = {
+    opts = function(_, opts)
+      -- Register coby parser configuration
+      local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
+
+      -- Add your languages plus coby to LazyVim's defaults
+      vim.list_extend(opts.ensure_installed, {
         "bash",
         "cpp",
         "json",
         "lua",
-        -- "markdown",
-        -- "markdown_inline",
         "python",
         "query",
         "regex",
         "sql",
         "vim",
-        "yaml",
         "vimdoc",
-      },
-      -- highlight = {
+        "yaml",
+        -- "markdown",
+        -- "markdown_inline",
+      })
+
+      -- vim.list_extend(opts.highlight = {
       --   enable = true,
       --
       --   disable = function(lang, buf)
@@ -37,8 +41,10 @@ return {
       --   end,
       --
       --   additional_vim_regex_highlighting = false,
-      -- },
-    },
+      -- }),
+
+      return opts
+    end,
   },
 
   -- add any tools you want to have installed below
