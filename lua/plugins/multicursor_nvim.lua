@@ -158,7 +158,10 @@ return {
       },
       {
         "<leader>ms",
-        mc.matchCursors,
+        function()
+          mc.matchCursors()
+          vim.api.nvim_input("<esc>")
+        end,
         desc = "match new cursors within visual selection regex",
         mode = { "v" },
       },

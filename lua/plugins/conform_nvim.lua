@@ -20,6 +20,7 @@ return {
         ["shell"] = { "shfmt", "shellharden" },
         ["sh"] = { "shfmt", "shellharden" },
         ["gitcommit"] = { "prettier_gitcommit" },
+        ["coby"] = { "coby_format" },
         ["_"] = { "trim_whitespace" },
       },
       formatters = {
@@ -38,14 +39,36 @@ return {
         prettier_gitcommit = {
           command = "format_git.sh",
         },
+        coby_format = {
+          command = "python3.12",
+          args = { vim.fn.expand("~") .. "/.local/bin/coby-format", "--check-ids", "--verify", "-" }, -- Read from stdin
+          stdin = true,
+        },
       },
     },
     keys = {
       {
+        mode = { "n" },
+        "<Leader>cf",
+        function()
+          require("conform").format({ async = true, lsp_fallback = true }, function(err, did_edit)
+            if err then
+              local Snacks = require("snacks")
+              Snacks.notify.error("Error formatting: " .. err, { title = "formatting" })
+            end
+          end)
+        end,
+        desc = "Format",
+      },
+      {
         mode = { "v" },
         "<Leader>cf",
         function()
-          require("conform").format({ async = true, lsp_fallback = true }, function()
+          require("conform").format({ async = true, lsp_fallback = true }, function(err, did_edit)
+            if err then
+              local Snacks = require("snacks")
+              Snacks.notify.error("Error formatting: " .. err, { title = "formatting" })
+            end
             vim.defer_fn(function()
               vim.api.nvim_input("<esc>")
             end, 1)

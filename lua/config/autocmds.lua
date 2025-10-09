@@ -11,18 +11,18 @@ vim.api.nvim_create_autocmd("FileType", {
   group = augroup("close_with_q"),
   pattern = {
     "PlenaryTestPopup",
+    "checkhealth",
+    "gitsigns-blame",
+    "grug-far",
     "help",
     "lspinfo",
     "man",
     "notify",
-    "grug-far",
-    "qf",
     "oil",
+    "qf",
     "spectre_panel",
     "startuptime",
     "tsplayground",
-    "checkhealth",
-    "gitsigns-blame",
   },
   callback = function(event)
     vim.bo[event.buf].buflisted = false
@@ -39,6 +39,22 @@ vim.api.nvim_create_autocmd("FileType", {
     -- vim.opt.shiftwidth = 2 -- Size of an indent
     -- vim.opt.tabstop = 2 -- Number of spaces tabs count for
   end,
+})
+
+vim.filetype.add({
+  extension = {
+    coby = "coby",
+  },
+})
+
+-- Create an augroup for CobyCommentString
+local coby_comment_augroup = vim.api.nvim_create_augroup("CobyCommentString", { clear = true })
+
+-- Create an autocmd for setting the commentstring for *.coby files
+vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
+  pattern = "*.coby",
+  command = "setlocal commentstring=//\\ %s",
+  group = coby_comment_augroup,
 })
 
 -- add current git repo to search path
