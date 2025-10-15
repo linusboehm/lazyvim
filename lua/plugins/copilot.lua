@@ -9,6 +9,8 @@ return {
     cmd = "CopilotChat",
     opts = {
       model = "claude-sonnet-4",
+      -- model = 'o3-mini',
+      -- model = 'o1',
       mappings = {
         reset = {
           normal = "<C-w>",

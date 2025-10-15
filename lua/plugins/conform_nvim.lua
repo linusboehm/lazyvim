@@ -14,7 +14,7 @@ return {
         ["sql"] = { "sqlfluff" },
         ["markdown.mdx"] = { "prettier" },
         -- ["python"] = { "ruff_fix", "isort", "darker" },
-        ["python"] = {},
+        ["python"] = {}, -- handled by ruff lsp (lsp_fallback = "always")
         ["proto"] = { "buf" },
         -- ["python"] = { "yapf" },
         ["shell"] = { "shfmt", "shellharden" },
@@ -41,7 +41,7 @@ return {
         },
         coby_format = {
           command = "python3.12",
-          args = { vim.fn.expand("~") .. "/.local/bin/coby-format", "--check-ids", "--verify" },
+          args = { vim.fn.expand("~") .. "/.local/coby-tools/coby_format.py", "--check-ids", "--verify" },
           stdin = true,
         },
       },
@@ -51,9 +51,11 @@ return {
         mode = { "n" },
         "<Leader>cf",
         function()
-          require("conform").format({ async = true, lsp_fallback = true }, function(err, did_edit)
-            if err then
-              local Snacks = require("snacks")
+          require("conform").format({ async = true, lsp_fallback = "always" }, function(err, did_edit)
+            local Snacks = require("snacks")
+            if err and err:match("No result returned from LSP formatter") then
+              Snacks.notify.info("No formatting changes", { title = "formatting" })
+            elseif err then
               Snacks.notify.error("Error formatting: " .. err, { title = "formatting" })
             end
           end)
@@ -64,9 +66,11 @@ return {
         mode = { "v" },
         "<Leader>cf",
         function()
-          require("conform").format({ async = true, lsp_fallback = true }, function(err, did_edit)
-            if err then
-              local Snacks = require("snacks")
+          require("conform").format({ async = true, lsp_fallback = "always" }, function(err, did_edit)
+            local Snacks = require("snacks")
+            if err and err:match("No result returned from LSP formatter") then
+              Snacks.notify.info("No formatting changes", { title = "formatting" })
+            elseif err then
               Snacks.notify.error("Error formatting: " .. err, { title = "formatting" })
             end
             vim.defer_fn(function()
