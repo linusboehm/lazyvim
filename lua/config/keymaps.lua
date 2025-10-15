@@ -30,7 +30,6 @@ map({ "n", "v", "i", "t" }, "<C-Right>", "<cmd>vertical resize +10<cr>", { desc 
 
 -- TESTS
 map({ "n" }, "<leader>ds", require("util.custom_functions").dict_to_squiggle_py, { desc = "dict to squiggle" })
-map({ "n" }, "<leader>oq", require("util.custom_functions").open_qa)
 map({ "n" }, "<leader>op", require("util.custom_functions").open_prod)
 
 map({ "n" }, "<leader>tr", require("util.custom_functions").build_and_run, { desc = "build and run current file" })

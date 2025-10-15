@@ -10,8 +10,8 @@ end
 function M.goto_next_slide()
   -- Get the current working directory, its basename, and its parent
   local current = vim.fn.getcwd()
-  local current_basename = vim.fn.fnamemodify(current, ':t')
-  local parent = vim.fn.fnamemodify(current, ':h')
+  local current_basename = vim.fn.fnamemodify(current, ":t")
+  local parent = vim.fn.fnamemodify(current, ":h")
 
   -- Get all directories in the parent that match "slide*"
   local dir_paths = vim.fn.globpath(parent, "slide*/", true, true)
@@ -27,7 +27,7 @@ function M.goto_next_slide()
   local current_index = nil
   for i, path in ipairs(dir_paths) do
     path = path:gsub("/$", "")
-    local basename = vim.fn.fnamemodify(path, ':t')
+    local basename = vim.fn.fnamemodify(path, ":t")
     if basename == current_basename then
       current_index = i
       break
@@ -47,7 +47,7 @@ function M.goto_next_slide()
 
   local next_path = dir_paths[next_index]
   next_path = next_path:gsub("/$", "")
-  next_path = vim.fn.fnamemodify(next_path, ':t')
+  next_path = vim.fn.fnamemodify(next_path, ":t")
   local cmd = "cd ../" .. next_path
   Snacks.notify.info(cmd)
   vim.cmd(cmd)
@@ -75,8 +75,10 @@ end
 function M.build_and_run()
   local handle = io.popen("git rev-parse --show-cdup 2> /dev/null")
   local git_root_rel = handle and handle:read("*a") or ""
-  if handle then handle:close() end
-  git_root_rel = git_root_rel:gsub("%s+$", "")  -- trim whitespace
+  if handle then
+    handle:close()
+  end
+  git_root_rel = git_root_rel:gsub("%s+$", "") -- trim whitespace
   if #git_root_rel == 0 then
     git_root_rel = "./"
   end
@@ -91,7 +93,7 @@ function M.build_and_run()
 end
 
 -- this is a script to turn dict() calls in python to {}
-function M.dict_to_squiggle_py ()
+function M.dict_to_squiggle_py()
   -- Get the current cursor position
   local row, col = unpack(vim.api.nvim_win_get_cursor(0))
   row = row - 1 -- Convert to 0-based index
@@ -146,21 +148,65 @@ function M.dict_to_squiggle_py ()
   end, 1)
 end
 
-M.open_qa = function()
-  local path = vim.api.nvim_buf_get_name(0)
-  local qa_path = path:gsub("prod", "qa")
-  local row, col = unpack(vim.api.nvim_win_get_cursor(0))
-  vim.cmd("wincmd w")
-  misc_util.open_file(qa_path, row)
-end
-
 M.open_prod = function()
-  local path = vim.api.nvim_buf_get_name(0)
-  path = path:gsub("%-qa%-", "-")
-  local qa_path = path:gsub("%/qa%/", "/prod/")
-  local row, col = unpack(vim.api.nvim_win_get_cursor(0))
-  vim.cmd("wincmd w")
-  misc_util.open_file(qa_path, row)
+  local function open_in_other_split(file)
+    local row, col = unpack(vim.api.nvim_win_get_cursor(0))
+    if vim.fn.winlayout()[1] == "leaf" then
+      vim.cmd("vsplit")
+    else
+      vim.cmd("wincmd w")
+    end
+    misc_util.open_file(file, row)
+  end
+
+  local file = vim.fn.expand("%:p")
+  local is_qa = file:match("services/qa/")
+  local is_prod = file:match("services/prod/")
+
+  if not is_qa and not is_prod then
+    vim.notify("Not in services/qa or services/prod", vim.log.levels.WARN)
+    return
+  end
+
+  -- Toggle both the environment path and service name
+  local target
+  if is_qa then
+    target = file:gsub("services/qa/", "services/prod/"):gsub("%-qa%-", "-prod-")
+  else
+    target = file:gsub("services/prod/", "services/qa/"):gsub("%-prod%-", "-qa-")
+  end
+
+  -- Find matches using glob pattern
+  local matches = vim.fn.glob(target, false, true)
+
+  if #matches == 1 then
+    open_in_other_split(matches[1])
+  else
+    local filename = file:match("([^/]+)$") or ""
+    local service_name = file:match("services/[^/]+/([^/]+)") or ""
+    local parts = {}
+    for part in service_name:gmatch("[^-]+") do
+      if part ~= "prod" and part ~= "qa" and part ~= "uat" then
+        table.insert(parts, part)
+      end
+    end
+    local search = table.concat(parts, " ") .. " " .. filename
+    local target_env = is_qa and "services/prod" or "services/qa"
+    local ext = file:match("%.([^.]+)$")
+    require("snacks").picker.files({
+      pattern = search,
+      dirs = { target_env },
+      ft = ext,
+      confirm = function(picker, item)
+        picker:close()
+        if item then
+          vim.schedule(function()
+            open_in_other_split(item.text)
+          end)
+        end
+      end,
+    })
+  end
 end
 
 return M
