@@ -148,10 +148,21 @@ function M.dict_to_squiggle_py()
   end, 1)
 end
 
+local needs_split = function()
+    local node = vim.fn.winlayout()
+    -- If the toplevel is a horizontal stack ("col"), drill down its FIRST child,
+    -- i.e. the visual "top row", until we reach a non-"col" node.
+    while node[1] == "col" do
+      node = node[2][1] -- first child = top chunk
+    end
+    return node[1] ~= "row"
+end
+
 M.open_prod = function()
   local function open_in_other_split(file)
     local row, col = unpack(vim.api.nvim_win_get_cursor(0))
-    if vim.fn.winlayout()[1] == "leaf" then
+
+    if needs_split() then
       vim.cmd("vsplit")
     else
       vim.cmd("wincmd w")
