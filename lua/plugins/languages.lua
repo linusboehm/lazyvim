@@ -70,7 +70,7 @@ return {
         "prettierd",
         "protolint",
         "pyright",
-        "ruff-lsp",
+        "ruff",
         "rust-analyzer",
         "selene",
         "shellharden",

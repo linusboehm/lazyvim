@@ -78,7 +78,7 @@ return {
       mappings = {
         -- Toggle comment (like `gcip` - comment inner paragraph) for both
         -- Normal and Visual modes
-        comment = "<leader>co",
+        -- comment = "<leader>co",
 
         -- Toggle comment on current line
         comment_line = "<leader>cc",
