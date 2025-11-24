@@ -15,6 +15,7 @@ return {
         ["markdown.mdx"] = { "prettier" },
         -- ["python"] = { "ruff_fix", "isort", "darker" },
         ["python"] = {}, -- handled by ruff lsp (lsp_fallback = "always")
+        ["json"] = {}, -- handled by jsonls lsp (lsp_fallback = "always")
         ["proto"] = { "buf" },
         -- ["python"] = { "yapf" },
         ["shell"] = { "shfmt", "shellharden" },

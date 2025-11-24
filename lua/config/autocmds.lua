@@ -79,15 +79,15 @@ vim.api.nvim_create_autocmd({ "BufEnter" }, {
 --   command = "set syntax=log",
 -- })
 
--- -- 2 spaces indent for lua
--- vim.api.nvim_create_autocmd("FileType", {
---   group = augroup("lua_indent"),
---   pattern = { "lua", "proto" },
---   callback = function()
---     vim.opt_local.shiftwidth = 2
---     vim.opt_local.tabstop = 2
---   end,
--- })
+-- 2 spaces indent for json
+vim.api.nvim_create_autocmd("FileType", {
+  group = augroup("json_indent"),
+  pattern = { "json" },
+  callback = function()
+    vim.opt_local.shiftwidth = 4
+    vim.opt_local.tabstop = 4
+  end,
+})
 
 -- -- wrap and check for spell in text filetypes
 -- vim.api.nvim_create_autocmd("FileType", {
