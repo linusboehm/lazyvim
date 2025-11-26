@@ -195,9 +195,17 @@ M.open_prod = function()
   else
     local filename = file:match("([^/]+)$") or ""
     local service_name = file:match("services/[^/]+/([^/]+)") or ""
+    local filtered_environments = {"prod", "qa", "uat", "aws", "sim", "ny4"}
     local parts = {}
     for part in service_name:gmatch("[^-]+") do
-      if part ~= "prod" and part ~= "qa" and part ~= "uat" then
+      local should_filter = false
+      for _, env in ipairs(filtered_environments) do
+        if part == env then
+          should_filter = true
+          break
+        end
+      end
+      if not should_filter then
         table.insert(parts, part)
       end
     end

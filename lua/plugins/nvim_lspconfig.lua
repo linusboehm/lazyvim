@@ -1,43 +1,48 @@
-local configs = require("lspconfig.configs")
-local util = require("lspconfig.util")
-
--- 1) Register Pyrefly as a custom LSP if it doesn’t exist yet
-if not configs.pyrefly then
-  configs.pyrefly = {
-    default_config = {
-      cmd = { "pyrefly", "lsp" },
-      filetypes = { "python" },
-      root_dir = function(fname)
-        return util.root_pattern("pyrefly.toml", "pyproject.toml", ".git")(fname) or vim.fs.dirname(fname)
-      end,
-      settings = {},
-    },
-  }
-end
-
 return {
-  -- add pyright to lspconfig
   {
     "neovim/nvim-lspconfig",
     ---@class PluginLspOpts
     opts = {
       servers = {
-        -- pyright will be automatically installed with mason and loaded with lspconfig
+        -- Use pyrefly instead of pyright/basedpyright
         pyright = { enabled = false },
         pyrefly = {},
-        sqlls = {},
+        sqlls = {
+          settings = {
+            sqlLanguageServer = {
+              lint = {
+                rules = {
+                  ["align-column-to-clause"] = "off",
+                  ["align-where"] = "off",
+                  ["column-require"] = "off",
+                },
+              },
+            },
+          },
+        },
 
         -- Configure clangd to exclude proto files
         clangd = {
+          enables = false,
           filetypes = { "c", "cpp", "objc", "objcpp", "cuda" }, -- removed "proto"
+          keys = {
+            { "gh", "<cmd>ClangdSwitchSourceHeader<cr>", desc = "Switch source/header" },
+          },
         },
-        -- Add buf_ls for proto files
-        buf_ls = {},
+
         ruff = {
           keys = {
             {
               "<leader>co",
-              LazyVim.lsp.action["source.organizeImports"],
+              function()
+                vim.lsp.buf.code_action({
+                  apply = true,
+                  context = {
+                    only = { "source.organizeImports" },
+                    diagnostics = {},
+                  },
+                })
+              end,
               desc = "Organize Imports",
             },
           },
@@ -50,13 +55,14 @@ return {
             },
           },
         },
+
+        -- Global keymaps for all LSP servers
+        ["*"] = {
+          keys = {
+            { "<leader>cc", false, mode = { "n", "v" } }, -- disable default keymap
+          },
+        },
       },
     },
-    init = function()
-      local keys = require("lazyvim.plugins.lsp.keymaps").get()
-      keys[#keys + 1] = { "<leader>cc", false, mode = { "n", "v" } }
-      keys[#keys + 1] =
-      { "gh", "<cmd>ClangdSwitchSourceHeader<cr>", desc = "Switch source/header", mode = { "n", "v" } }
-    end,
   },
 }

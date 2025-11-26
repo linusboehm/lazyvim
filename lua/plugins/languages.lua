@@ -1,12 +1,9 @@
-local misc_util = require("util.misc")
-
 return {
   {
     "nvim-treesitter/nvim-treesitter",
-    enable = false,
+    enable = true,
     opts = function(_, opts)
       -- Register coby parser configuration
-      local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
 
       -- Add your languages plus coby to LazyVim's defaults
       vim.list_extend(opts.ensure_installed, {
@@ -49,7 +46,7 @@ return {
 
   -- add any tools you want to have installed below
   {
-    "williamboman/mason.nvim",
+    "mason-org/mason.nvim",
     -- enabled = false,
     event = "VeryLazy",
     opts = {
@@ -57,6 +54,7 @@ return {
         -- "black",
         "clang-format",
         "clangd",
+        "pyrefly",
         "cmakelang",
         "cmakelint", -- for cmake_lint
         "cpplint",
@@ -69,14 +67,14 @@ return {
         "prettier",
         "prettierd",
         "protolint",
-        "pyright",
+        -- "pyright",
         "ruff",
         "rust-analyzer",
         "selene",
         "shellharden",
         "shfmt",
         "shellcheck",
-        "stylua",
+        -- "stylua", -> install with `cargo install stylua --locked`, because of glibc error on centos8
       },
     },
   },

@@ -184,6 +184,9 @@ return {
         },
       },
     },
+    gh = {
+      enabled = true,
+    },
     scratch = {
       enabled = true,
       -- ft = function()
@@ -262,7 +265,7 @@ return {
     explorer = { enabled = true },
     picker = {
       previewers = { git = { native = true }, diff = { builtin = true, cmd = { "delta" } } },
-      formatters = { file = { truncate = 10000 } },
+      formatters = { file = { min_width = 10000 } },
       win = {
         input = {
           keys = {

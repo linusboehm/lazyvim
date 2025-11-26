@@ -35,7 +35,7 @@ return {
   { "brenoprata10/nvim-highlight-colors", opts = {} }, -- color hex codes
   { "nvim-neo-tree/neo-tree.nvim", enabled = false },
   {
-    "echasnovski/mini.pairs",
+    "nvim-mini/mini.pairs",
     event = "VeryLazy",
     opts = {
       modes = { insert = true, command = false, terminal = false },
@@ -72,7 +72,7 @@ return {
   { "opdavies/toggle-checkbox.nvim", enabled = false, version = "*" }, -- clashed with Snacks.picker for some reason
 
   {
-    "echasnovski/mini.comment",
+    "nvim-mini/mini.comment",
     opts = {
       -- Module mappings. Use `''` (empty string) to disable one.
       mappings = {

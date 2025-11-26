@@ -57,13 +57,17 @@ end, { desc = "bla" })
 map("n", "<leader>pf", function()
   local path = vim.api.nvim_buf_get_name(0)
   local git_root = Snacks.git.get_root()
-  -- Escape special characters in the leading substring
-  local escaped_git_root = git_root:gsub("([%-%.%+%[%]%(%)%$%^%%%?%*])", "%%%1")
-  Snacks.notify.info(git_root)
+  local short_path
+  if git_root then
+    -- Escape special characters in the leading substring
+    local escaped_git_root = git_root:gsub("([%-%.%+%[%]%(%)%$%^%%%?%*])", "%%%1")
+    Snacks.notify.info(git_root)
+    short_path = path:gsub(escaped_git_root .. "/", "")
+  else
+    short_path = path
+  end
   local row, _ = unpack(vim.api.nvim_win_get_cursor(0))
-  local short_path = path:gsub(escaped_git_root .. "/", "")
-  CoreUtil.info(short_path, { title = "current file name" })
-  vim.fn.setreg("+", short_path .. ":" .. row)
+  Snacks.notify.info(short_path .. ":" .. row, { title = "current file name" })
 end, { desc = "print current filename" })
 
 map("n", "gL", function()
