@@ -49,33 +49,35 @@ return {
     "mason-org/mason.nvim",
     -- enabled = false,
     event = "VeryLazy",
-    opts = {
-      ensure_installed = {
-        -- "black",
+    -- Completely replace whatever LazyVim / others configured
+    -- this is only needed to get rid of stylua (which doesn't work on EL8)
+    opts = function(_, opts)
+      opts.ensure_installed = { -- "black",
         "clang-format",
         "clangd",
         "pyrefly",
         "cmakelang",
         "cmakelint", -- for cmake_lint
         "cpplint",
-        "codelldb",
-        -- "cpptools",
-        -- "darker",
-        -- "flake8",
-        -- "marksman",
         "markdownlint",
         "prettier",
         "prettierd",
         "protolint",
-        -- "pyright",
         "ruff",
         "rust-analyzer",
-        "selene",
         "shellharden",
         "shfmt",
         "shellcheck",
         -- "stylua", -> install with `cargo install stylua --locked`, because of glibc error on centos8
-      },
-    },
+      }
+    end,
+    -- -- merge with upstream config
+    -- opts = {
+    --   ensure_installed = {
+    --     "clang-format",
+    --     "clangd",
+    --     ...
+    --   },
+    -- },
   },
 }

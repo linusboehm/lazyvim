@@ -5,7 +5,7 @@ return {
     "nvim-lua/plenary.nvim",
   },
   keys = {
-    { "<leader>tc", "<cmd>NvimExplorerCpp<cr>",    desc = "Open C++ Explorer" },
+    { "<leader>tc", "<cmd>NvimExplorerCpp<cr>", desc = "Open C++ Explorer" },
     { "<leader>tp", "<cmd>NvimExplorerPython<cr>", desc = "Open Python Explorer" },
   },
 }

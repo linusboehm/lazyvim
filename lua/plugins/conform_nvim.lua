@@ -13,12 +13,10 @@ return {
         -- ["sql"] = { "sql_formatter", "sqlfluff" },
         ["sql"] = { "sqlfluff" },
         ["markdown.mdx"] = { "prettier" },
-        -- ["python"] = { "ruff_fix", "isort", "darker" },
-        ["python"] = {}, -- handled by ruff lsp (lsp_fallback = "always")
-        ["json"] = {},   -- handled by jsonls lsp (lsp_fallback = "always")
+        ["python"] = {lsp_format = "prefer"}, -- handled by ruff lsp
+        ["json"] = {lsp_format = "prefer"},   -- handled by jsonls lsp
         ["proto"] = { "buf" },
-        ["lua"] = {},    -- handled by lus_ls lsp (don't use stylua)
-        -- ["python"] = { "yapf" },
+        -- ["lua"] = { "stylua" }, -- handled by lus_ls lsp (don't use stylua)
         ["shell"] = { "shfmt", "shellharden" },
         ["sh"] = { "shfmt", "shellharden" },
         ["gitcommit"] = { "prettier_gitcommit" },
@@ -53,7 +51,7 @@ return {
         mode = { "n" },
         "<Leader>cf",
         function()
-          require("conform").format({ async = true, lsp_fallback = "always" }, function(err, did_edit)
+          require("conform").format({ async = true }, function(err, did_edit)
             local Snacks = require("snacks")
             if err and err:match("No result returned from LSP formatter") then
               Snacks.notify.info("No formatting changes", { title = "formatting" })
@@ -68,7 +66,7 @@ return {
         mode = { "v" },
         "<Leader>cf",
         function()
-          require("conform").format({ async = true, lsp_fallback = "always" }, function(err, did_edit)
+          require("conform").format({ async = true }, function(err, did_edit)
             local Snacks = require("snacks")
             if err and err:match("No result returned from LSP formatter") then
               Snacks.notify.info("No formatting changes", { title = "formatting" })
