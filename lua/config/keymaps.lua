@@ -4,7 +4,6 @@
 
 local map = vim.keymap.set
 local misc_util = require("util.misc")
-local CoreUtil = require("lazy.core.util")
 local Snacks = require("snacks")
 
 -- from vim
@@ -35,10 +34,6 @@ map({ "n" }, "<leader>op", require("util.custom_functions").open_prod)
 map({ "n" }, "<leader>tr", require("util.custom_functions").build_and_run, { desc = "build and run current file" })
 map({ "n" }, "<leader>tn", require("util.custom_functions").goto_next_slide, { desc = "go to next slide" })
 
-map({ "n" }, "<leader>bm", function()
-  require("util.buffer_manager").open()
-end, { desc = "bla" })
-
 -- -- Move Lines
 -- map("n", "<A-j>", "<cmd>m .+1<cr>==", { desc = "Move down" })
 -- map("n", "<A-k>", "<cmd>m .-2<cr>==", { desc = "Move up" })
@@ -67,6 +62,7 @@ map("n", "<leader>pf", function()
     short_path = path
   end
   local row, _ = unpack(vim.api.nvim_win_get_cursor(0))
+  vim.fn.setreg("+", short_path .. ":" .. row)
   Snacks.notify.info(short_path .. ":" .. row, { title = "current file name" })
 end, { desc = "print current filename" })
 
@@ -260,96 +256,6 @@ vim.api.nvim_command("iabbrev lnote NOTE(lboehm):")
 vim.api.nvim_command('iabbrev <expr>dd strftime("%e-%b-%Y")')
 vim.api.nvim_command('iabbrev <expr>tt strftime("%H:%M")')
 vim.api.nvim_command('iabbrev <expr>dt strftime("%e-%b-%Y %H:%M")')
-
--- local function select_multiline_comment(outer)
---   local parser = vim.treesitter.get_parser(0)
---   local tree = parser:parse()[1]
---   local root = tree:root()
---
---   local cursor_row, _ = unpack(vim.api.nvim_win_get_cursor(0))
---   cursor_row = cursor_row - 1
---
---   local query = vim.treesitter.query.parse(
---     vim.bo.filetype,
---     [[
---       [
---         (comment) @comment
---       ]
---     ]]
---   )
---
---   local start_row, start_col, end_row, end_col
---   for _, node in query:iter_captures(root, 0, cursor_row, cursor_row + 1) do
---     local s_row, s_col, e_row, e_col = vim.treesitter.get_node_range(node)
---     if s_row <= cursor_row and e_row >= cursor_row then
---       start_row, start_col = s_row, s_col
---       end_row, end_col = e_row, e_col
---       break
---     end
---   end
---
---   local comm_string = vim.api.nvim_buf_get_option(0, "commentstring"):match("([^%s]*)"):gsub("%W", "%%%1")
---
---   if start_row and end_row then
---     -- Extend the selection upwards to include adjacent single-line comments
---     local new_start_row, new_start_col = start_row, start_col
---     while true do
---       local prev_row = new_start_row - 1
---       local prev_line = vim.fn.getline(prev_row + 1)
---       if not prev_line:match("^%s*" .. comm_string) then
---         break
---       end
---       new_start_row = prev_row
---       new_start_col = 0
---     end
---
---     -- Extend the selection downwards to include adjacent single-line comments
---     local new_end_row, new_end_col = end_row, end_col
---     while true do
---       local next_row = new_end_row + 1
---       local next_line = vim.fn.getline(next_row + 1)
---       if not next_line:match("^%s*" .. comm_string) then
---         break
---       end
---       new_end_row = next_row
---       new_end_col = #next_line
---     end
---
---     if outer then
---       -- delete consecutive empty lines
---       local prev_line = vim.fn.getline(new_start_row)
---       local next_line = vim.fn.getline(new_end_row + 2)
---       if prev_line == "" and next_line == "" then
---         new_start_row = new_start_row - 1
---         new_start_col = 0
---       end
---     end
---
---     vim.fn.setpos("'<", { 0, new_start_row + 1, new_start_col + 1, 0 })
---     vim.fn.setpos("'>", { 0, new_end_row + 1, new_end_col + 1, 0 })
---     vim.cmd("normal! gv")
---   end
--- end
-
-local function select_multiline_comment_inner()
-  select_multiline_comment(false)
-end
-local function select_multiline_comment_outer()
-  select_multiline_comment(true)
-end
-
-map("x", "iC", select_multiline_comment_inner, { desc = "comment", noremap = true, silent = true })
-map("o", "iC", select_multiline_comment_inner, { desc = "comment", noremap = true, silent = true })
-map("x", "aC", select_multiline_comment_outer, { desc = "comment", noremap = true, silent = true })
-map("o", "aC", select_multiline_comment_outer, { desc = "comment", noremap = true, silent = true })
-
-map("n", "<leader>tp", function()
-  require("util.scratch_run").open_scratch_run("python")
-end, { desc = "python scratch buffer" })
-
-map("n", "<leader>tc", function()
-  require("util.scratch_run").open_scratch_run("cpp")
-end, { desc = "cpp scratch buffer" })
 
 map("n", "<leader>ce", function()
   misc_util.dump_color_codes()

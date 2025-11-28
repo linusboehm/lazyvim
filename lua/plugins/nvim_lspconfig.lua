@@ -59,7 +59,7 @@ return {
         -- Global keymaps for all LSP servers
         ["*"] = {
           keys = {
-            { "<leader>cc", false, mode = { "n", "v" } }, -- disable default keymap
+            { "<leader>cc", false, mode = { "n", "x" }, has = "codeLens" },
           },
         },
       },
