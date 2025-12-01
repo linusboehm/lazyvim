@@ -83,7 +83,7 @@ function FindCmd(filename)
     title = "bash history",
     finder = "proc",
     cmd = "bash",
-    args = { "-c", "tail -n 10000 ".. filename .. " | tac | awk '!/^#/ && !count[$0]++'" },
+    args = { "-c", "tail -n 10000 " .. filename .. " | tac | awk '!/^#/ && !count[$0]++'" },
     -- name = "cmd",
     format = "text",
     preview = function(ctx)
@@ -296,6 +296,84 @@ return {
           set_next_preferred_layout(picker)
         end,
       },
+      sources = {
+        git_grep_hunks = {
+            supports_live = false,
+            format = function(item, picker)
+              local file_format = Snacks.picker.format.file(item, picker)
+              -- Use colorscheme's diff highlights for consistency
+              vim.api.nvim_set_hl(0, "SnacksPickerGitGrepLineNew", { link = "DiffAdd" })
+              vim.api.nvim_set_hl(0, "SnacksPickerGitGrepLineOld", { link = "DiffDelete" })
+
+              -- Apply diff background to the line text while preserving syntax highlighting
+              -- The treesitter highlights are separate metadata entries, so we just mark the text element
+              local line_idx = #file_format - 1
+              if type(file_format[line_idx]) == "table" and file_format[line_idx][1] then
+                -- Apply the diff highlight to the text element
+                -- The treesitter highlights will be composited on top
+                if item.sign == "+" then
+                  file_format[line_idx][2] = "SnacksPickerGitGrepLineNew"
+                else
+                  file_format[line_idx][2] = "SnacksPickerGitGrepLineOld"
+                end
+              end
+              return file_format
+            end,
+            finder = function(_, ctx)
+              local hcount = 0
+              local header = {
+                file = "",
+                old = { start = 0, count = 0 },
+                new = { start = 0, count = 0 },
+              }
+              local sign_count = 0
+              return require("snacks.picker.source.proc").proc(
+                ctx:opts({
+                  cmd = "git",
+                  args = { "diff", "--unified=0" },
+                  transform = function(item) ---@param item snacks.picker.finder.Item
+                    local line = item.text
+                    -- [[Header]]
+                    if line:match("^diff") then
+                      hcount = 3
+                    elseif hcount > 0 then
+                      if hcount == 1 then
+                        header.file = line:sub(7)
+                      end
+                      hcount = hcount - 1
+                    elseif line:match("^@@") then
+                      local parts = vim.split(line:match("@@ ([^@]+) @@"), " ")
+                      local old_start, old_count = parts[1]:match("-(%d+),?(%d*)")
+                      local new_start, new_count = parts[2]:match("+(%d+),?(%d*)")
+                      header.old.start, header.old.count = tonumber(old_start), tonumber(old_count) or 1
+                      header.new.start, header.new.count = tonumber(new_start), tonumber(new_count) or 1
+                      sign_count = 0
+                    -- [[Body]]
+                    elseif not line:match("^[+-]") then
+                      sign_count = 0
+                    elseif line:match("^[+-]%s*$") then
+                      sign_count = sign_count + 1
+                    else
+                      item.sign = line:sub(1, 1)
+                      item.file = header.file
+                      item.line = line:sub(2)
+                      if item.sign == "+" then
+                        item.pos = { header.new.start + sign_count, 0 }
+                        sign_count = sign_count + 1
+                      else
+                        item.pos = { header.new.start, 0 }
+                        sign_count = 0
+                      end
+                      return true
+                    end
+                    return false
+                  end,
+                }),
+                ctx
+              )
+            end,
+          },
+      },
     },
     gitbrowse = {
       enabled = true,
@@ -323,6 +401,76 @@ return {
       notification = { wo = { wrap = true } },
     },
   },
+  config = function(_, opts)
+    require("snacks").setup(opts)
+
+    -- Register custom gh action
+    local actions = require("snacks.gh.actions")
+    actions.actions.open_in_diffview = {
+      desc = "Open PR in Diffview",
+      icon = "󰊢",
+      type = "pr",
+      priority = 150,
+      action = function(item, ctx)
+        vim.notify("Fetching PR details...", vim.log.levels.INFO)
+
+        -- Use gh CLI to get the commit SHAs
+        local gh_cmd = string.format("gh pr view %s --repo %s --json baseRefOid,headRefOid", item.number, item.repo)
+
+        vim.system({ "sh", "-c", gh_cmd }, {}, function(result)
+          vim.schedule(function()
+            if result.code ~= 0 then
+              vim.notify("Failed to fetch PR info: " .. (result.stderr or "unknown error"), vim.log.levels.ERROR)
+              return
+            end
+
+            local ok, pr_data = pcall(vim.json.decode, result.stdout)
+            if not ok or not pr_data.baseRefOid or not pr_data.headRefOid then
+              vim.notify("Failed to parse PR data", vim.log.levels.ERROR)
+              return
+            end
+
+            local base_sha = pr_data.baseRefOid
+            local head_sha = pr_data.headRefOid
+
+            vim.notify("Fetching commits...", vim.log.levels.INFO)
+
+            -- Fetch the specific commits
+            vim.system({ "git", "fetch", "origin", head_sha, base_sha }, {}, function(fetch_result)
+              vim.schedule(function()
+                if fetch_result.code ~= 0 then
+                  vim.notify("Fetch completed with warnings, opening diff...", vim.log.levels.WARN)
+                end
+
+                -- Use commit SHAs for the diff range
+                local diff_range = string.format("%s...%s", base_sha, head_sha)
+
+                -- Open in diffview
+                local success, err = pcall(vim.cmd, "DiffviewOpen " .. diff_range .. " --imply-local")
+
+                if not success then
+                  vim.notify("Failed to open diff: " .. tostring(err), vim.log.levels.ERROR)
+                  return
+                end
+
+                -- Store PR context for potential future use
+                vim.g.current_pr = {
+                  repo = item.repo,
+                  number = item.number,
+                  base = item.baseRefName,
+                  head = item.headRefName,
+                  baseOid = base_sha,
+                  headOid = head_sha,
+                }
+
+                vim.notify(string.format("Opened PR #%d in Diffview", item.number))
+              end)
+            end)
+          end)
+        end)
+      end,
+    }
+  end,
   -- stylua: ignore
   keys = {
     { "<leader>ua", false },
@@ -394,14 +542,17 @@ return {
     { "<leader>sib", function() local file_p = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ":.") Snacks.picker.grep({ glob = file_p }) end, desc = "Grep current buffer" },
     { "<leader>sis", function() local path = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ":p:h") Snacks.picker.grep({ dirs = { path } }) end, desc = "Grep subdirs" },
     { "<leader>so", function() Snacks.picker.grep({dirs={home_dir .. "/vaults/work/", home_dir .. "/anki/"}}) end, desc = "Grep obsidian" },
+    { "<leader>sih", function() Snacks.picker.pick("git_grep_hunks") end, desc = "Grep git hunks" },
     { "<leader>sl", function() Snacks.picker.grep({dirs={home_dir .. "/.local/share/nvim/lazy/"}}) end, desc = "Search lua/nvim plugins" },
 
 
     { "<leader>sg", LazyVim.pick("live_grep"), desc = "Grep (Root Dir)" },
-    { "<leader>sG", LazyVim.pick("live_grep", { root = false }), desc = "Grep (cwd)" },  -- TODO(lboehm): find under dir of currently open file
-    { "<leader>sw", LazyVim.pick("grep_word"), desc = "Visual selection or word (Root Dir)", mode = { "n", "x" } },
+    { "<leader>sG", LazyVim.pick("live_grep", { root = false }), desc = "Grep (cwd)" },
+    -- { "<leader>sw", LazyVim.pick("grep_word"), desc = "Visual selection or word (Root Dir)", mode = { "n", "x" } },
     { "<leader>sW", false, desc = "Visual selection or word (cwd)", mode = { "n", "x" } },
-    { "<leader>sW", LazyVim.pick("grep_word", { buffers = true }), desc = "Visual selection or word in Buffers", mode = { "n", "x" } },
+    -- { "<leader>sW", LazyVim.pick("grep_word", { buffers = true }), desc = "Visual selection or word in Buffers", mode = { "n", "x" } },
+    { "<leader>sw", function() Snacks.picker.grep({search = function(picker) return picker:word() end, }) end, desc = "Visual selection or word (Root Dir)", mode = { "n", "x" } },
+    { "<leader>sW", function() Snacks.picker.grep({search = function(picker) return picker:word() end, buffers = true}) end, desc = "Visual selection or word (buffers)", mode = { "n", "x" } },
     -- search
     { '<leader>s"', function() Snacks.picker.registers() end, desc = "Registers" },
     { "<leader>sa", function() Snacks.picker.autocmds() end, desc = "Autocmds" },
