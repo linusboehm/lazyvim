@@ -15,12 +15,10 @@ return {
       view = {
         ["<C-g>"] = "<CMD>DiffviewClose<CR>",
         ["<leader>gm"] = "<CMD>DiffviewClose<CR>",
-        ["c"] = "<CMD>DiffviewClose|Neogit commit<CR>",
       },
       file_panel = {
         ["<C-g>"] = "<CMD>DiffviewClose<CR>",
         ["<leader>gm"] = "<CMD>DiffviewClose<CR>",
-        ["c"] = "<CMD>DiffviewClose|Neogit commit<CR>",
       },
     },
     default_args = {
