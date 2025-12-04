@@ -520,5 +520,50 @@ return {
     { "<leader>sq", function() Snacks.picker.grep({dirs={home_dir .. "/.local/share/db_ui" }}) end, desc = "Search db queries" },
     { "<leader>uC", function() Snacks.picker.colorschemes() end, desc = "Colorschemes" },
     { "<leader>qp", function() Snacks.picker.projects() end, desc = "Projects" },
+    { "<leader>go",
+      function()
+        -- Find git root
+        local git_root = Snacks.git.get_root()
+        if git_root == nil then
+          Snacks.notify.error("Not in a git repository")
+          return
+        end
+
+        -- Read PR number from file
+        local pr_file = git_root .. "/PR_NUMBER"
+        local file = io.open(pr_file, "r")
+        if not file then
+          Snacks.notify.error("PR_NUMBER file not found in git root")
+          return
+        end
+
+        local pr_number = file:read("*l")
+        file:close()
+
+        if not pr_number or pr_number == "" then
+          Snacks.notify.error("PR_NUMBER file is empty")
+          return
+        end
+
+        pr_number = pr_number:match("^%s*(%d+)%s*$")
+        if not pr_number then
+          Snacks.notify.error("Invalid PR number in PR_NUMBER file")
+          return
+        end
+
+        -- Fetch PR data and open actions
+        local Api = require("snacks.gh.api")
+        Api.view(function(item)
+          vim.schedule(function()
+            if not item then
+              Snacks.notify.error("Failed to fetch PR #" .. pr_number)
+              return
+            end
+            require("snacks.gh.actions").actions.gh_actions.action(item, { items = { item } })
+          end)
+        end, { type = "pr", number = tonumber(pr_number) })
+      end,
+      desc = "Open actions for PR from PR_NUMBER file"
+    },
   },
 }

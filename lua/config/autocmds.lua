@@ -61,9 +61,8 @@ vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
 vim.api.nvim_create_autocmd({ "BufEnter" }, {
   group = augroup("gitroot"),
   callback = function()
-    local misc_util = require("util.misc")
-    local git_root = misc_util.get_git_root()
-    if git_root ~= "/" then
+    local git_root = Snacks.git.get_root()
+    if git_root ~= nil then
       local path = vim.o.path
       if not string.find(path, git_root, 1, true) then
         vim.o.path = path .. "," .. git_root .. "/"
