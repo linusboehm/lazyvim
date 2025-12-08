@@ -186,6 +186,10 @@ return {
     },
     gh = {
       enabled = true,
+      scratch = {
+        width = 100,  -- width of scratch window for PR approvals/comments (0 = full width)
+        -- height = 15, -- default height is already 15
+      },
     },
     scratch = {
       enabled = true,
@@ -559,7 +563,10 @@ return {
               Snacks.notify.error("Failed to fetch PR #" .. pr_number)
               return
             end
-            require("snacks.gh.actions").actions.gh_actions.action(item, { items = { item } })
+            require("snacks.gh.actions").actions.gh_actions.action(item, {
+              items = { item },
+              main = vim.api.nvim_get_current_win()
+            })
           end)
         end, { type = "pr", number = tonumber(pr_number) })
       end,
