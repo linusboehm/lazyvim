@@ -6,7 +6,33 @@ return {
       servers = {
         -- Use pyrefly instead of pyright/basedpyright
         pyright = { enabled = false },
-        pyrefly = {},
+        pyrefly = {
+          handlers = {
+            ["textDocument/publishDiagnostics"] = function(err, result, ctx, config)
+              -- Prefix all pyrefly diagnostics with "Pyrefly:"
+              if result and result.diagnostics then
+                for _, diagnostic in ipairs(result.diagnostics) do
+                  if diagnostic.message and not diagnostic.message:match("Pyrefly:") then
+                    diagnostic.message = "Pyrefly: " .. diagnostic.message
+                  end
+                end
+              end
+              vim.lsp.diagnostic.on_publish_diagnostics(err, result, ctx, config)
+            end,
+          },
+          settings = {
+            python = {
+              analysis = {
+                typeCheckingMode = "basic",
+                inlayHints = {
+                  functionReturnTypes = true,
+                  variableTypes = true,
+                  parameterTypes = true,
+                },
+              },
+            },
+          },
+        },
         sqlls = {
           settings = {
             sqlLanguageServer = {
