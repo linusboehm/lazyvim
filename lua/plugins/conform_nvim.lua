@@ -15,6 +15,7 @@ return {
         ["markdown.mdx"] = { "prettier" },
         ["python"] = {lsp_format = "prefer"}, -- handled by ruff lsp
         ["json"] = {lsp_format = "prefer"},   -- handled by jsonls lsp
+        ["toml"] = { "taplo" },   -- handled by taplo lsp
         ["proto"] = { "buf" },
         -- ["lua"] = { "stylua" }, -- handled by lus_ls lsp (don't use stylua)
         ["shell"] = { "shfmt", "shellharden" },
@@ -35,6 +36,8 @@ return {
         },
         sqlfluff = {
           exit_codes = { 0, 1 },
+          require_cwd = false,
+          args = { "format", "--dialect", "postgres", "-" }, -- requires sqlfluff > 4.0.0
         },
         prettier_gitcommit = {
           command = "format_git.sh",
