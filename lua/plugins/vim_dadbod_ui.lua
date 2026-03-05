@@ -43,7 +43,9 @@ return {
   config = function()
     local home_dir = vim.fn.expand("~")
     local directory = home_dir .. "/creds/db"
-    vim.g.dbs = get_db_entries_from_dir(directory)
+    local dbs = get_db_entries_from_dir(directory)
+    table.insert(dbs, 1, { name = "duckdb", url = "duckdb::memory:" })
+    vim.g.dbs = dbs
   end,
   keys = { { mode = { "n" }, "<leader>dd", "<cmd>DBUIToggle<cr>", { desc = "DB" } } },
 }
