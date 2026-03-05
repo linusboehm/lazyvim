@@ -123,6 +123,15 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
+vim.api.nvim_create_autocmd("FileType", {
+  group = augroup("csv_comments"),
+  pattern = "csv",
+  callback = function()
+    vim.cmd([[syntax match csvComment /^#.*/ containedin=ALL]])
+    vim.cmd([[highlight link csvComment Comment]])
+  end,
+})
+
 -- Enable inlay hints for Python files
 vim.api.nvim_create_autocmd("LspAttach", {
   group = augroup("lsp_inlay_hints"),
