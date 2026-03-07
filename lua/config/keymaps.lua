@@ -24,8 +24,8 @@ vim.keymap.del("n", "<C-Right>")
 
 map({ "n", "v", "i", "t" }, "<C-Up>", "<cmd>resize +10<cr>", { desc = "Increase window height" })
 map({ "n", "v", "i", "t" }, "<C-Down>", "<cmd>resize -10<cr>", { desc = "Decrease window height" })
-map({ "n", "v", "i", "t" }, "<C-Left>", "<cmd>vertical resize -10<cr>", { desc = "Decrease window width" })
-map({ "n", "v", "i", "t" }, "<C-Right>", "<cmd>vertical resize +10<cr>", { desc = "Increase window width" })
+map({ "n", "v", "i" }, "<C-Left>", "<cmd>vertical resize -10<cr>", { desc = "Decrease window width" })
+map({ "n", "v", "i" }, "<C-Right>", "<cmd>vertical resize +10<cr>", { desc = "Increase window width" })
 
 -- TESTS
 map({ "n" }, "<leader>ds", require("util.custom_functions").dict_to_squiggle_py, { desc = "dict to squiggle" })

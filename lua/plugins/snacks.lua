@@ -359,7 +359,7 @@ return {
       },
     },
     styles = {
-      terminal = { keys = { gf = false } },
+      terminal = { keys = { gf = false, nav_h = false, nav_l = false } },
       notification = { wo = { wrap = true } },
     },
   },
