@@ -50,6 +50,9 @@ return {
     --     opts = { buffer = true, expr = true },
     --   },
     -- },
+    checkbox = {
+      order = { " ", "x" },
+    },
     ui = {
       enable = false, -- use render-markdown for rendering
       -- checkboxes = {
