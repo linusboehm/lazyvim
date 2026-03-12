@@ -53,10 +53,6 @@ local function open_file_under_cursor()
   local filename = vim.fn.expand("<cfile>")
   local escaped_filename = filename:gsub("[%(%)%.%+%-%*%?%[%]%^%$%%]", "%%%1")
 
-  -- Search for the pattern under the cursor (colon format or Python format)
-  local pattern = filename .. [[\(:\d\+\|", line \d\+\)]]
-  vim.fn.search(pattern, "c")
-
   local line = vim.api.nvim_get_current_line()
 
   -- Try colon format first: filename:line_nr or filename:line_nr:col_nr
@@ -65,6 +61,18 @@ local function open_file_under_cursor()
   if not line_nr then
     -- Try Python backtrace format: File "filename", line 420, in ...
     line_nr = line:match(escaped_filename .. [[", line (%d+)]])
+  end
+
+  if not line_nr then
+    -- Fall back to searching forward for the pattern (cursor not on match line)
+    local pattern = filename .. [[\(:\d\+\|", line \d\+\)]]
+    if vim.fn.search(pattern, "c") ~= 0 then
+      line = vim.api.nvim_get_current_line()
+      line_nr, col_nr = line:match(escaped_filename .. ":(%d+):?(%d*)")
+      if not line_nr then
+        line_nr = line:match(escaped_filename .. [[", line (%d+)]])
+      end
+    end
   end
 
   line_nr = (line_nr and line_nr ~= "") and line_nr or nil
