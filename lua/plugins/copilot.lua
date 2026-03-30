@@ -8,7 +8,9 @@ return {
     },
     cmd = "CopilotChat",
     opts = {
-      model = "claude-sonnet-4",
+      -- PRINT CURRENT MODEL
+      -- :lua print(require('CopilotChat').config.model)
+      model = "gpt-5.2-codex",
       -- model = 'o3-mini',
       -- model = 'o1',
       mappings = {
