@@ -438,22 +438,10 @@ return {
     { "<leader>ua", false },
     { "<leader>z", function() Snacks.zen.zoom() end, desc = "Toggle Zoom", },
     { "<leader>Z", function() Snacks.zen() end, desc = "Toggle Zen Mode", },
-    { "<leader>ts", function() FindCmd("~/.bash_history") end, desc = "search terminal command", },
     { "<leader>td", function() FindCmd(get_file()) end, desc = "search dir hist command", },
-    { "<leader>ta", function() append_line_to_file(get_file(), LAST_CMD) end, desc = "Append command to dir history", },
+    { "<leader>tq", function() append_line_to_file(get_file(), LAST_CMD) end, desc = "Append command to dir history", },
     { "<leader>n", function() Snacks.picker.notifications({ win = { preview = { wo = { wrap = true } } } }) end, desc = "Notification History" },
     { "<leader>th", function() Snacks.terminal("htop") end, desc = "Terminal htop", },
-    { "<leader>tl",
-      function()
-        if LAST_CMD == nil then
-          FindCmd("~/.bash_history")
-        else
-          Snacks.notify.info((("executing: [%s]"):format(LAST_CMD)))
-          term_utils.run_in_terminal(LAST_CMD)
-        end
-      end,
-      desc = "Terminal python",
-    },
     -- ---------------------------------
     -- picker keys
     { "<leader>,", false, desc = "Buffers" },
