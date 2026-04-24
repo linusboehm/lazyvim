@@ -73,6 +73,87 @@ local function run_curl_paragraph()
     return line, in_html_comment
   end
 
+  local function fence_language(trimmed)
+    local info = trimmed:match("^```+%s*(.-)%s*$") or trimmed:match("^~~~+%s*(.-)%s*$")
+    if not info then
+      return nil
+    end
+
+    return vim.trim(info):match("^(%S+)")
+  end
+
+  local function is_code_comment(trimmed, code_lang)
+    if trimmed == "" then
+      return false
+    end
+
+    if trimmed:match("^#") then
+      return true
+    end
+
+    local lang = (code_lang or ""):lower()
+    if lang == "" then
+      return false
+    end
+
+    local slash_comments = {
+      c = true,
+      cc = true,
+      cpp = true,
+      cxx = true,
+      go = true,
+      h = true,
+      hpp = true,
+      java = true,
+      javascript = true,
+      js = true,
+      kotlin = true,
+      kt = true,
+      rust = true,
+      rs = true,
+      scala = true,
+      swift = true,
+      ts = true,
+      typescript = true,
+    }
+    local dash_comments = {
+      haskell = true,
+      hs = true,
+      lua = true,
+      sql = true,
+    }
+
+    return (slash_comments[lang] and trimmed:match("^//") ~= nil)
+      or (dash_comments[lang] and trimmed:match("^%-%-") ~= nil)
+  end
+
+  local function strip_hash_comment(line)
+    local in_single_quote = false
+    local in_double_quote = false
+    local escaped = false
+
+    for i = 1, #line do
+      local char = line:sub(i, i)
+
+      if escaped then
+        escaped = false
+      elseif char == "\\" and in_double_quote then
+        escaped = true
+      elseif char == "'" and not in_double_quote then
+        in_single_quote = not in_single_quote
+      elseif char == '"' and not in_single_quote then
+        in_double_quote = not in_double_quote
+      elseif char == "#" and not in_single_quote and not in_double_quote then
+        local previous = line:sub(i - 1, i - 1)
+        if i == 1 or previous:match("%s") then
+          return line:sub(1, i - 1)
+        end
+      end
+    end
+
+    return line
+  end
+
   local start_row = cursor_row
   while
     start_row > 1
@@ -93,11 +174,23 @@ local function run_curl_paragraph()
   local curl_line
   local args = {}
   local in_html_comment = false
+  local in_code_block = false
+  local code_lang = nil
 
   for _, line in ipairs(lines) do
     line, in_html_comment = strip_markdown_comment(line, in_html_comment)
+    line = strip_hash_comment(line)
     local trimmed = vim.trim(line)
-    if trimmed ~= "" then
+
+    if trimmed:match("^```") or trimmed:match("^~~~") then
+      if in_code_block then
+        in_code_block = false
+        code_lang = nil
+      else
+        in_code_block = true
+        code_lang = fence_language(trimmed)
+      end
+    elseif not is_code_comment(trimmed, code_lang) and trimmed ~= "" then
       if not curl_line then
         curl_line = trimmed
       elseif trimmed:match("^[%w_.-]+=") then
