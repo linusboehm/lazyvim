@@ -13,6 +13,11 @@ return {
     checkbox = {
       enabled = false,
     },
+    html = {
+      comment = {
+        conceal = false,
+      },
+    },
   },
   ft = { "markdown", "norg", "rmd", "org", "codecompanion", "Avante" },
   config = function(_, opts)
