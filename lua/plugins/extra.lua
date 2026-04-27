@@ -89,6 +89,26 @@ return {
   { "dkarter/bullets.vim", enabled = false, version = "*" }, -- clashed with Snacks.picker for some reason
   { "folke/flash.nvim", opts = { modes = { search = { enabled = false }, char = { enabled = false } } } },
   { "opdavies/toggle-checkbox.nvim", enabled = false, version = "*" }, -- clashed with Snacks.picker for some reason
+  {
+    "gbprod/yanky.nvim",
+    keys = {
+      { "<leader>p", false, mode = { "n", "x" } },
+      {
+        "<leader>sy",
+        function()
+          if LazyVim.pick.picker.name == "telescope" then
+            require("telescope").extensions.yank_history.yank_history({})
+          elseif LazyVim.pick.picker.name == "snacks" then
+            Snacks.picker.yanky()
+          else
+            vim.cmd([[YankyRingHistory]])
+          end
+        end,
+        mode = { "n", "x" },
+        desc = "Open Yank History",
+      },
+    },
+  },
 
   {
     "nvim-mini/mini.comment",
