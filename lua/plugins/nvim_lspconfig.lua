@@ -7,6 +7,7 @@ return {
         -- Use pyrefly instead of pyright/basedpyright
         pyright = { enabled = false },
         pyrefly = {
+          cmd = { "sh", "-c", "pyrefly lsp 2>/dev/null" },
           handlers = {
             ["textDocument/publishDiagnostics"] = function(err, result, ctx, config)
               -- Prefix all pyrefly diagnostics with "Pyrefly:"

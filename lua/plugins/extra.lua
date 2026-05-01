@@ -36,7 +36,7 @@ return {
     "brenoprata10/nvim-highlight-colors",
     -- caused vimdiff to be extremely slow for large files.
     -- the bolow file size filter helps, but just disabling in general
-    enabled = false,
+    enabled = true,
     opts = {
       exclude_buffer = function(bufnr)
         local ok, stats = pcall(vim.uv.fs_stat, vim.api.nvim_buf_get_name(bufnr))
