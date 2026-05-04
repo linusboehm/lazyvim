@@ -11,6 +11,14 @@ return {
   },
   opts = {
     enhanced_diff_hl = true, -- See ':h diffview-config-enhanced_diff_hl'
+    file_panel = {
+      win_config = {
+        win_opts = {
+          signcolumn = "no",
+          statuscolumn = "",
+        },
+      },
+    },
     keymaps = {
       view = {
         ["<C-g>"] = "<CMD>DiffviewClose<CR>",
