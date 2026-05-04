@@ -18,7 +18,7 @@ end
 function M.go_to_text_buffer()
   local skip_types = { "DiffviewFiles", "aerial", "neo-tree", "dapui_scopes", "dapui_breakpoints", "dapui_stacks",
     "dapui_watches" }
-  vim.api.nvim_command([[TmuxNavigateUp]])
+  vim.api.nvim_command([[wincmd k]])
   local cnt = 0
   while M.IsInList(vim.bo.filetype, skip_types) and cnt < 5 do
     vim.api.nvim_command([[wincmd l]])
