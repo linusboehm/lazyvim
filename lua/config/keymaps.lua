@@ -34,207 +34,112 @@ map({ "n" }, "<leader>op", require("util.custom_functions").open_prod)
 map({ "n" }, "<leader>tr", require("util.custom_functions").build_and_run, { desc = "build and run current file" })
 map({ "n" }, "<leader>tn", require("util.custom_functions").goto_next_slide, { desc = "go to next slide" })
 
-local function run_curl_paragraph()
+local function run_bash_code_block()
   local buf = 0
   local cursor_row = vim.api.nvim_win_get_cursor(0)[1]
   local line_count = vim.api.nvim_buf_line_count(buf)
 
-  local function strip_markdown_comment(line, in_html_comment)
-    if in_html_comment then
-      local close_comment = line:find("-->", 1, true)
-      if not close_comment then
-        return "", true
-      end
-      line = line:sub(close_comment + 3)
-      in_html_comment = false
+  local function parse_fence(line)
+    local marker, info = line:match("^%s*(```+)%s*(.-)%s*$")
+    if not marker then
+      marker, info = line:match("^%s*(~~~+)%s*(.-)%s*$")
     end
-
-    while true do
-      local open_comment = line:find("<!--", 1, true)
-      if not open_comment then
-        break
-      end
-
-      local close_comment = line:find("-->", open_comment + 4, true)
-      if close_comment then
-        line = line:sub(1, open_comment - 1) .. line:sub(close_comment + 3)
-      else
-        line = line:sub(1, open_comment - 1)
-        in_html_comment = true
-        break
-      end
-    end
-
-    local lower_trimmed = vim.trim(line):lower()
-    if lower_trimmed:match("^%[//%]:%s*[#<]") or lower_trimmed:match("^%[comment%]:%s*[#<]") then
-      return "", in_html_comment
-    end
-
-    return line, in_html_comment
-  end
-
-  local function fence_language(trimmed)
-    local info = trimmed:match("^```+%s*(.-)%s*$") or trimmed:match("^~~~+%s*(.-)%s*$")
-    if not info then
+    if not marker then
       return nil
     end
 
-    return vim.trim(info):match("^(%S+)")
+    return {
+      char = marker:sub(1, 1),
+      length = #marker,
+      info = vim.trim(info or ""),
+    }
   end
 
-  local function is_code_comment(trimmed, code_lang)
-    if trimmed == "" then
-      return false
-    end
+  local bash_languages = {
+    bash = true,
+    sh = true,
+    shell = true,
+    zsh = true,
+  }
 
-    if trimmed:match("^#") then
-      return true
-    end
+  local blocks = {}
+  local current_block = nil
 
-    local lang = (code_lang or ""):lower()
-    if lang == "" then
-      return false
-    end
+  for row = 1, line_count do
+    local line = vim.api.nvim_buf_get_lines(buf, row - 1, row, false)[1]
+    local fence = parse_fence(line)
 
-    local slash_comments = {
-      c = true,
-      cc = true,
-      cpp = true,
-      cxx = true,
-      go = true,
-      h = true,
-      hpp = true,
-      java = true,
-      javascript = true,
-      js = true,
-      kotlin = true,
-      kt = true,
-      rust = true,
-      rs = true,
-      scala = true,
-      swift = true,
-      ts = true,
-      typescript = true,
-    }
-    local dash_comments = {
-      haskell = true,
-      hs = true,
-      lua = true,
-      sql = true,
-    }
-
-    return (slash_comments[lang] and trimmed:match("^//") ~= nil)
-      or (dash_comments[lang] and trimmed:match("^%-%-") ~= nil)
-  end
-
-  local function strip_hash_comment(line)
-    local in_single_quote = false
-    local in_double_quote = false
-    local escaped = false
-
-    for i = 1, #line do
-      local char = line:sub(i, i)
-
-      if escaped then
-        escaped = false
-      elseif char == "\\" and in_double_quote then
-        escaped = true
-      elseif char == "'" and not in_double_quote then
-        in_single_quote = not in_single_quote
-      elseif char == '"' and not in_single_quote then
-        in_double_quote = not in_double_quote
-      elseif char == "#" and not in_single_quote and not in_double_quote then
-        local previous = line:sub(i - 1, i - 1)
-        if i == 1 or previous:match("%s") then
-          return line:sub(1, i - 1)
+    if fence then
+      if current_block then
+        if fence.char == current_block.char and fence.length >= current_block.length and fence.info == "" then
+          current_block.close_row = row
+          table.insert(blocks, current_block)
+          current_block = nil
+        end
+      else
+        local lang = fence.info:lower():match("^(%S+)")
+        if bash_languages[lang] then
+          current_block = {
+            open_row = row,
+            char = fence.char,
+            length = fence.length,
+            lang = lang,
+          }
         end
       end
     end
-
-    return line
   end
 
-  local start_row = cursor_row
-  while
-    start_row > 1
-    and vim.api.nvim_buf_get_lines(buf, start_row - 2, start_row - 1, false)[1]:match("%S")
-  do
-    start_row = start_row - 1
+  if current_block then
+    table.insert(blocks, current_block)
   end
 
-  local end_row = cursor_row
-  while
-    end_row < line_count
-    and vim.api.nvim_buf_get_lines(buf, end_row, end_row + 1, false)[1]:match("%S")
-  do
-    end_row = end_row + 1
-  end
-
-  local lines = vim.api.nvim_buf_get_lines(buf, start_row - 1, end_row, false)
-  local curl_line
-  local args = {}
-  local in_html_comment = false
-  local in_code_block = false
-  local code_lang = nil
-
-  for _, line in ipairs(lines) do
-    line, in_html_comment = strip_markdown_comment(line, in_html_comment)
-    line = strip_hash_comment(line)
-    local trimmed = vim.trim(line)
-
-    if trimmed:match("^```") or trimmed:match("^~~~") then
-      if in_code_block then
-        in_code_block = false
-        code_lang = nil
-      else
-        in_code_block = true
-        code_lang = fence_language(trimmed)
-      end
-    elseif not is_code_comment(trimmed, code_lang) and trimmed ~= "" then
-      if not curl_line then
-        curl_line = trimmed
-      elseif trimmed:match("^[%w_.-]+=") then
-        table.insert(args, "--data-urlencode")
-        table.insert(args, vim.fn.shellescape(trimmed))
-      else
-        table.insert(args, trimmed)
-      end
+  local target_block
+  for _, block in ipairs(blocks) do
+    local close_row = block.close_row or line_count
+    if cursor_row >= block.open_row and cursor_row <= close_row then
+      target_block = block
+      break
     end
   end
 
-  if not curl_line or not curl_line:match("^curl%s") then
+  if not target_block then
     Snacks.notify.warn(
-      "Current paragraph does not start with a curl command",
-      { title = "curl paragraph" }
+      "Cursor is not inside a bash fenced code block",
+      { title = "bash code block" }
     )
     return
   end
 
-  local command = curl_line
-  if #args > 0 then
-    command = command .. " " .. table.concat(args, " ")
+  local end_exclusive = target_block.close_row and target_block.close_row - 1 or line_count
+  local lines = vim.api.nvim_buf_get_lines(buf, target_block.open_row, end_exclusive, false)
+  local command = table.concat(lines, "\n")
+
+  if vim.trim(command) == "" then
+    Snacks.notify.warn("Bash code block is empty", { title = "bash code block" })
+    return
   end
 
-  Snacks.notify.info(command, { title = "curl paragraph" })
-  vim.system({ "sh", "-c", command }, { text = true }, function(result)
+  Snacks.notify.info(command, { title = "bash code block" })
+  vim.system({ "bash", "-lc", command }, { text = true }, function(result)
     vim.schedule(function()
       local output = vim.trim((result.stdout or "") .. "\n" .. (result.stderr or ""))
       if result.code == 0 then
         Snacks.notify.info(
-          output ~= "" and output or "curl completed",
-          { title = "curl paragraph" }
+          output ~= "" and output or "bash command completed",
+          { title = "bash code block" }
         )
       else
         Snacks.notify.error(
-          output ~= "" and output or ("curl failed with exit code " .. result.code),
-          { title = "curl paragraph" }
+          output ~= "" and output or ("bash command failed with exit code " .. result.code),
+          { title = "bash code block" }
         )
       end
     end)
   end)
 end
 
-map("n", "<leader>cu", run_curl_paragraph, { desc = "run curl paragraph" })
+map("n", "<leader>cu", run_bash_code_block, { desc = "run bash code block" })
 
 -- -- Move Lines
 -- map("n", "<A-j>", "<cmd>m .+1<cr>==", { desc = "Move down" })
