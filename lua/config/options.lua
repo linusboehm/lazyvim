@@ -6,6 +6,33 @@ vim.opt.swapfile = false
 
 local opt = vim.opt
 
+if vim.env.ZELLIJ and not vim.env.TMUX and not vim.env.DISPLAY and not vim.env.WAYLAND_DISPLAY then
+  local cache = {}
+  local function copy(reg)
+    return function(lines, regtype)
+      cache[reg] = { lines, regtype }
+      require("vim.ui.clipboard.osc52").copy(reg)(lines, regtype)
+    end
+  end
+  local function paste(reg)
+    return function()
+      return cache[reg] or cache["+"] or cache["*"] or { {}, "v" }
+    end
+  end
+
+  vim.g.clipboard = {
+    name = "OSC 52 copy-only",
+    copy = {
+      ["+"] = copy("+"),
+      ["*"] = copy("*"),
+    },
+    paste = {
+      ["+"] = paste("+"),
+      ["*"] = paste("*"),
+    },
+  }
+end
+
 opt.clipboard = "unnamedplus" -- Sync with system clipboard
 opt.conceallevel = 1 -- Hide * markup for bold and italic
 opt.inccommand = "nosplit" -- preview incremental substitute
