@@ -19,23 +19,58 @@ return {
     { "<leader>br", false },
   },
   opts = function()
-    -- Get a sensible background color from the colorscheme
-    local function get_visible_bg()
-      -- -- Try CursorLine background first (good for "visible but inactive" state)
-      -- local cursorline = vim.api.nvim_get_hl(0, { name = "CursorLine" })
-      -- if cursorline.bg then
-      --   return string.format("#%06x", cursorline.bg)
-      -- end
-      -- Fallback to Visual background
-      local visual = vim.api.nvim_get_hl(0, { name = "Normal" })
-      if visual.bg then
-        return string.format("#%06x", visual.bg)
+    local function get_hl_color(name, attr)
+      local hl = vim.api.nvim_get_hl(0, { name = name, link = false })
+      if hl and hl[attr] then
+        return string.format("#%06x", hl[attr])
       end
-      -- Last resort fallback
-      return "#3e4451"
+    end
+
+    local function pick_hl_color(attr, groups)
+      for _, group in ipairs(groups) do
+        local color = get_hl_color(group, attr)
+        if color then
+          return color
+        end
+      end
+    end
+
+    local function blend(fg, bg, alpha)
+      if not fg or not bg then
+        return fg
+      end
+
+      local function rgb(color)
+        color = color:gsub("#", "")
+        return tonumber(color:sub(1, 2), 16), tonumber(color:sub(3, 4), 16), tonumber(color:sub(5, 6), 16)
+      end
+
+      local fr, fg_, fb = rgb(fg)
+      local br, bg_, bb = rgb(bg)
+      local function channel(front, back)
+        return math.floor((alpha * front) + ((1 - alpha) * back) + 0.5)
+      end
+
+      return string.format("#%02x%02x%02x", channel(fr, br), channel(fg_, bg_), channel(fb, bb))
+    end
+
+    -- Use only colors from the active colorscheme so this adapts when the theme changes.
+    local function get_visible_bg()
+      return pick_hl_color("bg", { "Normal", "TabLine", "StatusLine" })
     end
 
     local visible_bg = get_visible_bg()
+    local current_buffer_fg = pick_hl_color("fg", { "FloatBorder", "Keyword", "PreProc", "Normal" })
+    local visible_buffer_fg = blend(current_buffer_fg, visible_bg, 0.65)
+      or pick_hl_color("fg", { "StatusLine", "Comment", "Normal" })
+    local inactive_buffer_fg = pick_hl_color("fg", { "TabLine", "Comment", "StatusLineNC", "Normal" })
+
+    local function filename_hl(fg)
+      return {
+        fg = fg,
+        sp = fg,
+      }
+    end
 
     return {
       options = {
@@ -76,34 +111,56 @@ return {
         end,
       },
       highlights = {
+        buffer = filename_hl(inactive_buffer_fg),
+        error = filename_hl(inactive_buffer_fg),
+        warning = filename_hl(inactive_buffer_fg),
+        info = filename_hl(inactive_buffer_fg),
+        hint = filename_hl(inactive_buffer_fg),
+        buffer_selected = filename_hl(current_buffer_fg),
+        numbers_selected = filename_hl(current_buffer_fg),
+        error_selected = filename_hl(current_buffer_fg),
+        warning_selected = filename_hl(current_buffer_fg),
+        info_selected = filename_hl(current_buffer_fg),
+        hint_selected = filename_hl(current_buffer_fg),
         buffer_visible = {
+          fg = visible_buffer_fg,
+          sp = visible_buffer_fg,
           bg = visible_bg,
         },
         numbers_visible = {
+          fg = visible_buffer_fg,
           bg = visible_bg,
         },
         diagnostic_visible = {
           bg = visible_bg,
         },
         error_visible = {
+          fg = visible_buffer_fg,
+          sp = visible_buffer_fg,
           bg = visible_bg,
         },
         error_diagnostic_visible = {
           bg = visible_bg,
         },
         warning_visible = {
+          fg = visible_buffer_fg,
+          sp = visible_buffer_fg,
           bg = visible_bg,
         },
         warning_diagnostic_visible = {
           bg = visible_bg,
         },
         info_visible = {
+          fg = visible_buffer_fg,
+          sp = visible_buffer_fg,
           bg = visible_bg,
         },
         info_diagnostic_visible = {
           bg = visible_bg,
         },
         hint_visible = {
+          fg = visible_buffer_fg,
+          sp = visible_buffer_fg,
           bg = visible_bg,
         },
         hint_diagnostic_visible = {
