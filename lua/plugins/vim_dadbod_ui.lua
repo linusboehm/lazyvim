@@ -36,8 +36,8 @@ return {
 
     -- NOTE: The default behavior of auto-execution of queries on save is disabled
     -- this is useful when you have a big query that you don't want to run every time
-    -- you save the file running those queries can crash neovim to run use the
-    -- default keymap: <leader>S
+    -- you save the file running those queries can crash neovim. Use <leader>S
+    -- to run the current paragraph; visual <leader>S still runs the selection.
     vim.g.db_ui_execute_on_save = false
   end,
   config = function()
