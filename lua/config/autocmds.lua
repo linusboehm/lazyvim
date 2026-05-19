@@ -132,6 +132,92 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
+local taskwarrior_annotation_indent = string.rep(" ", 21)
+local taskwarrior_annotation_header = "^  Annotation:%s+%d%d%d%d%-%d%d%-%d%d %d%d:%d%d:%d%d %-%-"
+local taskwarrior_annotation_cr = vim.api.nvim_replace_termcodes("<CR>", true, false, true)
+local taskwarrior_annotation_cr_clear_indent = vim.api.nvim_replace_termcodes("<CR><C-u>", true, false, true)
+local taskwarrior_annotation_open_line = vim.api.nvim_replace_termcodes("o<C-u>", true, false, true)
+  .. taskwarrior_annotation_indent
+
+local function has_taskwarrior_annotation_indent(line)
+  return line:sub(1, #taskwarrior_annotation_indent) == taskwarrior_annotation_indent
+end
+
+local function is_taskwarrior_annotation_context(buf, lnum)
+  local line = vim.api.nvim_buf_get_lines(buf, lnum - 1, lnum, false)[1] or ""
+
+  if line:match(taskwarrior_annotation_header) then
+    return true
+  end
+
+  if not has_taskwarrior_annotation_indent(line) then
+    return false
+  end
+
+  for scan_lnum = lnum - 1, 1, -1 do
+    local previous = vim.api.nvim_buf_get_lines(buf, scan_lnum - 1, scan_lnum, false)[1] or ""
+
+    if previous:match(taskwarrior_annotation_header) then
+      return true
+    end
+
+    if previous ~= "" and not has_taskwarrior_annotation_indent(previous) then
+      return false
+    end
+  end
+
+  return false
+end
+
+local function setup_taskwarrior_annotation_indent(buf)
+  if vim.b[buf].taskwarrior_annotation_indent then
+    return
+  end
+
+  vim.b[buf].taskwarrior_annotation_indent = true
+  vim.keymap.set("i", "<CR>", function()
+    local current_buf = vim.api.nvim_get_current_buf()
+    local lnum = vim.api.nvim_win_get_cursor(0)[1]
+
+    if is_taskwarrior_annotation_context(current_buf, lnum) then
+      return taskwarrior_annotation_cr_clear_indent .. taskwarrior_annotation_indent
+    end
+
+    return taskwarrior_annotation_cr
+  end, { buffer = buf, expr = true, replace_keycodes = false, desc = "Indent Taskwarrior annotation continuation" })
+
+  vim.keymap.set(
+    "n",
+    "o",
+    function()
+      local current_buf = vim.api.nvim_get_current_buf()
+      local lnum = vim.api.nvim_win_get_cursor(0)[1]
+      local count = vim.v.count > 0 and tostring(vim.v.count) or ""
+
+      if is_taskwarrior_annotation_context(current_buf, lnum) then
+        return count .. taskwarrior_annotation_open_line
+      end
+
+      return count .. "o"
+    end,
+    { buffer = buf, expr = true, replace_keycodes = false, desc = "Open indented Taskwarrior annotation continuation" }
+  )
+end
+
+vim.api.nvim_create_autocmd("FileType", {
+  group = augroup("taskwarrior_annotation_indent"),
+  pattern = "taskedit",
+  callback = function(event)
+    setup_taskwarrior_annotation_indent(event.buf)
+  end,
+})
+
+for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+  if vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].filetype == "taskedit" then
+    setup_taskwarrior_annotation_indent(buf)
+  end
+end
+
 -- Enable inlay hints for Python files
 vim.api.nvim_create_autocmd("LspAttach", {
   group = augroup("lsp_inlay_hints"),
