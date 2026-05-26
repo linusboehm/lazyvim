@@ -112,16 +112,35 @@ vim.api.nvim_create_autocmd({ "BufNewFile", "BufRead" }, {
   command = "setfiletype cmake",
 })
 
+local markdown_checkbox_filetypes = {
+  markdown = true,
+  taskedit = true,
+}
+
+local function setup_markdown_checkbox(buf)
+  if vim.b[buf].markdown_checkbox_keymap then
+    return
+  end
+
+  vim.b[buf].markdown_checkbox_keymap = true
+  vim.keymap.set({ "n", "v" }, "<leader>cb", function()
+    require("util.toggle_checkbox").toggle()
+  end, { buffer = buf, desc = "Toggle checkbox" })
+end
+
 vim.api.nvim_create_autocmd("FileType", {
   group = augroup("markdown_checkbox"),
-  pattern = "markdown",
-  callback = function()
-    local opts = { buffer = 0 }
-    vim.keymap.set({ "n", "v" }, "<leader>cb", function()
-      require("util.toggle_checkbox").toggle()
-    end, opts)
+  pattern = vim.tbl_keys(markdown_checkbox_filetypes),
+  callback = function(event)
+    setup_markdown_checkbox(event.buf)
   end,
 })
+
+for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+  if vim.api.nvim_buf_is_loaded(buf) and markdown_checkbox_filetypes[vim.bo[buf].filetype] then
+    setup_markdown_checkbox(buf)
+  end
+end
 
 vim.api.nvim_create_autocmd("FileType", {
   group = augroup("csv_comments"),

@@ -173,6 +173,13 @@ map("n", "<leader>pf", function()
   Snacks.notify.info(short_path .. ":" .. row, { title = "current file name" })
 end, { desc = "print current filename" })
 
+map("n", "<leader>pF", function()
+  local path = vim.api.nvim_buf_get_name(0)
+  local row, _ = unpack(vim.api.nvim_win_get_cursor(0))
+  vim.fn.setreg("+", path .. ":" .. row)
+  Snacks.notify.info(path .. ":" .. row, { title = "current file path" })
+end, { desc = "print current file path" })
+
 map("n", "gL", function()
   local c_row, c_column = unpack(vim.api.nvim_win_get_cursor(0))
   local filename = vim.fn.expand("<cfile>")
