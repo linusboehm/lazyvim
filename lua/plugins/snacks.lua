@@ -78,6 +78,576 @@ local function append_line_to_file(filename, line)
   vim.cmd("e " .. vim.fn.fnameescape(filename))
 end
 
+local function read_pr_number(git_root)
+  local pr_file = git_root .. "/PR_NUMBER"
+  local file = io.open(pr_file, "r")
+  if not file then
+    Snacks.notify.error("PR_NUMBER file not found in git root")
+    return nil
+  end
+
+  local pr_number = file:read("*l")
+  file:close()
+
+  if not pr_number or pr_number == "" then
+    Snacks.notify.error("PR_NUMBER file is empty")
+    return nil
+  end
+
+  pr_number = pr_number:match("^%s*(%d+)%s*$")
+  if not pr_number then
+    Snacks.notify.error("Invalid PR number in PR_NUMBER file")
+    return nil
+  end
+
+  return pr_number
+end
+
+local function github_repo_info(git_root)
+  local remote = vim.fn.systemlist({ "git", "-C", git_root, "remote", "get-url", "origin" })[1]
+  if vim.v.shell_error ~= 0 or remote == nil or remote == "" then
+    Snacks.notify.error("Could not read origin remote URL")
+    return nil
+  end
+
+  local host, repo = remote:match("^git@([^:]+):(.+)$")
+  if not host then
+    host, repo = remote:match("^ssh://git@([^/]+)/(.+)$")
+  end
+  if not host then
+    host, repo = remote:match("^https?://([^/]+)/(.+)$")
+    if host then
+      host = host:gsub("^[^@]+@", "")
+    end
+  end
+
+  if not host or not repo then
+    Snacks.notify.error("Unsupported origin remote URL: " .. remote)
+    return nil
+  end
+
+  repo = repo:gsub("%.git$", "")
+  local owner, name = repo:match("^([^/]+)/(.+)$")
+  if not owner or not name then
+    Snacks.notify.error("Unsupported origin repository path: " .. repo)
+    return nil
+  end
+
+  return {
+    host = host,
+    path = repo,
+    owner = owner,
+    name = name,
+    url = "https://" .. host .. "/" .. repo,
+  }
+end
+
+local function open_url(url, title)
+  Snacks.notify(("git url: [%s]"):format(url), { title = title })
+  vim.fn.setreg("+", url)
+  if vim.fn.has("nvim-0.10") == 0 then
+    require("lazy.util").open(url, { system = true })
+    return
+  end
+  vim.ui.open(url)
+end
+
+local function current_pr_line_context(range)
+  local git_root = Snacks.git.get_root()
+  if git_root == nil then
+    Snacks.notify.error("Not in a git repository")
+    return
+  end
+
+  local pr_number = read_pr_number(git_root)
+  if not pr_number then
+    return
+  end
+
+  local repo = github_repo_info(git_root)
+  if not repo then
+    return
+  end
+
+  local path = vim.api.nvim_buf_get_name(0)
+  if path == "" then
+    Snacks.notify.error("Current buffer has no file")
+    return
+  end
+
+  git_root = vim.fn.fnamemodify(git_root, ":p"):gsub("/$", "")
+  local full_path = vim.fn.fnamemodify(path, ":p")
+  local prefix = git_root .. "/"
+  if full_path:sub(1, #prefix) ~= prefix then
+    Snacks.notify.error("Current file is not under the git root")
+    return
+  end
+
+  local rel_path = full_path:sub(#prefix + 1)
+  local changed = vim.fn.systemlist({ "git", "-C", git_root, "diff", "--name-only", "pr_base...pr_head", "--", rel_path })
+  if vim.v.shell_error ~= 0 then
+    Snacks.notify.error("Could not check PR files. Are pr_base and pr_head available?")
+    return
+  end
+  if #changed == 0 then
+    Snacks.notify.warn("Current file is not changed in PR #" .. pr_number)
+    return
+  end
+
+  local head_sha = vim.fn.systemlist({ "git", "-C", git_root, "rev-parse", "pr_head" })[1]
+  if vim.v.shell_error ~= 0 or head_sha == nil or head_sha == "" then
+    Snacks.notify.error("Could not resolve pr_head")
+    return
+  end
+
+  local line = vim.api.nvim_win_get_cursor(0)[1]
+  local start_line = line
+  if range then
+    start_line = tonumber(range.start_line)
+    line = tonumber(range.line)
+    if not start_line or not line then
+      Snacks.notify.error("Invalid PR comment range")
+      return
+    end
+    if start_line > line then
+      start_line, line = line, start_line
+    end
+  end
+
+  local diff_anchor = "diff-" .. vim.fn.sha256(rel_path) .. "R" .. line
+  local url = ("%s/pull/%s/files#%s"):format(repo.url, pr_number, diff_anchor)
+
+  return {
+    git_root = git_root,
+    pr_number = pr_number,
+    repo = repo,
+    rel_path = rel_path,
+    start_line = start_line,
+    line = line,
+    head_sha = head_sha,
+    url = url,
+  }
+end
+
+local function pr_context_label(context)
+  if context.start_line and context.start_line ~= context.line then
+    return ("%s:%d-%d"):format(context.rel_path, context.start_line, context.line)
+  end
+  return ("%s:%d"):format(context.rel_path, context.line)
+end
+
+local function visual_line_range()
+  local start_line
+  local end_line
+  local mode = vim.fn.mode()
+  if mode:match("^[vV\022]") then
+    start_line = vim.fn.line("v")
+    end_line = vim.fn.line(".")
+  else
+    local start_pos = vim.fn.getpos("'<")
+    local end_pos = vim.fn.getpos("'>")
+    start_line = start_pos[2]
+    end_line = end_pos[2]
+  end
+
+  if start_line <= 0 or end_line <= 0 then
+    Snacks.notify.error("No visual selection found")
+    return nil
+  end
+  if start_line > end_line then
+    start_line, end_line = end_line, start_line
+  end
+  return { start_line = start_line, line = end_line }
+end
+
+local function open_current_line_in_pr()
+  local context = current_pr_line_context()
+  if not context then
+    return
+  end
+
+  open_url(context.url, "PR Browse")
+end
+
+local function gh_result_error(result, fallback)
+  local output = vim.trim((result.stderr or "") .. "\n" .. (result.stdout or ""))
+  return output ~= "" and output or fallback
+end
+
+local function run_gh_graphql(context, payload, callback)
+  local ok, encoded = pcall(vim.json.encode, payload)
+  if not ok then
+    Snacks.notify.error("Could not encode GraphQL payload: " .. tostring(encoded))
+    return false
+  end
+
+  local tmp = vim.fn.tempname()
+  local write_ok, write_result = pcall(vim.fn.writefile, { encoded }, tmp)
+  if not write_ok or write_result ~= 0 then
+    Snacks.notify.error("Could not write GraphQL payload")
+    return false
+  end
+
+  local cmd = {
+    "gh",
+    "api",
+    "graphql",
+    "--hostname",
+    context.repo.host,
+    "--input",
+    tmp,
+  }
+
+  local system_ok, system_err = pcall(vim.system, cmd, { cwd = context.git_root, text = true }, function(result)
+    vim.schedule(function()
+      vim.fn.delete(tmp)
+      callback(result)
+    end)
+  end)
+
+  if not system_ok then
+    vim.fn.delete(tmp)
+    Snacks.notify.error("Failed to run gh api: " .. tostring(system_err))
+    return false
+  end
+
+  return true
+end
+
+local function parse_gh_json(result, fallback)
+  if result.code ~= 0 then
+    Snacks.notify.error(gh_result_error(result, fallback))
+    return nil
+  end
+
+  local ok, decoded = pcall(vim.json.decode, result.stdout)
+  if not ok then
+    Snacks.notify.error("Could not parse GitHub response: " .. tostring(decoded))
+    return nil
+  end
+
+  if decoded.errors and #decoded.errors > 0 then
+    Snacks.notify.error(decoded.errors[1].message or fallback)
+    return nil
+  end
+
+  return decoded
+end
+
+local function pr_comment_thread_input(context)
+  local input = {
+    path = context.rel_path,
+    line = context.line,
+    side = "RIGHT",
+  }
+  if context.start_line and context.start_line ~= context.line then
+    input.startLine = context.start_line
+    input.startSide = "RIGHT"
+  end
+  return input
+end
+
+local function add_thread_to_pending_review(context, review_id, body)
+  local thread = pr_comment_thread_input(context)
+  local query
+  local variables = {
+    reviewId = review_id,
+    path = thread.path,
+    line = thread.line,
+    body = body,
+  }
+  if thread.startLine then
+    query = [[
+      mutation(
+        $reviewId: ID!
+        $path: String!
+        $line: Int!
+        $body: String!
+        $startLine: Int!
+        $startSide: DiffSide!
+      ) {
+        addPullRequestReviewThread(input: {
+          pullRequestReviewId: $reviewId
+          path: $path
+          line: $line
+          side: RIGHT
+          startLine: $startLine
+          startSide: $startSide
+          body: $body
+        }) {
+          thread {
+            id
+          }
+        }
+      }
+    ]]
+    variables.startLine = thread.startLine
+    variables.startSide = thread.startSide
+  else
+    query = [[
+      mutation($reviewId: ID!, $path: String!, $line: Int!, $body: String!) {
+        addPullRequestReviewThread(input: {
+          pullRequestReviewId: $reviewId
+          path: $path
+          line: $line
+          side: RIGHT
+          body: $body
+        }) {
+          thread {
+            id
+          }
+        }
+      }
+    ]]
+  end
+
+  local payload = {
+    query = query,
+    variables = variables,
+  }
+
+  Snacks.notify.info("Adding pending PR comment on " .. pr_context_label(context))
+  run_gh_graphql(context, payload, function(result)
+    local decoded = parse_gh_json(result, "Failed to add pending PR comment")
+    if not decoded then
+      return
+    end
+
+    Snacks.notify.info("Added pending PR comment")
+  end)
+end
+
+local function create_pending_review_with_thread(context, pull_request_id, body)
+  local thread = pr_comment_thread_input(context)
+  local query
+  local variables = {
+    pullRequestId = pull_request_id,
+    commitOID = context.head_sha,
+    path = thread.path,
+    line = thread.line,
+    body = body,
+  }
+  if thread.startLine then
+    query = [[
+      mutation(
+        $pullRequestId: ID!
+        $commitOID: GitObjectID!
+        $path: String!
+        $line: Int!
+        $body: String!
+        $startLine: Int!
+        $startSide: DiffSide!
+      ) {
+        addPullRequestReview(input: {
+          pullRequestId: $pullRequestId
+          commitOID: $commitOID
+          threads: [{
+            path: $path
+            line: $line
+            side: RIGHT
+            startLine: $startLine
+            startSide: $startSide
+            body: $body
+          }]
+        }) {
+          pullRequestReview {
+            id
+          }
+        }
+      }
+    ]]
+    variables.startLine = thread.startLine
+    variables.startSide = thread.startSide
+  else
+    query = [[
+      mutation($pullRequestId: ID!, $commitOID: GitObjectID!, $path: String!, $line: Int!, $body: String!) {
+        addPullRequestReview(input: {
+          pullRequestId: $pullRequestId
+          commitOID: $commitOID
+          threads: [{
+            path: $path
+            line: $line
+            side: RIGHT
+            body: $body
+          }]
+        }) {
+          pullRequestReview {
+            id
+          }
+        }
+      }
+    ]]
+  end
+
+  local payload = {
+    query = query,
+    variables = variables,
+  }
+
+  Snacks.notify.info("Creating pending PR review comment on " .. pr_context_label(context))
+  run_gh_graphql(context, payload, function(result)
+    local decoded = parse_gh_json(result, "Failed to create pending PR comment")
+    if not decoded then
+      return
+    end
+
+    Snacks.notify.info("Created pending PR comment")
+  end)
+end
+
+local function create_pending_pr_comment(context, body)
+  local payload = {
+    query = [[
+      query($owner: String!, $repo: String!, $number: Int!) {
+        viewer {
+          login
+        }
+        repository(owner: $owner, name: $repo) {
+          pullRequest(number: $number) {
+            id
+            reviews(last: 100) {
+              nodes {
+                id
+                state
+                author {
+                  login
+                }
+              }
+            }
+          }
+        }
+      }
+    ]],
+    variables = {
+      owner = context.repo.owner,
+      repo = context.repo.name,
+      number = tonumber(context.pr_number),
+    },
+  }
+
+  run_gh_graphql(context, payload, function(result)
+    local decoded = parse_gh_json(result, "Failed to fetch pending PR reviews")
+    if not decoded then
+      return
+    end
+
+    local data = decoded.data or {}
+    local viewer = data.viewer or {}
+    local repository = data.repository or {}
+    local pull_request = repository.pullRequest or {}
+    if not pull_request.id then
+      Snacks.notify.error("Could not resolve PR #" .. context.pr_number)
+      return
+    end
+
+    local pending_review_id = nil
+    local reviews = ((pull_request.reviews or {}).nodes) or {}
+    for _, review in ipairs(reviews) do
+      local author = review.author or {}
+      if review.state == "PENDING" and author.login == viewer.login then
+        pending_review_id = review.id
+      end
+    end
+
+    if pending_review_id then
+      add_thread_to_pending_review(context, pending_review_id, body)
+    else
+      create_pending_review_with_thread(context, pull_request.id, body)
+    end
+  end)
+end
+
+local function open_pending_pr_comment_buffer(context)
+  local buf = vim.api.nvim_create_buf(false, true)
+  vim.bo[buf].buftype = "nofile"
+  vim.bo[buf].bufhidden = "wipe"
+  vim.bo[buf].swapfile = false
+  vim.bo[buf].filetype = "markdown"
+  vim.api.nvim_buf_set_name(buf, ("PR comment #%s %s"):format(context.pr_number, pr_context_label(context)))
+  vim.api.nvim_buf_set_lines(buf, 0, -1, false, { "" })
+
+  local columns = math.max(vim.o.columns, 40)
+  local lines = math.max(vim.o.lines, 12)
+  local width = math.min(math.max(math.floor(columns * 0.65), 64), columns - 4)
+  local height = math.min(math.max(math.floor(lines * 0.35), 10), lines - 6)
+  width = math.max(width, 40)
+  height = math.max(height, 6)
+
+  local win = vim.api.nvim_open_win(buf, true, {
+    relative = "editor",
+    width = width,
+    height = height,
+    row = math.max(math.floor((lines - height) / 2) - 1, 0),
+    col = math.max(math.floor((columns - width) / 2), 0),
+    style = "minimal",
+    border = "rounded",
+    title = (" PR #%s %s "):format(context.pr_number, pr_context_label(context)),
+    title_pos = "center",
+    footer = " Ctrl-S submit | Ctrl-C abort | q abort ",
+    footer_pos = "center",
+  })
+  vim.wo[win].wrap = true
+  vim.wo[win].linebreak = true
+
+  local done = false
+
+  local close = function()
+    if vim.api.nvim_win_is_valid(win) then
+      vim.api.nvim_win_close(win, true)
+    elseif vim.api.nvim_buf_is_valid(buf) then
+      vim.api.nvim_buf_delete(buf, { force = true })
+    end
+  end
+
+  local abort = function()
+    if done then
+      return
+    end
+    done = true
+    close()
+    Snacks.notify.info("Aborted PR comment")
+  end
+
+  local submit = function()
+    if done then
+      return
+    end
+
+    local body = vim.trim(table.concat(vim.api.nvim_buf_get_lines(buf, 0, -1, false), "\n"))
+    if body == "" then
+      Snacks.notify.warn("PR comment is empty")
+      return
+    end
+
+    done = true
+    close()
+    create_pending_pr_comment(context, body)
+  end
+
+  vim.keymap.set({ "n", "i", "v" }, "<C-s>", submit, { buffer = buf, desc = "Submit PR comment" })
+  vim.keymap.set({ "n", "i", "v" }, "<C-c>", abort, { buffer = buf, desc = "Abort PR comment" })
+  vim.keymap.set("n", "q", abort, { buffer = buf, desc = "Abort PR comment" })
+  vim.cmd.startinsert()
+end
+
+local function add_pending_pr_comment(range)
+  local context = current_pr_line_context(range)
+  if not context then
+    return
+  end
+
+  open_pending_pr_comment_buffer(context)
+end
+
+local function add_pending_pr_comment_for_visual_selection()
+  local range = visual_line_range()
+  if not range then
+    return
+  end
+
+  add_pending_pr_comment(range)
+end
+
 function FindCmd(filename)
   Snacks.picker({
     title = "bash history",
@@ -485,6 +1055,9 @@ return {
     { "<leader>gs", function() Snacks.picker.git_status() end, desc = "Git Status" },
     { "<leader>gm", function() Snacks.gitbrowse({ branch = "master", open = function(url) vim.fn.setreg("+", url) Snacks.notify("Copied to clipboard: " .. url) end }) end, desc = "Copy git link (master)", mode = { "n", "v" } },
     { "<leader>gM", function() Snacks.gitbrowse() end, desc = "Copy git link (current branch)", mode = { "n", "v" } },
+    { "<leader>gn", open_current_line_in_pr, desc = "Open current line in PR" },
+    { "<leader>gN", add_pending_pr_comment, desc = "Add pending PR comment" },
+    { "<leader>gN", add_pending_pr_comment_for_visual_selection, desc = "Add pending PR range comment", mode = "x" },
 
     -- Grep
     -- { "<leader>sb", function() Snacks.picker.lines() end, desc = "Buffer Lines" },
@@ -538,25 +1111,8 @@ return {
           return
         end
 
-        -- Read PR number from file
-        local pr_file = git_root .. "/PR_NUMBER"
-        local file = io.open(pr_file, "r")
-        if not file then
-          Snacks.notify.error("PR_NUMBER file not found in git root")
-          return
-        end
-
-        local pr_number = file:read("*l")
-        file:close()
-
-        if not pr_number or pr_number == "" then
-          Snacks.notify.error("PR_NUMBER file is empty")
-          return
-        end
-
-        pr_number = pr_number:match("^%s*(%d+)%s*$")
+        local pr_number = read_pr_number(git_root)
         if not pr_number then
-          Snacks.notify.error("Invalid PR number in PR_NUMBER file")
           return
         end
 
