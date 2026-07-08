@@ -6,7 +6,9 @@ vim.opt.swapfile = false
 
 local opt = vim.opt
 
-if vim.env.ZELLIJ and not vim.env.TMUX and not vim.env.DISPLAY and not vim.env.WAYLAND_DISPLAY then
+local is_remote_terminal = vim.env.ZELLIJ or vim.env.SSH_TTY or vim.env.HERDR
+local use_osc52_clipboard = is_remote_terminal and not vim.env.TMUX and not vim.env.DISPLAY and not vim.env.WAYLAND_DISPLAY
+if use_osc52_clipboard then
   local cache = {}
   local function copy(reg)
     return function(lines, regtype)
@@ -34,6 +36,15 @@ if vim.env.ZELLIJ and not vim.env.TMUX and not vim.env.DISPLAY and not vim.env.W
 end
 
 opt.clipboard = "unnamedplus" -- Sync with system clipboard
+if use_osc52_clipboard then
+  vim.api.nvim_create_autocmd("User", {
+    pattern = "VeryLazy",
+    once = true,
+    callback = function()
+      vim.opt.clipboard = "unnamedplus"
+    end,
+  })
+end
 opt.conceallevel = 1 -- Hide * markup for bold and italic
 opt.inccommand = "nosplit" -- preview incremental substitute
 opt.colorcolumn = "100" -- mark column
@@ -47,3 +58,8 @@ vim.g.lazygit_config = false
 vim.g.autoformat = false
 
 vim.g.lazyvim_picker = "snacks"
+
+-- Prefer repository markers for project-wide actions. Some LSPs, such as sqlls
+-- with ~/.sqllsrc.json, can claim $HOME as the root and make LazyGit/root grep
+-- target the wrong repository.
+vim.g.root_spec = { { ".git", "lua" }, "lsp", "cwd" }
